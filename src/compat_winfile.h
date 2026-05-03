@@ -23,8 +23,14 @@
 #define TRUNCATE_EXISTING     5
 
 /* File attribute/flag constants */
-#define FILE_ATTRIBUTE_NORMAL 0x00000080u
+#define FILE_ATTRIBUTE_READONLY   0x00000001u
+#define FILE_ATTRIBUTE_HIDDEN     0x00000002u
+#define FILE_ATTRIBUTE_SYSTEM     0x00000004u
+#define FILE_ATTRIBUTE_DIRECTORY  0x00000010u
+#define FILE_ATTRIBUTE_ARCHIVE    0x00000020u
+#define FILE_ATTRIBUTE_NORMAL     0x00000080u
 #define FILE_FLAG_SEQUENTIAL_SCAN 0x08000000u
+#define FILE_FLAG_RANDOM_ACCESS   0x10000000u
 
 /* Seek method constants */
 #define FILE_BEGIN            0
@@ -116,13 +122,18 @@ static inline DWORD GetFileSize(HANDLE h, DWORD *high)
     return (DWORD)((uint64_t)st.st_size & 0xFFFFFFFFu);
 }
 
-/* WIN32_FIND_DATA — minimal struct for FindFirstFile/FindNextFile */
+/* WIN32_FIND_DATA — full struct matching Windows layout */
 typedef struct _WIN32_FIND_DATAA {
-    DWORD dwFileAttributes;
-    DWORD nFileSizeHigh;
-    DWORD nFileSizeLow;
-    CHAR  cFileName[MAX_PATH];
-    CHAR  cAlternateFileName[14];
+    DWORD    dwFileAttributes;
+    FILETIME ftCreationTime;
+    FILETIME ftLastAccessTime;
+    FILETIME ftLastWriteTime;
+    DWORD    nFileSizeHigh;
+    DWORD    nFileSizeLow;
+    DWORD    dwReserved0;
+    DWORD    dwReserved1;
+    CHAR     cFileName[MAX_PATH];
+    CHAR     cAlternateFileName[14];
 } WIN32_FIND_DATAA;
 #ifndef WIN32_FIND_DATA
 #define WIN32_FIND_DATA WIN32_FIND_DATAA
@@ -147,6 +158,7 @@ static inline BOOL FindClose(HANDLE h)
 
 #define FindFirstFile  FindFirstFileA
 #define FindNextFile   FindNextFileA
+#define CreateFile     CreateFileA
 
 #endif /* !_WIN32 */
 #endif /* COMPAT_WINFILE_H */

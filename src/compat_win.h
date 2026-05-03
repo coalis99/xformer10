@@ -74,7 +74,7 @@ typedef int32_t   HRESULT;
 #define FAILED(hr)    ((HRESULT)(hr) < 0)
 
 /* Function pointer / string types */
-typedef void     *FARPROC;
+typedef intptr_t (*FARPROC)(void);
 typedef const char *PCSTR;
 typedef const uint16_t *PCWSTR;
 typedef uint16_t *PWSTR;
@@ -182,6 +182,70 @@ typedef struct _SYSTEM_INFO {
     WORD      wProcessorRevision;
 } SYSTEM_INFO;
 
+/* INT_PTR / UINT_PTR signed/unsigned pointer-sized integer */
+typedef intptr_t  INT_PTR;
+
+/* FILETIME and SYSTEMTIME (used by mac_hfs.c and WIN32_FIND_DATA) */
+typedef struct _FILETIME { DWORD dwLowDateTime; DWORD dwHighDateTime; } FILETIME;
+typedef struct _SYSTEMTIME {
+    WORD wYear; WORD wMonth; WORD wDayOfWeek; WORD wDay;
+    WORD wHour; WORD wMinute; WORD wSecond; WORD wMilliseconds;
+} SYSTEMTIME;
+static inline BOOL SystemTimeToFileTime(const SYSTEMTIME *st, FILETIME *ft)
+    { (void)st; if (ft) { ft->dwLowDateTime = 0; ft->dwHighDateTime = 0; } return TRUE; }
+static inline BOOL FileTimeToSystemTime(const FILETIME *ft, SYSTEMTIME *st)
+    { (void)ft; if (st) { st->wYear=1904; st->wMonth=1; st->wDay=1; st->wHour=0; st->wMinute=0; st->wSecond=0; st->wMilliseconds=0; st->wDayOfWeek=0; } return TRUE; }
+
+/* Drive type constants (used by PdiOpenDisk in blockapi.c) */
+#define DRIVE_UNKNOWN         0
+#define DRIVE_NO_ROOT_DIR     1
+#define DRIVE_REMOVABLE       2
+#define DRIVE_FIXED           3
+#define DRIVE_REMOTE          4
+#define DRIVE_CDROM           5
+#define DRIVE_RAMDISK         6
+static inline UINT GetDriveType(const char *path) { (void)path; return DRIVE_UNKNOWN; } // PHASE3:
+
+/* Dynamic library stubs (ASPI not available on Linux) */
+static inline HANDLE LoadLibrary(const char *name) { (void)name; return NULL; } // PHASE3:
+static inline FARPROC GetProcAddress(HANDLE h, const char *name) { (void)h; (void)name; return NULL; } // PHASE3:
+static inline BOOL FreeLibrary(HANDLE h) { (void)h; return TRUE; } // PHASE3:
+
+/* Heap compact stub */
+static inline DWORD HeapCompact(HANDLE h, DWORD flags) { (void)h; (void)flags; return 0; }
+
+/* VirtualAlloc/VirtualFree stubs (disk I/O buffers; map to malloc/free) */
+#define MEM_COMMIT     0x1000
+#define MEM_RESERVE    0x2000
+#define MEM_DECOMMIT   0x4000
+#define MEM_RELEASE    0x8000
+#define PAGE_READWRITE 0x04
+#define PAGE_READONLY  0x02
+static inline void *VirtualAlloc(void *addr, size_t sz, DWORD type, DWORD prot)
+    { (void)addr; (void)type; (void)prot; return malloc(sz); } // PHASE3:
+static inline BOOL VirtualFree(void *p, size_t sz, DWORD type)
+    { (void)sz; if (type & MEM_RELEASE) free(p); return TRUE; } // PHASE3:
+
+/* SetErrorMode stub */
+#define SEM_FAILCRITICALERRORS 0x0001
+static inline DWORD SetErrorMode(DWORD mode) { (void)mode; return 0; } // PHASE3:
+
+/* FSCTL constants (from winioctl.h; all disk I/O stubbed to FALSE) */
+#define FSCTL_LOCK_VOLUME      0x00090018
+#define FSCTL_UNLOCK_VOLUME    0x0009001C
+#define FSCTL_DISMOUNT_VOLUME  0x00090020
+
+/* MEDIA_TYPE enum value used in sectorio.c */
+#define F3_720_512  6
+
+/* DeviceIoControl stub (raw disk I/O not needed in Phase 1) */
+typedef void *LPOVERLAPPED;
+static inline BOOL DeviceIoControl(HANDLE h, DWORD code, void *in, DWORD inSz,
+                                    void *out, DWORD outSz, DWORD *ret, LPOVERLAPPED ov)
+    { (void)h; (void)code; (void)in; (void)inSz; (void)out; (void)outSz; (void)ret; (void)ov; return FALSE; } // PHASE3:
+#define IOCTL_DISK_GET_DRIVE_GEOMETRY 0x00070000
+#define IOCTL_DISK_GET_PARTITION_INFO  0x00074004
+
 /* Disk geometry stub (for blockdev.h GetDiskGeometry) */
 typedef struct _DISK_GEOMETRY {
     LONGLONG Cylinders;
@@ -203,6 +267,11 @@ static inline void *GetFocus(void) { return NULL; }
 #define wsprintf sprintf
 #ifndef __debugbreak
 #define __debugbreak() __builtin_trap()
+#endif
+
+/* VOID alias (used in old Win32 headers like wnaspi32.h) */
+#ifndef VOID
+#define VOID void
 #endif
 
 /* Near-memory copy/set aliases */
