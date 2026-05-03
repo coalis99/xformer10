@@ -104,12 +104,12 @@ typedef BYTE(__fastcall *PFNREAD)(void *, ADDR);
 typedef BOOL(__fastcall *PFNWRITE)(void *, ADDR, BYTE);
 
 #include "gemul8r.h"    // build flags
-#include "blocklib\blockdev.h"
-#include "res\resource.h"
+#include "blocklib/blockdev.h"
+#include "res/resource.h"
 #include "cpu.h"
 #if defined(ATARIST) || defined(SOFTMAC)
-#include "memlib\memlib.h"
-#include "680x0.cpu\68k.h"
+#include "memlib/memlib.h"
+#include "680x0.cpu/68k.h"
 #endif
 
 // only one of these should be set at any one time
