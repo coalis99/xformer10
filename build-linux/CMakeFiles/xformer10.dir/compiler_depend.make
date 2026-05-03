@@ -24,8 +24,20 @@ CMakeFiles/xformer10.dir/src/atari8.vm/atari800.c.o: /home/coalis/ClaudeCodeProj
   /usr/include/aarch64-linux-gnu/bits/wchar.h \
   /usr/include/aarch64-linux-gnu/bits/stdint-intn.h \
   /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h \
-  /usr/include/string.h \
+  /usr/include/stdio.h \
   /usr/lib/gcc/aarch64-linux-gnu/12/include/stddef.h \
+  /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h \
+  /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
+  /usr/include/aarch64-linux-gnu/bits/floatn.h \
+  /usr/include/aarch64-linux-gnu/bits/floatn-common.h \
+  /usr/include/string.h \
   /usr/include/aarch64-linux-gnu/bits/types/locale_t.h \
   /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h \
   /usr/include/strings.h \
@@ -65,18 +77,6 @@ CMakeFiles/xformer10.dir/src/atari8.vm/atari800.c.o: /home/coalis/ClaudeCodeProj
   /usr/include/aarch64-linux-gnu/bits/statx-generic.h \
   /usr/include/aarch64-linux-gnu/bits/types/struct_statx_timestamp.h \
   /usr/include/aarch64-linux-gnu/bits/types/struct_statx.h \
-  /usr/include/stdio.h \
-  /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h \
-  /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
-  /usr/include/aarch64-linux-gnu/bits/floatn.h \
-  /usr/include/aarch64-linux-gnu/bits/floatn-common.h \
   /usr/include/stdlib.h \
   /usr/include/aarch64-linux-gnu/bits/waitflags.h \
   /usr/include/aarch64-linux-gnu/bits/waitstatus.h \
@@ -154,8 +154,20 @@ CMakeFiles/xformer10.dir/src/atari8.vm/x6502.c.o: /home/coalis/ClaudeCodeProject
   /usr/include/aarch64-linux-gnu/bits/wchar.h \
   /usr/include/aarch64-linux-gnu/bits/stdint-intn.h \
   /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h \
-  /usr/include/string.h \
+  /usr/include/stdio.h \
   /usr/lib/gcc/aarch64-linux-gnu/12/include/stddef.h \
+  /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h \
+  /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
+  /usr/include/aarch64-linux-gnu/bits/floatn.h \
+  /usr/include/aarch64-linux-gnu/bits/floatn-common.h \
+  /usr/include/string.h \
   /usr/include/aarch64-linux-gnu/bits/types/locale_t.h \
   /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h \
   /usr/include/strings.h \
@@ -195,18 +207,6 @@ CMakeFiles/xformer10.dir/src/atari8.vm/x6502.c.o: /home/coalis/ClaudeCodeProject
   /usr/include/aarch64-linux-gnu/bits/statx-generic.h \
   /usr/include/aarch64-linux-gnu/bits/types/struct_statx_timestamp.h \
   /usr/include/aarch64-linux-gnu/bits/types/struct_statx.h \
-  /usr/include/stdio.h \
-  /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h \
-  /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
-  /usr/include/aarch64-linux-gnu/bits/floatn.h \
-  /usr/include/aarch64-linux-gnu/bits/floatn-common.h \
   /usr/include/stdlib.h \
   /usr/include/aarch64-linux-gnu/bits/waitflags.h \
   /usr/include/aarch64-linux-gnu/bits/waitstatus.h \
@@ -266,8 +266,20 @@ CMakeFiles/xformer10.dir/src/atari8.vm/xkey.c.o: /home/coalis/ClaudeCodeProjects
   /usr/include/aarch64-linux-gnu/bits/wchar.h \
   /usr/include/aarch64-linux-gnu/bits/stdint-intn.h \
   /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h \
-  /usr/include/string.h \
+  /usr/include/stdio.h \
   /usr/lib/gcc/aarch64-linux-gnu/12/include/stddef.h \
+  /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h \
+  /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
+  /usr/include/aarch64-linux-gnu/bits/floatn.h \
+  /usr/include/aarch64-linux-gnu/bits/floatn-common.h \
+  /usr/include/string.h \
   /usr/include/aarch64-linux-gnu/bits/types/locale_t.h \
   /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h \
   /usr/include/strings.h \
@@ -307,18 +319,6 @@ CMakeFiles/xformer10.dir/src/atari8.vm/xkey.c.o: /home/coalis/ClaudeCodeProjects
   /usr/include/aarch64-linux-gnu/bits/statx-generic.h \
   /usr/include/aarch64-linux-gnu/bits/types/struct_statx_timestamp.h \
   /usr/include/aarch64-linux-gnu/bits/types/struct_statx.h \
-  /usr/include/stdio.h \
-  /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h \
-  /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
-  /usr/include/aarch64-linux-gnu/bits/floatn.h \
-  /usr/include/aarch64-linux-gnu/bits/floatn-common.h \
   /usr/include/stdlib.h \
   /usr/include/aarch64-linux-gnu/bits/waitflags.h \
   /usr/include/aarch64-linux-gnu/bits/waitstatus.h \
@@ -400,8 +400,20 @@ CMakeFiles/xformer10.dir/src/atari8.vm/xlxeram.c.o: /home/coalis/ClaudeCodeProje
   /usr/include/aarch64-linux-gnu/bits/wchar.h \
   /usr/include/aarch64-linux-gnu/bits/stdint-intn.h \
   /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h \
-  /usr/include/string.h \
+  /usr/include/stdio.h \
   /usr/lib/gcc/aarch64-linux-gnu/12/include/stddef.h \
+  /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h \
+  /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
+  /usr/include/aarch64-linux-gnu/bits/floatn.h \
+  /usr/include/aarch64-linux-gnu/bits/floatn-common.h \
+  /usr/include/string.h \
   /usr/include/aarch64-linux-gnu/bits/types/locale_t.h \
   /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h \
   /usr/include/strings.h \
@@ -419,18 +431,6 @@ CMakeFiles/xformer10.dir/src/atari8.vm/xlxeram.c.o: /home/coalis/ClaudeCodeProje
   /usr/include/aarch64-linux-gnu/bits/types/struct_iovec.h \
   /usr/include/linux/falloc.h \
   /home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/compat_winfile.h \
-  /usr/include/stdio.h \
-  /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h \
-  /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
-  /usr/include/aarch64-linux-gnu/bits/floatn.h \
-  /usr/include/aarch64-linux-gnu/bits/floatn-common.h \
   /usr/include/stdlib.h \
   /usr/include/aarch64-linux-gnu/bits/waitflags.h \
   /usr/include/aarch64-linux-gnu/bits/waitstatus.h \
@@ -488,8 +488,20 @@ CMakeFiles/xformer10.dir/src/atari8.vm/xmon.c.o: /home/coalis/ClaudeCodeProjects
   /usr/include/aarch64-linux-gnu/bits/wchar.h \
   /usr/include/aarch64-linux-gnu/bits/stdint-intn.h \
   /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h \
-  /usr/include/string.h \
+  /usr/include/stdio.h \
   /usr/lib/gcc/aarch64-linux-gnu/12/include/stddef.h \
+  /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h \
+  /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
+  /usr/include/aarch64-linux-gnu/bits/floatn.h \
+  /usr/include/aarch64-linux-gnu/bits/floatn-common.h \
+  /usr/include/string.h \
   /usr/include/aarch64-linux-gnu/bits/types/locale_t.h \
   /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h \
   /usr/include/strings.h \
@@ -529,18 +541,6 @@ CMakeFiles/xformer10.dir/src/atari8.vm/xmon.c.o: /home/coalis/ClaudeCodeProjects
   /usr/include/aarch64-linux-gnu/bits/statx-generic.h \
   /usr/include/aarch64-linux-gnu/bits/types/struct_statx_timestamp.h \
   /usr/include/aarch64-linux-gnu/bits/types/struct_statx.h \
-  /usr/include/stdio.h \
-  /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h \
-  /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
-  /usr/include/aarch64-linux-gnu/bits/floatn.h \
-  /usr/include/aarch64-linux-gnu/bits/floatn-common.h \
   /usr/include/stdlib.h \
   /usr/include/aarch64-linux-gnu/bits/waitflags.h \
   /usr/include/aarch64-linux-gnu/bits/waitstatus.h \
@@ -602,8 +602,20 @@ CMakeFiles/xformer10.dir/src/atari8.vm/xsio.c.o: /home/coalis/ClaudeCodeProjects
   /usr/include/aarch64-linux-gnu/bits/wchar.h \
   /usr/include/aarch64-linux-gnu/bits/stdint-intn.h \
   /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h \
-  /usr/include/string.h \
+  /usr/include/stdio.h \
   /usr/lib/gcc/aarch64-linux-gnu/12/include/stddef.h \
+  /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h \
+  /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
+  /usr/include/aarch64-linux-gnu/bits/floatn.h \
+  /usr/include/aarch64-linux-gnu/bits/floatn-common.h \
+  /usr/include/string.h \
   /usr/include/aarch64-linux-gnu/bits/types/locale_t.h \
   /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h \
   /usr/include/strings.h \
@@ -643,18 +655,6 @@ CMakeFiles/xformer10.dir/src/atari8.vm/xsio.c.o: /home/coalis/ClaudeCodeProjects
   /usr/include/aarch64-linux-gnu/bits/statx-generic.h \
   /usr/include/aarch64-linux-gnu/bits/types/struct_statx_timestamp.h \
   /usr/include/aarch64-linux-gnu/bits/types/struct_statx.h \
-  /usr/include/stdio.h \
-  /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h \
-  /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
-  /usr/include/aarch64-linux-gnu/bits/floatn.h \
-  /usr/include/aarch64-linux-gnu/bits/floatn-common.h \
   /usr/include/stdlib.h \
   /usr/include/aarch64-linux-gnu/bits/waitflags.h \
   /usr/include/aarch64-linux-gnu/bits/waitstatus.h \
@@ -714,8 +714,20 @@ CMakeFiles/xformer10.dir/src/atari8.vm/xvideo.c.o: /home/coalis/ClaudeCodeProjec
   /usr/include/aarch64-linux-gnu/bits/wchar.h \
   /usr/include/aarch64-linux-gnu/bits/stdint-intn.h \
   /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h \
-  /usr/include/string.h \
+  /usr/include/stdio.h \
   /usr/lib/gcc/aarch64-linux-gnu/12/include/stddef.h \
+  /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h \
+  /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
+  /usr/include/aarch64-linux-gnu/bits/floatn.h \
+  /usr/include/aarch64-linux-gnu/bits/floatn-common.h \
+  /usr/include/string.h \
   /usr/include/aarch64-linux-gnu/bits/types/locale_t.h \
   /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h \
   /usr/include/strings.h \
@@ -755,18 +767,6 @@ CMakeFiles/xformer10.dir/src/atari8.vm/xvideo.c.o: /home/coalis/ClaudeCodeProjec
   /usr/include/aarch64-linux-gnu/bits/statx-generic.h \
   /usr/include/aarch64-linux-gnu/bits/types/struct_statx_timestamp.h \
   /usr/include/aarch64-linux-gnu/bits/types/struct_statx.h \
-  /usr/include/stdio.h \
-  /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h \
-  /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
-  /usr/include/aarch64-linux-gnu/bits/floatn.h \
-  /usr/include/aarch64-linux-gnu/bits/floatn-common.h \
   /usr/include/stdlib.h \
   /usr/include/aarch64-linux-gnu/bits/waitflags.h \
   /usr/include/aarch64-linux-gnu/bits/waitstatus.h \
@@ -824,8 +824,20 @@ CMakeFiles/xformer10.dir/src/ddlib.c.o: /home/coalis/ClaudeCodeProjects/XFormer/
   /usr/include/aarch64-linux-gnu/bits/wchar.h \
   /usr/include/aarch64-linux-gnu/bits/stdint-intn.h \
   /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h \
-  /usr/include/string.h \
+  /usr/include/stdio.h \
   /usr/lib/gcc/aarch64-linux-gnu/12/include/stddef.h \
+  /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h \
+  /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
+  /usr/include/aarch64-linux-gnu/bits/floatn.h \
+  /usr/include/aarch64-linux-gnu/bits/floatn-common.h \
+  /usr/include/string.h \
   /usr/include/aarch64-linux-gnu/bits/types/locale_t.h \
   /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h \
   /usr/include/strings.h \
@@ -865,18 +877,6 @@ CMakeFiles/xformer10.dir/src/ddlib.c.o: /home/coalis/ClaudeCodeProjects/XFormer/
   /usr/include/aarch64-linux-gnu/bits/statx-generic.h \
   /usr/include/aarch64-linux-gnu/bits/types/struct_statx_timestamp.h \
   /usr/include/aarch64-linux-gnu/bits/types/struct_statx.h \
-  /usr/include/stdio.h \
-  /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h \
-  /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
-  /usr/include/aarch64-linux-gnu/bits/floatn.h \
-  /usr/include/aarch64-linux-gnu/bits/floatn-common.h \
   /usr/include/stdlib.h \
   /usr/include/aarch64-linux-gnu/bits/waitflags.h \
   /usr/include/aarch64-linux-gnu/bits/waitstatus.h \
@@ -936,8 +936,20 @@ CMakeFiles/xformer10.dir/src/printer.c.o: /home/coalis/ClaudeCodeProjects/XForme
   /usr/include/aarch64-linux-gnu/bits/wchar.h \
   /usr/include/aarch64-linux-gnu/bits/stdint-intn.h \
   /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h \
-  /usr/include/string.h \
+  /usr/include/stdio.h \
   /usr/lib/gcc/aarch64-linux-gnu/12/include/stddef.h \
+  /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h \
+  /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
+  /usr/include/aarch64-linux-gnu/bits/floatn.h \
+  /usr/include/aarch64-linux-gnu/bits/floatn-common.h \
+  /usr/include/string.h \
   /usr/include/aarch64-linux-gnu/bits/types/locale_t.h \
   /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h \
   /usr/include/strings.h \
@@ -977,18 +989,6 @@ CMakeFiles/xformer10.dir/src/printer.c.o: /home/coalis/ClaudeCodeProjects/XForme
   /usr/include/aarch64-linux-gnu/bits/statx-generic.h \
   /usr/include/aarch64-linux-gnu/bits/types/struct_statx_timestamp.h \
   /usr/include/aarch64-linux-gnu/bits/types/struct_statx.h \
-  /usr/include/stdio.h \
-  /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h \
-  /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
-  /usr/include/aarch64-linux-gnu/bits/floatn.h \
-  /usr/include/aarch64-linux-gnu/bits/floatn-common.h \
   /usr/include/stdlib.h \
   /usr/include/aarch64-linux-gnu/bits/waitflags.h \
   /usr/include/aarch64-linux-gnu/bits/waitstatus.h \
@@ -1045,8 +1045,20 @@ CMakeFiles/xformer10.dir/src/props.c.o: /home/coalis/ClaudeCodeProjects/XFormer/
   /usr/include/aarch64-linux-gnu/bits/wchar.h \
   /usr/include/aarch64-linux-gnu/bits/stdint-intn.h \
   /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h \
-  /usr/include/string.h \
+  /usr/include/stdio.h \
   /usr/lib/gcc/aarch64-linux-gnu/12/include/stddef.h \
+  /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h \
+  /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
+  /usr/include/aarch64-linux-gnu/bits/floatn.h \
+  /usr/include/aarch64-linux-gnu/bits/floatn-common.h \
+  /usr/include/string.h \
   /usr/include/aarch64-linux-gnu/bits/types/locale_t.h \
   /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h \
   /usr/include/strings.h \
@@ -1086,18 +1098,6 @@ CMakeFiles/xformer10.dir/src/props.c.o: /home/coalis/ClaudeCodeProjects/XFormer/
   /usr/include/aarch64-linux-gnu/bits/statx-generic.h \
   /usr/include/aarch64-linux-gnu/bits/types/struct_statx_timestamp.h \
   /usr/include/aarch64-linux-gnu/bits/types/struct_statx.h \
-  /usr/include/stdio.h \
-  /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h \
-  /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
-  /usr/include/aarch64-linux-gnu/bits/floatn.h \
-  /usr/include/aarch64-linux-gnu/bits/floatn-common.h \
   /usr/include/stdlib.h \
   /usr/include/aarch64-linux-gnu/bits/waitflags.h \
   /usr/include/aarch64-linux-gnu/bits/waitstatus.h \
@@ -1157,8 +1157,20 @@ CMakeFiles/xformer10.dir/src/serial.c.o: /home/coalis/ClaudeCodeProjects/XFormer
   /usr/include/aarch64-linux-gnu/bits/wchar.h \
   /usr/include/aarch64-linux-gnu/bits/stdint-intn.h \
   /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h \
-  /usr/include/string.h \
+  /usr/include/stdio.h \
   /usr/lib/gcc/aarch64-linux-gnu/12/include/stddef.h \
+  /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h \
+  /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
+  /usr/include/aarch64-linux-gnu/bits/floatn.h \
+  /usr/include/aarch64-linux-gnu/bits/floatn-common.h \
+  /usr/include/string.h \
   /usr/include/aarch64-linux-gnu/bits/types/locale_t.h \
   /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h \
   /usr/include/strings.h \
@@ -1198,18 +1210,6 @@ CMakeFiles/xformer10.dir/src/serial.c.o: /home/coalis/ClaudeCodeProjects/XFormer
   /usr/include/aarch64-linux-gnu/bits/statx-generic.h \
   /usr/include/aarch64-linux-gnu/bits/types/struct_statx_timestamp.h \
   /usr/include/aarch64-linux-gnu/bits/types/struct_statx.h \
-  /usr/include/stdio.h \
-  /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h \
-  /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
-  /usr/include/aarch64-linux-gnu/bits/floatn.h \
-  /usr/include/aarch64-linux-gnu/bits/floatn-common.h \
   /usr/include/stdlib.h \
   /usr/include/aarch64-linux-gnu/bits/waitflags.h \
   /usr/include/aarch64-linux-gnu/bits/waitstatus.h \
@@ -1266,8 +1266,20 @@ CMakeFiles/xformer10.dir/src/sound.c.o: /home/coalis/ClaudeCodeProjects/XFormer/
   /usr/include/aarch64-linux-gnu/bits/wchar.h \
   /usr/include/aarch64-linux-gnu/bits/stdint-intn.h \
   /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h \
-  /usr/include/string.h \
+  /usr/include/stdio.h \
   /usr/lib/gcc/aarch64-linux-gnu/12/include/stddef.h \
+  /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h \
+  /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h \
+  /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
+  /usr/include/aarch64-linux-gnu/bits/floatn.h \
+  /usr/include/aarch64-linux-gnu/bits/floatn-common.h \
+  /usr/include/string.h \
   /usr/include/aarch64-linux-gnu/bits/types/locale_t.h \
   /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h \
   /usr/include/strings.h \
@@ -1307,18 +1319,6 @@ CMakeFiles/xformer10.dir/src/sound.c.o: /home/coalis/ClaudeCodeProjects/XFormer/
   /usr/include/aarch64-linux-gnu/bits/statx-generic.h \
   /usr/include/aarch64-linux-gnu/bits/types/struct_statx_timestamp.h \
   /usr/include/aarch64-linux-gnu/bits/types/struct_statx.h \
-  /usr/include/stdio.h \
-  /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h \
-  /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h \
-  /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
-  /usr/include/aarch64-linux-gnu/bits/floatn.h \
-  /usr/include/aarch64-linux-gnu/bits/floatn-common.h \
   /usr/include/stdlib.h \
   /usr/include/aarch64-linux-gnu/bits/waitflags.h \
   /usr/include/aarch64-linux-gnu/bits/waitstatus.h \
@@ -1362,45 +1362,51 @@ CMakeFiles/xformer10.dir/src/sound.c.o: /home/coalis/ClaudeCodeProjects/XFormer/
 
 /home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/romcard.c:
 
-/usr/include/linux/stddef.h:
-
-/usr/include/linux/falloc.h:
-
-/usr/include/linux/posix_types.h:
-
-/usr/include/asm-generic/bitsperlong.h:
-
-/home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/blocklib/blockdev.h:
-
-/usr/lib/linux/uapi/arm64/asm/bitsperlong.h:
-
-/usr/include/asm-generic/types.h:
-
-/usr/include/aarch64-linux-gnu/bits/wordsize.h:
-
-/usr/include/aarch64-linux-gnu/sys/stat.h:
-
-/usr/include/aarch64-linux-gnu/bits/getopt_core.h:
-
 /home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/compat_winfile.h:
 
 /home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/atari8.vm/atarixlo.c:
 
-/usr/include/aarch64-linux-gnu/bits/stat.h:
+/usr/include/linux/falloc.h:
 
-/usr/lib/linux/uapi/arm64/asm/posix_types.h:
-
-/usr/include/aarch64-linux-gnu/bits/types/struct_timeval.h:
+/usr/include/linux/stddef.h:
 
 /usr/include/linux/close_range.h:
 
 /usr/include/aarch64-linux-gnu/bits/types/struct_timespec.h:
 
+/usr/include/aarch64-linux-gnu/bits/getopt_core.h:
+
 /usr/include/aarch64-linux-gnu/bits/confname.h:
 
 /usr/include/aarch64-linux-gnu/bits/types/struct_itimerspec.h:
 
+/usr/include/strings.h:
+
+/usr/include/aarch64-linux-gnu/bits/types/__locale_t.h:
+
+/usr/include/aarch64-linux-gnu/bits/floatn-common.h:
+
+/usr/include/aarch64-linux-gnu/bits/stdio_lim.h:
+
+/usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h:
+
+/home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/atari8.vm/atarikey.c:
+
+/usr/include/unistd.h:
+
+/usr/include/aarch64-linux-gnu/bits/types/FILE.h:
+
+/usr/include/linux/types.h:
+
+/home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/atari8.vm/xmon.c:
+
+/usr/include/aarch64-linux-gnu/bits/wordsize.h:
+
+/usr/include/asm-generic/types.h:
+
 /usr/include/features.h:
+
+/usr/include/aarch64-linux-gnu/bits/types/__FILE.h:
 
 /usr/include/aarch64-linux-gnu/bits/wchar.h:
 
@@ -1411,6 +1417,22 @@ CMakeFiles/xformer10.dir/src/sound.c.o: /home/coalis/ClaudeCodeProjects/XFormer/
 /usr/include/features-time64.h:
 
 /home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/atari8.vm/common.h:
+
+/usr/include/aarch64-linux-gnu/bits/stat.h:
+
+/usr/include/aarch64-linux-gnu/bits/fcntl.h:
+
+/usr/include/aarch64-linux-gnu/bits/posix_opt.h:
+
+/usr/include/aarch64-linux-gnu/bits/floatn.h:
+
+/usr/include/string.h:
+
+/usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h:
+
+/usr/include/aarch64-linux-gnu/bits/long-double.h:
+
+/home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/atari8.vm/xvideo.c:
 
 /usr/include/aarch64-linux-gnu/gnu/stubs-lp64.h:
 
@@ -1448,12 +1470,6 @@ CMakeFiles/xformer10.dir/src/sound.c.o: /home/coalis/ClaudeCodeProjects/XFormer/
 
 /home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/main_linux.c:
 
-/usr/include/aarch64-linux-gnu/sys/cdefs.h:
-
-/usr/include/aarch64-linux-gnu/bits/uintn-identity.h:
-
-/usr/include/linux/stat.h:
-
 /usr/include/aarch64-linux-gnu/gnu/stubs.h:
 
 /usr/include/aarch64-linux-gnu/bits/stdint-intn.h:
@@ -1464,27 +1480,55 @@ CMakeFiles/xformer10.dir/src/sound.c.o: /home/coalis/ClaudeCodeProjects/XFormer/
 
 /home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/atari8.vm/xlxeram.c:
 
-/usr/include/string.h:
-
-/usr/include/aarch64-linux-gnu/bits/fcntl.h:
-
-/usr/include/aarch64-linux-gnu/bits/posix_opt.h:
-
-/usr/include/aarch64-linux-gnu/bits/floatn.h:
+/usr/include/stdio.h:
 
 /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h:
 
-/usr/include/aarch64-linux-gnu/bits/types/__locale_t.h:
+/usr/include/aarch64-linux-gnu/sys/cdefs.h:
 
-/usr/include/aarch64-linux-gnu/bits/floatn-common.h:
+/usr/include/aarch64-linux-gnu/bits/uintn-identity.h:
 
-/usr/include/strings.h:
+/usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h:
 
-/usr/include/unistd.h:
+/usr/include/aarch64-linux-gnu/bits/time.h:
+
+/usr/include/aarch64-linux-gnu/bits/stdlib-float.h:
+
+/usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h:
+
+/home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/printer.c:
+
+/usr/include/aarch64-linux-gnu/sys/stat.h:
+
+/usr/include/aarch64-linux-gnu/bits/fcntl-linux.h:
+
+/usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h:
+
+/usr/include/aarch64-linux-gnu/bits/statx.h:
+
+/usr/include/linux/stat.h:
+
+/usr/lib/linux/uapi/arm64/asm/posix_types.h:
+
+/usr/include/aarch64-linux-gnu/bits/types/struct_timeval.h:
+
+/usr/lib/linux/uapi/arm64/asm/bitsperlong.h:
+
+/usr/include/asm-generic/bitsperlong.h:
+
+/home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/blocklib/blockdev.h:
+
+/usr/include/linux/posix_types.h:
 
 /usr/include/stdc-predef.h:
 
 /usr/include/asm-generic/posix_types.h:
+
+/usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h:
+
+/usr/include/stdint.h:
+
+/usr/include/aarch64-linux-gnu/bits/statx-generic.h:
 
 /usr/include/aarch64-linux-gnu/bits/environments.h:
 
@@ -1499,50 +1543,6 @@ CMakeFiles/xformer10.dir/src/sound.c.o: /home/coalis/ClaudeCodeProjects/XFormer/
 /usr/include/aarch64-linux-gnu/bits/types/struct_statx.h:
 
 /home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/res/resource.h:
-
-/usr/include/stdio.h:
-
-/usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h:
-
-/usr/include/aarch64-linux-gnu/bits/stdio_lim.h:
-
-/usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h:
-
-/usr/include/aarch64-linux-gnu/bits/time.h:
-
-/usr/include/aarch64-linux-gnu/bits/stdlib-float.h:
-
-/usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h:
-
-/usr/include/aarch64-linux-gnu/bits/long-double.h:
-
-/home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/atari8.vm/xvideo.c:
-
-/usr/include/aarch64-linux-gnu/bits/statx.h:
-
-/usr/include/aarch64-linux-gnu/bits/fcntl-linux.h:
-
-/usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h:
-
-/home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/printer.c:
-
-/usr/include/aarch64-linux-gnu/bits/types/__FILE.h:
-
-/usr/include/aarch64-linux-gnu/bits/types/FILE.h:
-
-/usr/include/linux/types.h:
-
-/home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/atari8.vm/xmon.c:
-
-/usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h:
-
-/usr/include/stdint.h:
-
-/usr/include/aarch64-linux-gnu/bits/statx-generic.h:
-
-/usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h:
-
-/home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/atari8.vm/atarikey.c:
 
 /usr/include/stdlib.h:
 

@@ -25,8 +25,20 @@ CMakeFiles/xformer10.dir/src/atari8.vm/atari800.c.o
  /usr/include/aarch64-linux-gnu/bits/wchar.h
  /usr/include/aarch64-linux-gnu/bits/stdint-intn.h
  /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h
- /usr/include/string.h
+ /usr/include/stdio.h
  /usr/lib/gcc/aarch64-linux-gnu/12/include/stddef.h
+ /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h
+ /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h
+ /usr/include/aarch64-linux-gnu/bits/stdio_lim.h
+ /usr/include/aarch64-linux-gnu/bits/floatn.h
+ /usr/include/aarch64-linux-gnu/bits/floatn-common.h
+ /usr/include/string.h
  /usr/include/aarch64-linux-gnu/bits/types/locale_t.h
  /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h
  /usr/include/strings.h
@@ -66,18 +78,6 @@ CMakeFiles/xformer10.dir/src/atari8.vm/atari800.c.o
  /usr/include/aarch64-linux-gnu/bits/statx-generic.h
  /usr/include/aarch64-linux-gnu/bits/types/struct_statx_timestamp.h
  /usr/include/aarch64-linux-gnu/bits/types/struct_statx.h
- /usr/include/stdio.h
- /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h
- /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h
- /usr/include/aarch64-linux-gnu/bits/stdio_lim.h
- /usr/include/aarch64-linux-gnu/bits/floatn.h
- /usr/include/aarch64-linux-gnu/bits/floatn-common.h
  /usr/include/stdlib.h
  /usr/include/aarch64-linux-gnu/bits/waitflags.h
  /usr/include/aarch64-linux-gnu/bits/waitstatus.h
@@ -162,8 +162,20 @@ CMakeFiles/xformer10.dir/src/atari8.vm/x6502.c.o
  /usr/include/aarch64-linux-gnu/bits/wchar.h
  /usr/include/aarch64-linux-gnu/bits/stdint-intn.h
  /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h
- /usr/include/string.h
+ /usr/include/stdio.h
  /usr/lib/gcc/aarch64-linux-gnu/12/include/stddef.h
+ /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h
+ /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h
+ /usr/include/aarch64-linux-gnu/bits/stdio_lim.h
+ /usr/include/aarch64-linux-gnu/bits/floatn.h
+ /usr/include/aarch64-linux-gnu/bits/floatn-common.h
+ /usr/include/string.h
  /usr/include/aarch64-linux-gnu/bits/types/locale_t.h
  /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h
  /usr/include/strings.h
@@ -203,18 +215,6 @@ CMakeFiles/xformer10.dir/src/atari8.vm/x6502.c.o
  /usr/include/aarch64-linux-gnu/bits/statx-generic.h
  /usr/include/aarch64-linux-gnu/bits/types/struct_statx_timestamp.h
  /usr/include/aarch64-linux-gnu/bits/types/struct_statx.h
- /usr/include/stdio.h
- /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h
- /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h
- /usr/include/aarch64-linux-gnu/bits/stdio_lim.h
- /usr/include/aarch64-linux-gnu/bits/floatn.h
- /usr/include/aarch64-linux-gnu/bits/floatn-common.h
  /usr/include/stdlib.h
  /usr/include/aarch64-linux-gnu/bits/waitflags.h
  /usr/include/aarch64-linux-gnu/bits/waitstatus.h
@@ -275,8 +275,20 @@ CMakeFiles/xformer10.dir/src/atari8.vm/xkey.c.o
  /usr/include/aarch64-linux-gnu/bits/wchar.h
  /usr/include/aarch64-linux-gnu/bits/stdint-intn.h
  /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h
- /usr/include/string.h
+ /usr/include/stdio.h
  /usr/lib/gcc/aarch64-linux-gnu/12/include/stddef.h
+ /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h
+ /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h
+ /usr/include/aarch64-linux-gnu/bits/stdio_lim.h
+ /usr/include/aarch64-linux-gnu/bits/floatn.h
+ /usr/include/aarch64-linux-gnu/bits/floatn-common.h
+ /usr/include/string.h
  /usr/include/aarch64-linux-gnu/bits/types/locale_t.h
  /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h
  /usr/include/strings.h
@@ -316,18 +328,6 @@ CMakeFiles/xformer10.dir/src/atari8.vm/xkey.c.o
  /usr/include/aarch64-linux-gnu/bits/statx-generic.h
  /usr/include/aarch64-linux-gnu/bits/types/struct_statx_timestamp.h
  /usr/include/aarch64-linux-gnu/bits/types/struct_statx.h
- /usr/include/stdio.h
- /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h
- /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h
- /usr/include/aarch64-linux-gnu/bits/stdio_lim.h
- /usr/include/aarch64-linux-gnu/bits/floatn.h
- /usr/include/aarch64-linux-gnu/bits/floatn-common.h
  /usr/include/stdlib.h
  /usr/include/aarch64-linux-gnu/bits/waitflags.h
  /usr/include/aarch64-linux-gnu/bits/waitstatus.h
@@ -410,8 +410,20 @@ CMakeFiles/xformer10.dir/src/atari8.vm/xlxeram.c.o
  /usr/include/aarch64-linux-gnu/bits/wchar.h
  /usr/include/aarch64-linux-gnu/bits/stdint-intn.h
  /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h
- /usr/include/string.h
+ /usr/include/stdio.h
  /usr/lib/gcc/aarch64-linux-gnu/12/include/stddef.h
+ /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h
+ /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h
+ /usr/include/aarch64-linux-gnu/bits/stdio_lim.h
+ /usr/include/aarch64-linux-gnu/bits/floatn.h
+ /usr/include/aarch64-linux-gnu/bits/floatn-common.h
+ /usr/include/string.h
  /usr/include/aarch64-linux-gnu/bits/types/locale_t.h
  /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h
  /usr/include/strings.h
@@ -429,18 +441,6 @@ CMakeFiles/xformer10.dir/src/atari8.vm/xlxeram.c.o
  /usr/include/aarch64-linux-gnu/bits/types/struct_iovec.h
  /usr/include/linux/falloc.h
  /home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/compat_winfile.h
- /usr/include/stdio.h
- /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h
- /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h
- /usr/include/aarch64-linux-gnu/bits/stdio_lim.h
- /usr/include/aarch64-linux-gnu/bits/floatn.h
- /usr/include/aarch64-linux-gnu/bits/floatn-common.h
  /usr/include/stdlib.h
  /usr/include/aarch64-linux-gnu/bits/waitflags.h
  /usr/include/aarch64-linux-gnu/bits/waitstatus.h
@@ -499,8 +499,20 @@ CMakeFiles/xformer10.dir/src/atari8.vm/xmon.c.o
  /usr/include/aarch64-linux-gnu/bits/wchar.h
  /usr/include/aarch64-linux-gnu/bits/stdint-intn.h
  /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h
- /usr/include/string.h
+ /usr/include/stdio.h
  /usr/lib/gcc/aarch64-linux-gnu/12/include/stddef.h
+ /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h
+ /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h
+ /usr/include/aarch64-linux-gnu/bits/stdio_lim.h
+ /usr/include/aarch64-linux-gnu/bits/floatn.h
+ /usr/include/aarch64-linux-gnu/bits/floatn-common.h
+ /usr/include/string.h
  /usr/include/aarch64-linux-gnu/bits/types/locale_t.h
  /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h
  /usr/include/strings.h
@@ -540,18 +552,6 @@ CMakeFiles/xformer10.dir/src/atari8.vm/xmon.c.o
  /usr/include/aarch64-linux-gnu/bits/statx-generic.h
  /usr/include/aarch64-linux-gnu/bits/types/struct_statx_timestamp.h
  /usr/include/aarch64-linux-gnu/bits/types/struct_statx.h
- /usr/include/stdio.h
- /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h
- /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h
- /usr/include/aarch64-linux-gnu/bits/stdio_lim.h
- /usr/include/aarch64-linux-gnu/bits/floatn.h
- /usr/include/aarch64-linux-gnu/bits/floatn-common.h
  /usr/include/stdlib.h
  /usr/include/aarch64-linux-gnu/bits/waitflags.h
  /usr/include/aarch64-linux-gnu/bits/waitstatus.h
@@ -614,8 +614,20 @@ CMakeFiles/xformer10.dir/src/atari8.vm/xsio.c.o
  /usr/include/aarch64-linux-gnu/bits/wchar.h
  /usr/include/aarch64-linux-gnu/bits/stdint-intn.h
  /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h
- /usr/include/string.h
+ /usr/include/stdio.h
  /usr/lib/gcc/aarch64-linux-gnu/12/include/stddef.h
+ /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h
+ /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h
+ /usr/include/aarch64-linux-gnu/bits/stdio_lim.h
+ /usr/include/aarch64-linux-gnu/bits/floatn.h
+ /usr/include/aarch64-linux-gnu/bits/floatn-common.h
+ /usr/include/string.h
  /usr/include/aarch64-linux-gnu/bits/types/locale_t.h
  /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h
  /usr/include/strings.h
@@ -655,18 +667,6 @@ CMakeFiles/xformer10.dir/src/atari8.vm/xsio.c.o
  /usr/include/aarch64-linux-gnu/bits/statx-generic.h
  /usr/include/aarch64-linux-gnu/bits/types/struct_statx_timestamp.h
  /usr/include/aarch64-linux-gnu/bits/types/struct_statx.h
- /usr/include/stdio.h
- /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h
- /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h
- /usr/include/aarch64-linux-gnu/bits/stdio_lim.h
- /usr/include/aarch64-linux-gnu/bits/floatn.h
- /usr/include/aarch64-linux-gnu/bits/floatn-common.h
  /usr/include/stdlib.h
  /usr/include/aarch64-linux-gnu/bits/waitflags.h
  /usr/include/aarch64-linux-gnu/bits/waitstatus.h
@@ -727,8 +727,20 @@ CMakeFiles/xformer10.dir/src/atari8.vm/xvideo.c.o
  /usr/include/aarch64-linux-gnu/bits/wchar.h
  /usr/include/aarch64-linux-gnu/bits/stdint-intn.h
  /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h
- /usr/include/string.h
+ /usr/include/stdio.h
  /usr/lib/gcc/aarch64-linux-gnu/12/include/stddef.h
+ /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h
+ /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h
+ /usr/include/aarch64-linux-gnu/bits/stdio_lim.h
+ /usr/include/aarch64-linux-gnu/bits/floatn.h
+ /usr/include/aarch64-linux-gnu/bits/floatn-common.h
+ /usr/include/string.h
  /usr/include/aarch64-linux-gnu/bits/types/locale_t.h
  /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h
  /usr/include/strings.h
@@ -768,18 +780,6 @@ CMakeFiles/xformer10.dir/src/atari8.vm/xvideo.c.o
  /usr/include/aarch64-linux-gnu/bits/statx-generic.h
  /usr/include/aarch64-linux-gnu/bits/types/struct_statx_timestamp.h
  /usr/include/aarch64-linux-gnu/bits/types/struct_statx.h
- /usr/include/stdio.h
- /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h
- /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h
- /usr/include/aarch64-linux-gnu/bits/stdio_lim.h
- /usr/include/aarch64-linux-gnu/bits/floatn.h
- /usr/include/aarch64-linux-gnu/bits/floatn-common.h
  /usr/include/stdlib.h
  /usr/include/aarch64-linux-gnu/bits/waitflags.h
  /usr/include/aarch64-linux-gnu/bits/waitstatus.h
@@ -838,8 +838,20 @@ CMakeFiles/xformer10.dir/src/ddlib.c.o
  /usr/include/aarch64-linux-gnu/bits/wchar.h
  /usr/include/aarch64-linux-gnu/bits/stdint-intn.h
  /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h
- /usr/include/string.h
+ /usr/include/stdio.h
  /usr/lib/gcc/aarch64-linux-gnu/12/include/stddef.h
+ /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h
+ /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h
+ /usr/include/aarch64-linux-gnu/bits/stdio_lim.h
+ /usr/include/aarch64-linux-gnu/bits/floatn.h
+ /usr/include/aarch64-linux-gnu/bits/floatn-common.h
+ /usr/include/string.h
  /usr/include/aarch64-linux-gnu/bits/types/locale_t.h
  /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h
  /usr/include/strings.h
@@ -879,18 +891,6 @@ CMakeFiles/xformer10.dir/src/ddlib.c.o
  /usr/include/aarch64-linux-gnu/bits/statx-generic.h
  /usr/include/aarch64-linux-gnu/bits/types/struct_statx_timestamp.h
  /usr/include/aarch64-linux-gnu/bits/types/struct_statx.h
- /usr/include/stdio.h
- /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h
- /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h
- /usr/include/aarch64-linux-gnu/bits/stdio_lim.h
- /usr/include/aarch64-linux-gnu/bits/floatn.h
- /usr/include/aarch64-linux-gnu/bits/floatn-common.h
  /usr/include/stdlib.h
  /usr/include/aarch64-linux-gnu/bits/waitflags.h
  /usr/include/aarch64-linux-gnu/bits/waitstatus.h
@@ -952,8 +952,20 @@ CMakeFiles/xformer10.dir/src/printer.c.o
  /usr/include/aarch64-linux-gnu/bits/wchar.h
  /usr/include/aarch64-linux-gnu/bits/stdint-intn.h
  /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h
- /usr/include/string.h
+ /usr/include/stdio.h
  /usr/lib/gcc/aarch64-linux-gnu/12/include/stddef.h
+ /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h
+ /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h
+ /usr/include/aarch64-linux-gnu/bits/stdio_lim.h
+ /usr/include/aarch64-linux-gnu/bits/floatn.h
+ /usr/include/aarch64-linux-gnu/bits/floatn-common.h
+ /usr/include/string.h
  /usr/include/aarch64-linux-gnu/bits/types/locale_t.h
  /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h
  /usr/include/strings.h
@@ -993,18 +1005,6 @@ CMakeFiles/xformer10.dir/src/printer.c.o
  /usr/include/aarch64-linux-gnu/bits/statx-generic.h
  /usr/include/aarch64-linux-gnu/bits/types/struct_statx_timestamp.h
  /usr/include/aarch64-linux-gnu/bits/types/struct_statx.h
- /usr/include/stdio.h
- /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h
- /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h
- /usr/include/aarch64-linux-gnu/bits/stdio_lim.h
- /usr/include/aarch64-linux-gnu/bits/floatn.h
- /usr/include/aarch64-linux-gnu/bits/floatn-common.h
  /usr/include/stdlib.h
  /usr/include/aarch64-linux-gnu/bits/waitflags.h
  /usr/include/aarch64-linux-gnu/bits/waitstatus.h
@@ -1062,8 +1062,20 @@ CMakeFiles/xformer10.dir/src/props.c.o
  /usr/include/aarch64-linux-gnu/bits/wchar.h
  /usr/include/aarch64-linux-gnu/bits/stdint-intn.h
  /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h
- /usr/include/string.h
+ /usr/include/stdio.h
  /usr/lib/gcc/aarch64-linux-gnu/12/include/stddef.h
+ /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h
+ /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h
+ /usr/include/aarch64-linux-gnu/bits/stdio_lim.h
+ /usr/include/aarch64-linux-gnu/bits/floatn.h
+ /usr/include/aarch64-linux-gnu/bits/floatn-common.h
+ /usr/include/string.h
  /usr/include/aarch64-linux-gnu/bits/types/locale_t.h
  /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h
  /usr/include/strings.h
@@ -1103,18 +1115,6 @@ CMakeFiles/xformer10.dir/src/props.c.o
  /usr/include/aarch64-linux-gnu/bits/statx-generic.h
  /usr/include/aarch64-linux-gnu/bits/types/struct_statx_timestamp.h
  /usr/include/aarch64-linux-gnu/bits/types/struct_statx.h
- /usr/include/stdio.h
- /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h
- /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h
- /usr/include/aarch64-linux-gnu/bits/stdio_lim.h
- /usr/include/aarch64-linux-gnu/bits/floatn.h
- /usr/include/aarch64-linux-gnu/bits/floatn-common.h
  /usr/include/stdlib.h
  /usr/include/aarch64-linux-gnu/bits/waitflags.h
  /usr/include/aarch64-linux-gnu/bits/waitstatus.h
@@ -1176,8 +1176,20 @@ CMakeFiles/xformer10.dir/src/serial.c.o
  /usr/include/aarch64-linux-gnu/bits/wchar.h
  /usr/include/aarch64-linux-gnu/bits/stdint-intn.h
  /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h
- /usr/include/string.h
+ /usr/include/stdio.h
  /usr/lib/gcc/aarch64-linux-gnu/12/include/stddef.h
+ /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h
+ /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h
+ /usr/include/aarch64-linux-gnu/bits/stdio_lim.h
+ /usr/include/aarch64-linux-gnu/bits/floatn.h
+ /usr/include/aarch64-linux-gnu/bits/floatn-common.h
+ /usr/include/string.h
  /usr/include/aarch64-linux-gnu/bits/types/locale_t.h
  /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h
  /usr/include/strings.h
@@ -1217,18 +1229,6 @@ CMakeFiles/xformer10.dir/src/serial.c.o
  /usr/include/aarch64-linux-gnu/bits/statx-generic.h
  /usr/include/aarch64-linux-gnu/bits/types/struct_statx_timestamp.h
  /usr/include/aarch64-linux-gnu/bits/types/struct_statx.h
- /usr/include/stdio.h
- /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h
- /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h
- /usr/include/aarch64-linux-gnu/bits/stdio_lim.h
- /usr/include/aarch64-linux-gnu/bits/floatn.h
- /usr/include/aarch64-linux-gnu/bits/floatn-common.h
  /usr/include/stdlib.h
  /usr/include/aarch64-linux-gnu/bits/waitflags.h
  /usr/include/aarch64-linux-gnu/bits/waitstatus.h
@@ -1286,8 +1286,20 @@ CMakeFiles/xformer10.dir/src/sound.c.o
  /usr/include/aarch64-linux-gnu/bits/wchar.h
  /usr/include/aarch64-linux-gnu/bits/stdint-intn.h
  /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h
- /usr/include/string.h
+ /usr/include/stdio.h
  /usr/lib/gcc/aarch64-linux-gnu/12/include/stddef.h
+ /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h
+ /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h
+ /usr/include/aarch64-linux-gnu/bits/types/__FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h
+ /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h
+ /usr/include/aarch64-linux-gnu/bits/stdio_lim.h
+ /usr/include/aarch64-linux-gnu/bits/floatn.h
+ /usr/include/aarch64-linux-gnu/bits/floatn-common.h
+ /usr/include/string.h
  /usr/include/aarch64-linux-gnu/bits/types/locale_t.h
  /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h
  /usr/include/strings.h
@@ -1327,18 +1339,6 @@ CMakeFiles/xformer10.dir/src/sound.c.o
  /usr/include/aarch64-linux-gnu/bits/statx-generic.h
  /usr/include/aarch64-linux-gnu/bits/types/struct_statx_timestamp.h
  /usr/include/aarch64-linux-gnu/bits/types/struct_statx.h
- /usr/include/stdio.h
- /usr/lib/gcc/aarch64-linux-gnu/12/include/stdarg.h
- /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h
- /usr/include/aarch64-linux-gnu/bits/types/__FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h
- /usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h
- /usr/include/aarch64-linux-gnu/bits/stdio_lim.h
- /usr/include/aarch64-linux-gnu/bits/floatn.h
- /usr/include/aarch64-linux-gnu/bits/floatn-common.h
  /usr/include/stdlib.h
  /usr/include/aarch64-linux-gnu/bits/waitflags.h
  /usr/include/aarch64-linux-gnu/bits/waitstatus.h

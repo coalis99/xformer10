@@ -22,6 +22,7 @@
 #define CALLBACK
 #define _cdecl
 #define __stdcall
+#define __declspec(x)
 
 /* Basic types */
 typedef uint8_t   BYTE;
@@ -208,12 +209,186 @@ static inline void *GetFocus(void) { return NULL; }
 #define _fmemcpy  memcpy
 #define _fmemset  memset
 
-/* POSIX I/O aliases */
+/* POSIX I/O aliases and flag names */
 #define _read   read
 #define _write  write
 #define _open   open
 #define _close  close
 #define _lseek  lseek
+#define _O_RDONLY  O_RDONLY
+#define _O_WRONLY  O_WRONLY
+#define _O_RDWR    O_RDWR
+#define _O_CREAT   O_CREAT
+#define _O_TRUNC   O_TRUNC
+#define _O_APPEND  O_APPEND
+#define _O_BINARY  0
+#define _O_TEXT    0
+
+/* Old-style OpenFile constants (used by atari800.h macro remapping) */
+#define OF_READ       O_RDONLY
+#define OF_READWRITE  O_RDWR
+#define OF_SHARE_COMPAT 0
+
+/* HFILE: old-style file handle (int fd) */
+typedef int HFILE;
+
+/* Additional string pointer types */
+typedef const char *LPCCH;
+typedef const char *LPCTSTR;
+typedef char       *LPTSTR;
+typedef WORD       *LPWORD;
+
+/* MessageBox icon aliases */
+#ifndef MB_ICONHAND
+#define MB_ICONHAND  MB_ICONERROR
+#endif
+
+/* Bit-field extraction macros */
+#define LOWORD(l)      ((WORD)((DWORD_PTR)(l) & 0xFFFF))
+#define HIWORD(l)      ((WORD)(((DWORD_PTR)(l) >> 16) & 0xFFFF))
+#define LOBYTE(w)      ((BYTE)((DWORD_PTR)(w) & 0xFF))
+#define HIBYTE(w)      ((BYTE)(((DWORD_PTR)(w) >> 8) & 0xFF))
+#define MAKELONG(lo,hi) ((LONG)(((WORD)(lo)) | (((DWORD)((WORD)(hi))) << 16)))
+#define MAKEWORD(lo,hi) ((WORD)(((BYTE)(lo)) | (((WORD)((BYTE)(hi))) << 8)))
+#define MAKELPARAM(lo,hi) ((LPARAM)MAKELONG(lo,hi))
+#define MAKELRESULT(lo,hi) ((LRESULT)MAKELONG(lo,hi))
+
+/* min/max (not defined by standard C — Windows defines them in <windef.h>) */
+#ifndef max
+#define max(a,b) ((a) > (b) ? (a) : (b))
+#endif
+#ifndef min
+#define min(a,b) ((a) < (b) ? (a) : (b))
+#endif
+
+/* Heap allocation stubs (map to malloc/calloc/free) */
+#include <stdlib.h>
+#define HEAP_NO_SERIALIZE  0x00000001u
+#define HEAP_ZERO_MEMORY   0x00000008u
+#define HEAP_GENERATE_EXCEPTIONS 0x00000004u
+static inline HANDLE GetProcessHeap(void) { return (HANDLE)1; }
+static inline void *HeapAlloc(HANDLE h, DWORD flags, size_t size)
+    { (void)h; return (flags & HEAP_ZERO_MEMORY) ? calloc(1, size) : malloc(size); }
+static inline BOOL HeapFree(HANDLE h, DWORD flags, void *p)
+    { (void)h; (void)flags; free(p); return TRUE; }
+static inline void *HeapReAlloc(HANDLE h, DWORD flags, void *p, size_t size)
+    { (void)h; (void)flags; return realloc(p, size); }
+
+/* Console handle constants and stubs */
+#define STD_INPUT_HANDLE  ((DWORD)-10)
+#define STD_OUTPUT_HANDLE ((DWORD)-11)
+#define STD_ERROR_HANDLE  ((DWORD)-12)
+static inline HANDLE GetStdHandle(DWORD n) { (void)n; return (HANDLE)(intptr_t)0; }
+static inline BOOL ReadConsole(HANDLE h, void *buf, DWORD n, DWORD *read, void *res)
+    { (void)h; (void)buf; (void)n; (void)res; if (read) *read = 0; return FALSE; } // PHASE3:
+static inline SHORT GetAsyncKeyState(int vk) { (void)vk; return 0; } // PHASE3:
+
+/* Windows message constants */
+#define WM_NULL           0x0000
+#define WM_CREATE         0x0001
+#define WM_DESTROY        0x0002
+#define WM_SIZE           0x0005
+#define WM_ACTIVATE       0x0006
+#define WM_SETFOCUS       0x0007
+#define WM_KILLFOCUS      0x0008
+#define WM_PAINT          0x000F
+#define WM_CLOSE          0x0010
+#define WM_QUIT           0x0012
+#define WM_TIMER          0x0113
+#define WM_COMMAND        0x0111
+#define WM_KEYDOWN        0x0100
+#define WM_KEYUP          0x0101
+#define WM_CHAR           0x0102
+#define WM_SYSKEYDOWN     0x0104
+#define WM_SYSKEYUP       0x0105
+#define WM_MOUSEMOVE      0x0200
+#define WM_LBUTTONDOWN    0x0201
+#define WM_LBUTTONUP      0x0202
+#define WM_RBUTTONDOWN    0x0204
+#define WM_RBUTTONUP      0x0205
+#define WM_USER           0x0400
+
+/* PeekMessage/PostMessage flags */
+#define PM_NOREMOVE 0x0000
+#define PM_REMOVE   0x0001
+
+/* MSG structure */
+typedef struct tagMSG {
+    HWND   hwnd;
+    UINT   message;
+    WPARAM wParam;
+    LPARAM lParam;
+    DWORD  time;
+    POINT  pt;
+} MSG, *PMSG, *LPMSG;
+
+/* Message queue stubs */
+static inline BOOL PeekMessage(MSG *msg, HWND hwnd, UINT min, UINT max, UINT remove)
+    { (void)msg; (void)hwnd; (void)min; (void)max; (void)remove; return FALSE; } // PHASE3:
+static inline BOOL PostMessage(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
+    { (void)hwnd; (void)msg; (void)wp; (void)lp; return FALSE; } // PHASE3:
+static inline BOOL TranslateMessage(const MSG *msg)
+    { (void)msg; return FALSE; }
+static inline LRESULT DispatchMessage(const MSG *msg)
+    { (void)msg; return 0; }
+static inline void PostQuitMessage(int code) { (void)code; }
+
+/* Virtual key codes */
+#define VK_LBUTTON   0x01
+#define VK_RBUTTON   0x02
+#define VK_MBUTTON   0x04
+#define VK_BACK      0x08
+#define VK_TAB       0x09
+#define VK_RETURN    0x0D
+#define VK_SHIFT     0x10
+#define VK_CONTROL   0x11
+#define VK_MENU      0x12
+#define VK_PAUSE     0x13
+#define VK_CAPITAL   0x14
+#define VK_ESCAPE    0x1B
+#define VK_SPACE     0x20
+#define VK_PRIOR     0x21
+#define VK_NEXT      0x22
+#define VK_END       0x23
+#define VK_HOME      0x24
+#define VK_LEFT      0x25
+#define VK_UP        0x26
+#define VK_RIGHT     0x27
+#define VK_DOWN      0x28
+#define VK_INSERT    0x2D
+#define VK_DELETE    0x2E
+#define VK_F1        0x70
+#define VK_F2        0x71
+#define VK_F3        0x72
+#define VK_F4        0x73
+#define VK_F5        0x74
+#define VK_F6        0x75
+#define VK_F7        0x76
+#define VK_F8        0x77
+#define VK_F9        0x78
+#define VK_F10       0x79
+#define VK_F11       0x7A
+#define VK_F12       0x7B
+#define VK_NUMLOCK   0x90
+#define VK_SCROLL    0x91
+#define VK_LSHIFT    0xA0
+#define VK_RSHIFT    0xA1
+#define VK_LCONTROL  0xA2
+#define VK_RCONTROL  0xA3
+#define VK_LMENU     0xA4
+#define VK_RMENU     0xA5
+
+/* Multimedia joystick message constants */
+#define MM_JOY1MOVE       0x03A1
+#define MM_JOY2MOVE       0x03A3
+#define MM_JOY1BUTTONDOWN 0x03B5
+#define MM_JOY1BUTTONUP   0x03B6
+#define MM_JOY2BUTTONDOWN 0x03B7
+#define MM_JOY2BUTTONUP   0x03B8
+#define JOY_BUTTON1       0x0001
+#define JOY_BUTTON2       0x0002
+#define JOY_BUTTON3       0x0004
+#define JOY_BUTTON4       0x0008
 
 #endif /* !_WIN32 */
 #endif /* COMPAT_WIN_H */

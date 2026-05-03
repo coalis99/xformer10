@@ -1019,7 +1019,7 @@ BOOL  PokeBAtariMON(void *, ADDR, BYTE); // something the monitor is allowed to 
 //
 
 // Map to Win32 counterparts
-
+#ifdef _WIN32 // PHASE1: portability fix — these clobber POSIX aliases on Linux
 // !!! This is very dangerous!
 #define _open    _lopen
 #define _read    _lread
@@ -1036,6 +1036,7 @@ BOOL  PokeBAtariMON(void *, ADDR, BYTE); // something the monitor is allowed to 
 #define SEEK_END  FILE_END
 #undef  SEEK_SET
 #define SEEK_SET  FILE_BEGIN
+#endif /* _WIN32 */
 
 // for xvideo.c
 
