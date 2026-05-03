@@ -47,6 +47,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/xformer10.dir/src/serial.c.o.d"
   "CMakeFiles/xformer10.dir/src/sound.c.o"
   "CMakeFiles/xformer10.dir/src/sound.c.o.d"
+  "CMakeFiles/xformer10.dir/src/stubs_linux.c.o"
+  "CMakeFiles/xformer10.dir/src/stubs_linux.c.o.d"
   "xformer10"
   "xformer10.pdb"
 )

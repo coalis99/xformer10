@@ -1151,7 +1151,7 @@ BOOL FCyclePalette(BOOL fForward);
 #ifndef NDEBUG
 #define Assert(f) _gem_assert((f), __FILE__, __LINE__)
 
-static __inline void _gem_assert(int f, char *file, int line)
+static inline void _gem_assert(int f, char *file, int line)
 {
     char sz[99];
 
@@ -1195,6 +1195,13 @@ inline void __assume(BOOL condition) {}
 #define Assert(f) __assume(f)
 
 #endif // NDEBUG
+
+#ifdef LINUX_PORT
+/* Phase 1: make Assert a true no-op so it doesn't generate symbol refs to
+   static-inline functions (PeekBAtari etc.) that are private to other TUs. */
+#undef Assert
+#define Assert(f) ((void)0)
+#endif
 
 // Function pointer to ntdll!DbgPrint()
 

@@ -1051,7 +1051,9 @@ BOOL  PokeBAtariMON(void *, ADDR, BYTE); // something the monitor is allowed to 
 #define bfPM3 0x80
 
 #ifndef NDEBUG
+#ifndef LINUX_PORT
 #undef Assert
 #define Assert(f) _800_assert((f), __FILE__, __LINE__, candy)
-extern __inline void _800_assert(int f, char *file, int line, void *);
+void _800_assert(int f, char *file, int line, void *);
+#endif
 #endif

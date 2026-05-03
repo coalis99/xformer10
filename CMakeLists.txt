@@ -29,6 +29,7 @@ add_executable(xformer10
     src/serial.c
     src/romcard.c
     src/main_linux.c
+    src/stubs_linux.c
 )
 
 target_compile_definitions(xformer10 PRIVATE
@@ -48,8 +49,10 @@ target_compile_options(xformer10 PRIVATE
     -Wno-incompatible-pointer-types
     -Wno-unused-value
     -Wno-implicit-function-declaration
+    -Wno-duplicate-decl-specifier
     -fno-strict-aliasing
     -fwrapv
+    -fcommon
 )
 
 target_link_libraries(xformer10 PRIVATE m pthread)

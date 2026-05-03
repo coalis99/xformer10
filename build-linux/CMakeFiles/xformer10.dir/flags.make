@@ -6,5 +6,5 @@ C_DEFINES = -DLINUX_PORT -DXFORMER -D_GNU_SOURCE
 
 C_INCLUDES = -I/home/coalis/ClaudeCodeProjects/XFormer/xformer10/src -I/home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/atari8.vm -I/home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/blocklib -I/home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/res
 
-C_FLAGS = -g -Wno-incompatible-pointer-types -Wno-unused-value -Wno-implicit-function-declaration -fno-strict-aliasing -fwrapv -std=gnu99
+C_FLAGS = -g -Wno-incompatible-pointer-types -Wno-unused-value -Wno-implicit-function-declaration -Wno-duplicate-decl-specifier -fno-strict-aliasing -fwrapv -fcommon -std=gnu99
 

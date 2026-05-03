@@ -705,6 +705,30 @@ src/sound.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/xformer10.dir/build.make CMakeFiles/xformer10.dir/src/sound.c.s
 .PHONY : src/sound.c.s
 
+src/stubs_linux.o: src/stubs_linux.c.o
+.PHONY : src/stubs_linux.o
+
+# target to build an object file
+src/stubs_linux.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/xformer10.dir/build.make CMakeFiles/xformer10.dir/src/stubs_linux.c.o
+.PHONY : src/stubs_linux.c.o
+
+src/stubs_linux.i: src/stubs_linux.c.i
+.PHONY : src/stubs_linux.i
+
+# target to preprocess a source file
+src/stubs_linux.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/xformer10.dir/build.make CMakeFiles/xformer10.dir/src/stubs_linux.c.i
+.PHONY : src/stubs_linux.c.i
+
+src/stubs_linux.s: src/stubs_linux.c.s
+.PHONY : src/stubs_linux.s
+
+# target to generate assembly for a file
+src/stubs_linux.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/xformer10.dir/build.make CMakeFiles/xformer10.dir/src/stubs_linux.c.s
+.PHONY : src/stubs_linux.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -786,6 +810,9 @@ help:
 	@echo "... src/sound.o"
 	@echo "... src/sound.i"
 	@echo "... src/sound.s"
+	@echo "... src/stubs_linux.o"
+	@echo "... src/stubs_linux.i"
+	@echo "... src/stubs_linux.s"
 .PHONY : help
 
 

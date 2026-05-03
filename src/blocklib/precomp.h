@@ -79,7 +79,7 @@
 #ifndef NDEBUG
 #define Assert(f) _blk_assert((f), __FILE__, __LINE__)
 
-static __inline void _blk_assert(int f, char *file, int line)
+static inline void _blk_assert(int f, char *file, int line)
 {
     char sz[99];
 

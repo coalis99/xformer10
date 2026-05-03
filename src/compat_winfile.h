@@ -160,5 +160,31 @@ static inline BOOL FindClose(HANDLE h)
 #define FindNextFile   FindNextFileA
 #define CreateFile     CreateFileA
 
+/* SetEndOfFile: truncate at current position */
+static inline BOOL SetEndOfFile(HANDLE h)
+{
+    off_t pos = lseek((int)(intptr_t)h, 0, SEEK_CUR);
+    if (pos == (off_t)-1) return FALSE;
+    return ftruncate((int)(intptr_t)h, pos) == 0 ? TRUE : FALSE;
+}
+
+/* GetFileAttributes: map to stat(); return INVALID_FILE_ATTRIBUTES on error */
+#define INVALID_FILE_ATTRIBUTES ((DWORD)-1)
+static inline DWORD GetFileAttributes(const char *path)
+{
+    struct stat st;
+    if (stat(path, &st) < 0) return INVALID_FILE_ATTRIBUTES;
+    DWORD attr = FILE_ATTRIBUTE_ARCHIVE;
+    if (S_ISDIR(st.st_mode)) attr |= FILE_ATTRIBUTE_DIRECTORY;
+    if (!(st.st_mode & S_IWUSR)) attr |= FILE_ATTRIBUTE_READONLY;
+    return attr;
+}
+
+/* SetFileAttributes: no-op on Linux */
+static inline BOOL SetFileAttributes(const char *path, DWORD attr) { (void)path; (void)attr; return TRUE; } // PHASE3:
+
+/* DeleteFile: map to unlink */
+static inline BOOL DeleteFile(const char *path) { return unlink(path) == 0 ? TRUE : FALSE; }
+
 #endif /* !_WIN32 */
 #endif /* COMPAT_WINFILE_H */

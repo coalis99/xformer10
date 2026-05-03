@@ -32,6 +32,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/romcard.c" "CMakeFiles/xformer10.dir/src/romcard.c.o" "gcc" "CMakeFiles/xformer10.dir/src/romcard.c.o.d"
   "/home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/serial.c" "CMakeFiles/xformer10.dir/src/serial.c.o" "gcc" "CMakeFiles/xformer10.dir/src/serial.c.o.d"
   "/home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/sound.c" "CMakeFiles/xformer10.dir/src/sound.c.o" "gcc" "CMakeFiles/xformer10.dir/src/sound.c.o.d"
+  "/home/coalis/ClaudeCodeProjects/XFormer/xformer10/src/stubs_linux.c" "CMakeFiles/xformer10.dir/src/stubs_linux.c.o" "gcc" "CMakeFiles/xformer10.dir/src/stubs_linux.c.o.d"
   )
 
 # Targets to which this target links.

@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
+#include <strings.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <time.h>
@@ -16,6 +18,9 @@
 /* Calling convention no-ops */
 #define __cdecl
 #define __fastcall
+/* __inline without static is C99 "external linkage inline" which requires an external def elsewhere.
+   Use static inline so each TU has its own copy — correct for header-defined and same-TU helpers. */
+#define __inline static inline
 #define __forceinline static inline
 #define FAR
 #define IN
@@ -755,6 +760,75 @@ typedef struct tagOFN {
 
 static inline BOOL GetOpenFileName(OPENFILENAME *ofn) { (void)ofn; return FALSE; } // PHASE3:
 static inline BOOL GetSaveFileName(OPENFILENAME *ofn) { (void)ofn; return FALSE; } // PHASE3:
+
+/* GDI object handle types */
+typedef void *HGDIOBJ;
+typedef void *HFONT;
+typedef void *HPEN;
+typedef void *HBRUSH;
+typedef void *HGLOBAL;
+typedef void *HLOCAL;
+
+/* GDI object stubs */
+static inline HGDIOBJ SelectObject(HDC hdc, HGDIOBJ hobj)
+    { (void)hdc; (void)hobj; return NULL; } // PHASE3:
+static inline BOOL DeleteObject(HGDIOBJ hobj) { (void)hobj; return TRUE; } // PHASE3:
+static inline BOOL DeleteDC(HDC hdc) { (void)hdc; return TRUE; } // PHASE3:
+static inline HDC CreateCompatibleDC(HDC hdc) { (void)hdc; return NULL; } // PHASE3:
+static inline HBITMAP CreateDIBSection(HDC hdc, const BITMAPINFO *bmi, UINT usage,
+    void **ppvBits, HANDLE hSec, DWORD off)
+    { (void)hdc; (void)bmi; (void)usage; if (ppvBits) *ppvBits = NULL; (void)hSec; (void)off; return NULL; } // PHASE3:
+static inline UINT SetDIBColorTable(HDC hdc, UINT start, UINT count, const RGBQUAD *colors)
+    { (void)hdc; (void)start; (void)count; (void)colors; return 0; } // PHASE3:
+static inline BOOL BitBlt(HDC dst, int x, int y, int w, int h, HDC src, int sx, int sy, DWORD rop)
+    { (void)dst; (void)x; (void)y; (void)w; (void)h; (void)src; (void)sx; (void)sy; (void)rop; return TRUE; } // PHASE3:
+static inline BOOL PatBlt(HDC hdc, int x, int y, int w, int h, DWORD rop)
+    { (void)hdc; (void)x; (void)y; (void)w; (void)h; (void)rop; return TRUE; } // PHASE3:
+static inline BOOL StretchBlt(HDC dst, int dx, int dy, int dw, int dh,
+    HDC src, int sx, int sy, int sw, int sh, DWORD rop)
+    { (void)dst; (void)dx; (void)dy; (void)dw; (void)dh;
+      (void)src; (void)sx; (void)sy; (void)sw; (void)sh; (void)rop; return TRUE; } // PHASE3:
+
+/* Window geometry stubs */
+static inline BOOL GetClientRect(HWND hwnd, RECT *r)
+    { (void)hwnd; if (r) { r->left=0; r->top=0; r->right=0; r->bottom=0; } return TRUE; } // PHASE3:
+static inline BOOL GetCursorPos(POINT *pt) { (void)pt; return FALSE; } // PHASE3:
+static inline BOOL ScreenToClient(HWND hwnd, POINT *pt) { (void)hwnd; (void)pt; return FALSE; } // PHASE3:
+static inline BOOL ClientToScreen(HWND hwnd, POINT *pt) { (void)hwnd; (void)pt; return FALSE; } // PHASE3:
+static inline BOOL SetWindowPos(HWND hwnd, HWND ins, int x, int y, int cx, int cy, UINT fl)
+    { (void)hwnd; (void)ins; (void)x; (void)y; (void)cx; (void)cy; (void)fl; return TRUE; } // PHASE3:
+static inline BOOL SetWindowText(HWND hwnd, const char *s) { (void)hwnd; (void)s; return TRUE; } // PHASE3:
+
+/* Window show/cursor stubs */
+static inline BOOL ShowWindow(HWND hwnd, int cmd) { (void)hwnd; (void)cmd; return FALSE; } // PHASE3:
+static inline int ShowCursor(BOOL show) { (void)show; return 0; } // PHASE3:
+static inline BOOL ClipCursor(const RECT *r) { (void)r; return TRUE; } // PHASE3:
+
+/* Message stubs */
+static inline LRESULT SendMessage(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
+    { (void)hwnd; (void)msg; (void)wp; (void)lp; return 0; } // PHASE3:
+
+/* Keyboard state stub */
+static inline SHORT GetKeyState(int vk) { (void)vk; return 0; } // PHASE3:
+
+/* Console stubs */
+static inline BOOL AllocConsole(void) { return FALSE; } // PHASE3:
+static inline HWND GetConsoleWindow(void) { return NULL; } // PHASE3:
+static inline BOOL SetConsoleTitle(const char *s) { (void)s; return TRUE; } // PHASE3:
+static inline BOOL FreeConsole(void) { return TRUE; } // PHASE3:
+static inline BOOL FlushConsoleInputBuffer(HANDLE h) { (void)h; return FALSE; } // PHASE3:
+
+/* CRT compatibility aliases */
+#define _stricmp  strcasecmp
+#define _strnicmp strncasecmp
+#define lstrlen   strlen
+#define lstrcpy   strcpy
+#define lstrcpyn  strncpy
+#define lstrcat   strcat
+
+/* Bit rotate (MSVC intrinsic not available on GCC/Linux) */
+#define _rotl(x,n)  (((unsigned)(x) << (n)) | ((unsigned)(x) >> (32-(n))))
+#define _rotr(x,n)  (((unsigned)(x) >> (n)) | ((unsigned)(x) << (32-(n))))
 
 #endif /* !_WIN32 */
 #endif /* COMPAT_WIN_H */
