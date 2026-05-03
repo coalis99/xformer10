@@ -72,8 +72,10 @@
 
 #include <sys/stat.h>
 #include "gemtypes.h" // main include file
+#ifdef _WIN32
 #include <VersionHelpers.h>
 #include <windowsx.h>
+#endif
 
 #pragma warning(disable:4706) // assignment within conditional expression
 #pragma warning(disable:4152) // function/data pointer conversion
@@ -178,7 +180,9 @@ WORD rgAtasciiToScan[256] = {
     0x2d, 0x15, 0x2c, 0x227, 0x12b, 0x203, 0xe053, 0xe052   // 120-127
 };
 
+#ifdef _WIN32
 #include "shellapi.h"
+#endif
 
 // My printf that uses OutputDebugString to send to the VS output tab
 // Normal printf will go to the debug monitor, or nowhere if there is none
@@ -1503,6 +1507,7 @@ void CalcIntegerScale()
         returns the conventional value NULL.
 
 ****************************************************************************/
+#ifdef _WIN32
 int CALLBACK WinMain(
     HINSTANCE hInstance,
     HINSTANCE hPrevInstance,
@@ -2322,6 +2327,7 @@ int CALLBACK WinMain(
 
     return (int)(INT_PTR)(msg.wParam); // Returns the value from PostQuitMessage
 }
+#endif /* _WIN32 - WinMain */
 
 int PrintScreenStats()
 {
@@ -4255,6 +4261,7 @@ void ChangeDisplay(int x, int y)
 ****************************************************************************/
 
 
+#ifdef _WIN32
 LRESULT CALLBACK WndProc(
         HWND hWnd,     // window handle
         UINT message,      // type of message
@@ -5589,7 +5596,7 @@ break;
                     "Alle ungesicherten Atari Daten gehen verloren.\n"
                     "Wirklich beenden?\n",
 #elif _FRANCAIS
-                    "Tous les fichiers Atari non sauvegardés seront perdus.\n"
+                    "Tous les fichiers Atari non sauvegardï¿½s seront perdus.\n"
                     "Etes vous certain de vouloir quitter?",
 #elif
 #error
@@ -6363,6 +6370,7 @@ Lhib:
 
     return (DefWindowProc(hWnd, message, uParam, lParam));
 }
+#endif /* _WIN32 - WndProc */
 
 //
 //   FUNCTION: OpenTheFile(HWND hwnd, HWND hwndEdit)
@@ -7763,11 +7771,11 @@ BOOL FVerifyMenuOption()
         "Door het wijzigen van de instellingen moet GEM opnieuw gestart worden.\n"
         "Kies OK om opnieuw te starten of annuleer om deze wijzigingen ongedaan te maken.",
 #elif _DEUTSCH
-        "Die geänderteten Einstellungen erfordern einen Neustart von GEM.\n"
-        "Wählen Sie OK zum Neustart oder Abbruch um die Änderungen zu verwerfen.",
+        "Die geï¿½nderteten Einstellungen erfordern einen Neustart von GEM.\n"
+        "Wï¿½hlen Sie OK zum Neustart oder Abbruch um die ï¿½nderungen zu verwerfen.",
 #elif _FRANCAIS
-        "Les réglages que vous modifiez nécessite le redémarrage du GEM.\n"
-        "Appuyez sur OK pour redémarrer ou sur Annuler pour ignorer ces modifications.",
+        "Les rï¿½glages que vous modifiez nï¿½cessite le redï¿½marrage du GEM.\n"
+        "Appuyez sur OK pour redï¿½marrer ou sur Annuler pour ignorer ces modifications.",
 #elif
 #error
 #endif
@@ -9032,7 +9040,7 @@ LRESULT CALLBACK About(
                 "Alle ungesicherten Atari Daten gehen verloren.\n"
                 "Wirklich beenden?\n",
 #elif _FRANCAIS
-                "Tous les fichiers Atari non sauvegardés seront perdus.\n"
+                "Tous les fichiers Atari non sauvegardï¿½s seront perdus.\n"
                 "Etes vous certain de vouloir quitter?",
 #elif
 #error

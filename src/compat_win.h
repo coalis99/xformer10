@@ -6,9 +6,12 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <time.h>
+#include <sys/stat.h>
 
 /* Calling convention no-ops */
 #define __cdecl
@@ -331,7 +334,6 @@ typedef WORD       *LPWORD;
 #endif
 
 /* Heap allocation stubs (map to malloc/calloc/free) */
-#include <stdlib.h>
 #define HEAP_NO_SERIALIZE  0x00000001u
 #define HEAP_ZERO_MEMORY   0x00000008u
 #define HEAP_GENERATE_EXCEPTIONS 0x00000004u
@@ -458,6 +460,301 @@ static inline void PostQuitMessage(int code) { (void)code; }
 #define JOY_BUTTON2       0x0002
 #define JOY_BUTTON3       0x0004
 #define JOY_BUTTON4       0x0008
+
+/* Timing stubs */
+static inline void Sleep(DWORD ms) { usleep((unsigned long)ms * 1000); }
+static inline DWORD GetTickCount(void) {
+    struct timespec ts; clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (DWORD)(ts.tv_sec * 1000 + ts.tv_nsec / 1000000);
+}
+static inline BOOL QueryPerformanceCounter(LARGE_INTEGER *li) {
+    struct timespec ts; clock_gettime(CLOCK_MONOTONIC, &ts);
+    if (li) li->QuadPart = (LONGLONG)ts.tv_sec * 1000000000LL + ts.tv_nsec;
+    return TRUE;
+}
+static inline BOOL QueryPerformanceFrequency(LARGE_INTEGER *li) {
+    if (li) li->QuadPart = 1000000000LL; return TRUE;
+}
+
+/* Debug output stub */
+static inline void OutputDebugString(const char *s) { (void)s; }
+#define OutputDebugStringA OutputDebugString
+
+/* Directory stubs */
+static inline DWORD GetCurrentDirectory(DWORD sz, char *buf) {
+    return getcwd(buf, (size_t)sz) ? (DWORD)strlen(buf) : 0;
+}
+static inline BOOL SetCurrentDirectory(const char *path) { return chdir(path) == 0; }
+static inline DWORD GetWindowsDirectory(char *buf, DWORD sz) { if (buf && sz > 0) buf[0] = 0; return 0; }
+static inline BOOL CreateDirectory(const char *path, void *sa) { (void)path; (void)sa; return TRUE; } // PHASE3:
+
+/* System metrics stub */
+#define SM_CXSCREEN         0
+#define SM_CYSCREEN         1
+#define SM_CXVIRTUALSCREEN  78
+#define SM_CYVIRTUALSCREEN  79
+#define SM_CXSIZEFRAME      32
+#define SM_CYSIZEFRAME      33
+#define SM_CYCAPTION        4
+#define SM_CXFULLSCREEN     16
+#define SM_CYFULLSCREEN     17
+static inline int GetSystemMetrics(int idx) { (void)idx; return 0; } // PHASE3:
+
+/* Window show state constants */
+#define SW_HIDE             0
+#define SW_SHOWNORMAL       1
+#define SW_SHOWMINIMIZED    2
+#define SW_SHOWMAXIMIZED    3
+#define SW_RESTORE          9
+
+/* Window style constants */
+#define WS_OVERLAPPED       0x00000000L
+#define WS_POPUP            0x80000000L
+#define WS_CAPTION          0x00C00000L
+#define WS_SYSMENU          0x00080000L
+#define WS_MINIMIZEBOX      0x00020000L
+#define WS_MAXIMIZEBOX      0x00010000L
+#define WS_SIZEBOX          0x00040000L
+#define CS_HREDRAW          0x0002
+#define CS_VREDRAW          0x0001
+#define CS_OWNDC            0x0020
+
+/* Shell/SHFolder stubs */
+#define CSIDL_APPDATA       0x001a
+#define CSIDL_WINDOWS       0x0024
+static inline HRESULT SHGetFolderPath(HWND h, int f, HANDLE t, DWORD fl, char *buf)
+    { (void)h; (void)f; (void)t; (void)fl; if (buf) buf[0]=0; return E_NOTIMPL; } // PHASE3:
+typedef void *LPITEMIDLIST;
+static inline LPITEMIDLIST SHBrowseForFolder(void *bi)
+    { (void)bi; return NULL; } // PHASE3:
+static inline BOOL SHGetPathFromIDList(LPITEMIDLIST id, char *buf)
+    { (void)id; if (buf) buf[0]=0; return FALSE; } // PHASE3:
+#define SHGFI_DISPLAYNAME 0x200
+#define SHGFI_USEFILEATTRIBUTES 0x10
+typedef struct { void *hIcon; int iIcon; DWORD dwAttributes; char szDisplayName[260]; char szTypeName[80]; } SHFILEINFO;
+static inline DWORD_PTR SHGetFileInfo(const char *p, DWORD a, SHFILEINFO *fi, UINT sz, UINT fl)
+    { (void)p; (void)a; (void)fi; (void)sz; (void)fl; return 0; } // PHASE3:
+
+/* Thread/synchronization stubs */
+#define INFINITE          0xFFFFFFFFu
+#define WAIT_OBJECT_0     0u
+#define WAIT_TIMEOUT      0x00000102u
+#define WAIT_FAILED       0xFFFFFFFFu
+static inline HANDLE CreateEvent(void *sa, BOOL manual, BOOL init, const char *name)
+    { (void)sa; (void)manual; (void)init; (void)name; return (HANDLE)-1; } // PHASE3:
+static inline BOOL SetEvent(HANDLE h) { (void)h; return TRUE; } // PHASE3:
+static inline BOOL ResetEvent(HANDLE h) { (void)h; return TRUE; } // PHASE3:
+static inline DWORD WaitForSingleObject(HANDLE h, DWORD ms) { (void)h; (void)ms; return WAIT_TIMEOUT; } // PHASE3:
+static inline DWORD WaitForMultipleObjects(DWORD n, const HANDLE *h, BOOL all, DWORD ms)
+    { (void)n; (void)h; (void)all; (void)ms; return WAIT_TIMEOUT; } // PHASE3:
+static inline HANDLE CreateThread(void *sa, size_t stack,
+    DWORD (*fn)(void *), void *arg, DWORD flags, DWORD *id)
+    { (void)sa; (void)stack; (void)fn; (void)arg; (void)flags; (void)id; return NULL; } // PHASE3:
+static inline BOOL TerminateThread(HANDLE h, DWORD code) { (void)h; (void)code; return TRUE; } // PHASE3:
+static inline BOOL GetExitCodeThread(HANDLE h, DWORD *c) { (void)h; if (c) *c=0; return TRUE; }
+
+/* System info */
+static inline void GetSystemInfo(SYSTEM_INFO *si)
+    { if (si) { memset(si, 0, sizeof(*si)); si->dwNumberOfProcessors = 1; } } // PHASE3:
+
+/* GetLastError */
+static inline DWORD GetLastError(void) { return 0; }
+static inline void SetLastError(DWORD e) { (void)e; }
+
+/* MessageBox flags additions */
+#define MB_YESNO           0x00000004u
+#define MB_YESNOCANCEL     0x00000003u
+#define IDOK               1
+#define IDCANCEL           2
+#define IDABORT            3
+#define IDRETRY            4
+#define IDIGNORE           5
+#define IDYES              6
+#define IDNO               7
+
+/* File permission flag aliases (MSVC uses _S_IREAD/_S_IWRITE) */
+#ifndef _S_IREAD
+#define _S_IREAD  S_IRUSR
+#endif
+#ifndef _S_IWRITE
+#define _S_IWRITE S_IWUSR
+#endif
+
+/* Wave audio types and stubs */
+typedef void *HWAVEOUT;
+typedef struct tagWAVEFORMATEX {
+    WORD  wFormatTag;
+    WORD  nChannels;
+    DWORD nSamplesPerSec;
+    DWORD nAvgBytesPerSec;
+    WORD  nBlockAlign;
+    WORD  wBitsPerSample;
+    WORD  cbSize;
+} WAVEFORMATEX;
+typedef WAVEHDR *LPWAVEHDR;
+#define WOM_DONE            0x3BDu
+#define WAVE_FORMAT_PCM     1u
+#define WAVE_FORMAT_48M16   0x00000800u
+#define CALLBACK_FUNCTION   0x00030000u
+static inline UINT waveOutGetNumDevs(void) { return 0; }
+static inline MMRESULT waveOutGetDevCaps(UINT d, WAVEOUTCAPS *c, UINT sz)
+    { (void)d; (void)c; (void)sz; return 1; }
+static inline MMRESULT waveOutOpen(HWAVEOUT *h, UINT d, WAVEFORMATEX *f,
+    DWORD_PTR cb, DWORD_PTR ci, DWORD fl)
+    { (void)h; (void)d; (void)f; (void)cb; (void)ci; (void)fl; return 1; }
+static inline MMRESULT waveOutClose(HWAVEOUT h) { (void)h; return 0; }
+static inline MMRESULT waveOutReset(HWAVEOUT h) { (void)h; return 0; }
+static inline MMRESULT waveOutPrepareHeader(HWAVEOUT h, WAVEHDR *wh, UINT sz)
+    { (void)h; (void)wh; (void)sz; return 0; }
+static inline MMRESULT waveOutUnprepareHeader(HWAVEOUT h, WAVEHDR *wh, UINT sz)
+    { (void)h; (void)wh; (void)sz; return 0; }
+static inline MMRESULT waveOutWrite(HWAVEOUT h, WAVEHDR *wh, UINT sz)
+    { (void)h; (void)wh; (void)sz; return 1; }
+
+/* MIDI stubs */
+typedef struct { WORD wMid; WORD wPid; DWORD vDriverVersion; char szPname[32]; DWORD dwSupport; } MIDIOUTCAPS;
+typedef struct { WORD wMid; WORD wPid; DWORD vDriverVersion; char szPname[32]; DWORD dwSupport; } MIDIINCAPS;
+static inline UINT midiOutGetNumDevs(void) { return 0; }
+static inline MMRESULT midiOutGetDevCaps(UINT d, MIDIOUTCAPS *c, UINT sz)
+    { (void)d; (void)c; (void)sz; return 1; }
+static inline UINT midiInGetNumDevs(void) { return 0; }
+static inline MMRESULT midiInGetDevCaps(UINT d, MIDIINCAPS *c, UINT sz)
+    { (void)d; (void)c; (void)sz; return 1; }
+
+/* Joystick additions */
+typedef struct { UINT wXpos; UINT wYpos; UINT wZpos; UINT wButtons; } JOYINFO;
+#define JOY_RETURNBUTTONS   0x80u
+#define JOY_RETURNX         0x01u
+#define JOY_RETURNY         0x02u
+#define JOYSTICKID1         0u
+static inline MMRESULT joyConfigChanged(DWORD f) { (void)f; return 0; }
+static inline UINT joyGetNumDevs(void) { return 0; }
+static inline MMRESULT joyGetPosEx(UINT id, JOYINFOEX *pji) { (void)id; (void)pji; return 1; }
+static inline MMRESULT joyGetDevCaps(UINT id, JOYCAPS *jc, UINT sz)
+    { (void)id; (void)jc; (void)sz; return 1; }
+static inline MMRESULT joyGetPos(UINT id, JOYINFO *pji) { (void)id; (void)pji; return 1; }
+
+/* ROP codes for BitBlt */
+#define SRCCOPY     0x00CC0020
+#define SRCPAINT    0x00EE0086
+#define SRCAND      0x008800C6
+#define SRCINVERT   0x00660046
+#define SRCERASE    0x00440328
+#define BLACKNESS   0x00000042
+#define WHITENESS   0x00FF0062
+#define PATCOPY     0x00F00021
+
+/* SW_MAXIMIZE alias */
+#define SW_MAXIMIZE SW_SHOWMAXIMIZED
+
+/* SHBrowseForFolder callback messages */
+#define BFFM_INITIALIZED    1
+#define BFFM_SELCHANGED     2
+#define BFFM_SETSELECTION   0x0467
+#define BFFM_SETSTATUSTEXT  0x0464
+
+/* CONST qualifier alias */
+#ifndef CONST
+#define CONST const
+#endif
+
+/* GDI bitmap compression */
+#define BI_RGB  0
+#define BI_RLE8 1
+#define BI_RLE4 2
+#define DIB_RGB_COLORS 0
+
+/* BITMAPINFO (header + palette) */
+typedef struct tagBITMAPINFO {
+    BITMAPINFOHEADER bmiHeader;
+    RGBQUAD          bmiColors[1];
+} BITMAPINFO, *LPBITMAPINFO, *PBITMAPINFO;
+
+/* _MAX_PATH: MSVC alias */
+#ifndef _MAX_PATH
+#define _MAX_PATH MAX_PATH
+#endif
+
+/* CreateThread custom stack flag */
+#define STACK_SIZE_PARAM_IS_A_RESERVATION 0x00010000
+
+/* Menu item state/type flags */
+#define MF_ENABLED    0x00000000u
+#define MF_GRAYED     0x00000001u
+#define MF_DISABLED   0x00000002u
+#define MF_UNCHECKED  0x00000000u
+#define MF_CHECKED    0x00000008u
+#define MF_STRING     0x00000000u
+#define MF_SEPARATOR  0x00000800u
+
+/* InsertMenuItem / GetMenuItemInfo mask */
+#define MIIM_STATE    0x00000001u
+#define MIIM_ID       0x00000002u
+#define MIIM_SUBMENU  0x00000004u
+#define MIIM_STRING   0x00000040u
+#define MIIM_DATA     0x00000020u
+
+typedef struct tagMENUITEMINFO {
+    UINT      cbSize;
+    UINT      fMask;
+    UINT      fType;
+    UINT      fState;
+    UINT      wID;
+    HMENU     hSubMenu;
+    HBITMAP   hbmpChecked;
+    HBITMAP   hbmpUnchecked;
+    ULONG_PTR dwItemData;
+    LPTSTR    dwTypeData;
+    UINT      cch;
+    HBITMAP   hbmpItem;
+} MENUITEMINFO, *LPMENUITEMINFO;
+
+static inline BOOL InsertMenuItem(HMENU m, UINT i, BOOL byPos, const MENUITEMINFO *mi)
+    { (void)m; (void)i; (void)byPos; (void)mi; return FALSE; } // PHASE3:
+static inline BOOL GetMenuItemInfo(HMENU m, UINT i, BOOL byPos, MENUITEMINFO *mi)
+    { (void)m; (void)i; (void)byPos; (void)mi; return FALSE; } // PHASE3:
+static inline BOOL SetMenuItemInfo(HMENU m, UINT i, BOOL byPos, const MENUITEMINFO *mi)
+    { (void)m; (void)i; (void)byPos; (void)mi; return FALSE; } // PHASE3:
+static inline int CheckMenuItem(HMENU m, UINT i, UINT f) { (void)m; (void)i; (void)f; return -1; } // PHASE3:
+static inline BOOL EnableMenuItem(HMENU m, UINT i, UINT f) { (void)m; (void)i; (void)f; return FALSE; } // PHASE3:
+static inline int GetMenuItemCount(HMENU m) { (void)m; return 0; } // PHASE3:
+static inline BOOL DeleteMenu(HMENU m, UINT i, UINT f) { (void)m; (void)i; (void)f; return FALSE; } // PHASE3:
+static inline BOOL AppendMenu(HMENU m, UINT f, UINT_PTR id, const char *s) { (void)m; (void)f; (void)id; (void)s; return FALSE; } // PHASE3:
+static inline HMENU GetSubMenu(HMENU m, int i) { (void)m; (void)i; return NULL; } // PHASE3:
+
+/* Common file dialog stubs */
+#define OFN_EXPLORER        0x00080000u
+#define OFN_HIDEREADONLY    0x00000004u
+#define OFN_PATHMUSTEXIST   0x00000800u
+#define OFN_FILEMUSTEXIST   0x00001000u
+#define OFN_OVERWRITEPROMPT 0x00000002u
+#define OFN_NOREADONLYRETURN 0x00008000u
+
+typedef struct tagOFN {
+    DWORD        lStructSize;
+    HWND         hwndOwner;
+    HINSTANCE    hInstance;
+    const char  *lpstrFilter;
+    char        *lpstrCustomFilter;
+    DWORD        nMaxCustFilter;
+    DWORD        nFilterIndex;
+    char        *lpstrFile;
+    DWORD        nMaxFile;
+    char        *lpstrFileTitle;
+    DWORD        nMaxFileTitle;
+    const char  *lpstrInitialDir;
+    const char  *lpstrTitle;
+    DWORD        Flags;
+    WORD         nFileOffset;
+    WORD         nFileExtension;
+    const char  *lpstrDefExt;
+    LPARAM       lCustData;
+    void        *lpfnHook;
+    const char  *lpTemplateName;
+} OPENFILENAME, *LPOPENFILENAME;
+
+static inline BOOL GetOpenFileName(OPENFILENAME *ofn) { (void)ofn; return FALSE; } // PHASE3:
+static inline BOOL GetSaveFileName(OPENFILENAME *ofn) { (void)ofn; return FALSE; } // PHASE3:
 
 #endif /* !_WIN32 */
 #endif /* COMPAT_WIN_H */
