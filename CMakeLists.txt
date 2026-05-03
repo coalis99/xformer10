@@ -33,7 +33,6 @@ add_executable(xformer10
 )
 
 target_compile_definitions(xformer10 PRIVATE
-    XFORMER
     LINUX_PORT
     _GNU_SOURCE
 )
