@@ -25,6 +25,8 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
+#ifdef _WIN32
+
 #define WINAPI_FAMILY WINAPI_FAMILY_DESKTOP_APP
 // #undef  _ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE
 // #define _ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE 1
@@ -63,15 +65,9 @@
 #include <winuser.h>
 #include <excpt.h>
 #include <objbase.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
 #include <conio.h>
 #include <io.h>
 #include <dos.h>
-#include <fcntl.h>
-#include <time.h>
 #include <commdlg.h>    // includes common dialog functionality
 #include <dlgs.h>       // includes common dialog template defines
 #include <cderr.h>      // includes the common dialog error codes
@@ -84,6 +80,20 @@
 
 #pragma intrinsic(memcpy)
 #pragma intrinsic(memset)
+
+#else /* !_WIN32 */
+
+#include "compat_win.h"
+#include "compat_winfile.h"
+
+#endif /* _WIN32 */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+#include <fcntl.h>
+#include <time.h>
 
 // each type of VM installed into Gem has a function table we can call
 
