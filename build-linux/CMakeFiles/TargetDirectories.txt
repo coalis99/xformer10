@@ -1,0 +1,3 @@
+/home/coalis/ClaudeCodeProjects/XFormer/xformer10/build-linux/CMakeFiles/xformer10.dir
+/home/coalis/ClaudeCodeProjects/XFormer/xformer10/build-linux/CMakeFiles/edit_cache.dir
+/home/coalis/ClaudeCodeProjects/XFormer/xformer10/build-linux/CMakeFiles/rebuild_cache.dir
