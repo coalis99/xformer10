@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <time.h>
+#include <pthread.h>
 #include <sys/stat.h>
 
 /* Calling convention no-ops */
@@ -540,23 +541,99 @@ typedef struct { void *hIcon; int iIcon; DWORD dwAttributes; char szDisplayName[
 static inline DWORD_PTR SHGetFileInfo(const char *p, DWORD a, SHFILEINFO *fi, UINT sz, UINT fl)
     { (void)p; (void)a; (void)fi; (void)sz; (void)fl; return 0; } // PHASE3:
 
-/* Thread/synchronization stubs */
-#define INFINITE          0xFFFFFFFFu
-#define WAIT_OBJECT_0     0u
-#define WAIT_TIMEOUT      0x00000102u
-#define WAIT_FAILED       0xFFFFFFFFu
-static inline HANDLE CreateEvent(void *sa, BOOL manual, BOOL init, const char *name)
-    { (void)sa; (void)manual; (void)init; (void)name; return (HANDLE)-1; } // PHASE3:
-static inline BOOL SetEvent(HANDLE h) { (void)h; return TRUE; } // PHASE3:
-static inline BOOL ResetEvent(HANDLE h) { (void)h; return TRUE; } // PHASE3:
-static inline DWORD WaitForSingleObject(HANDLE h, DWORD ms) { (void)h; (void)ms; return WAIT_TIMEOUT; } // PHASE3:
-static inline DWORD WaitForMultipleObjects(DWORD n, const HANDLE *h, BOOL all, DWORD ms)
-    { (void)n; (void)h; (void)all; (void)ms; return WAIT_TIMEOUT; } // PHASE3:
-static inline HANDLE CreateThread(void *sa, size_t stack,
-    DWORD (*fn)(void *), void *arg, DWORD flags, DWORD *id)
-    { (void)sa; (void)stack; (void)fn; (void)arg; (void)flags; (void)id; return NULL; } // PHASE3:
-static inline BOOL TerminateThread(HANDLE h, DWORD code) { (void)h; (void)code; return TRUE; } // PHASE3:
-static inline BOOL GetExitCodeThread(HANDLE h, DWORD *c) { (void)h; if (c) *c=0; return TRUE; }
+/* Thread/synchronization — pthreads-backed Win32 handles */
+#define INFINITE               0xFFFFFFFFu
+#define WAIT_OBJECT_0          0u
+#define WAIT_TIMEOUT           0x00000102u
+#define WAIT_FAILED            0xFFFFFFFFu
+#define MAXIMUM_WAIT_OBJECTS   64
+#define THREAD_PRIORITY_LOWEST         (-2)
+#define THREAD_PRIORITY_BELOW_NORMAL   (-1)
+#define THREAD_PRIORITY_NORMAL         0
+#define THREAD_PRIORITY_ABOVE_NORMAL   1
+#define THREAD_PRIORITY_HIGHEST        2
+#define THREAD_PRIORITY_TIME_CRITICAL  15
+/* Magic type tags for heap-allocated handles; values >> any valid fd */
+#define LH_EVENT   0x45564E54u  /* 'EVNT' */
+#define LH_THREAD  0x54485244u  /* 'THRD' */
+typedef struct { unsigned int type; pthread_mutex_t m; pthread_cond_t c; volatile int set; int manual; } LinuxEvent;
+typedef struct { unsigned int type; pthread_t tid; } LinuxThread;
+typedef struct { DWORD (*fn)(void *); void *arg; } LinuxThArgs;
+static __attribute__((unused)) void *lh_thread_entry(void *p) {
+    LinuxThArgs *a = (LinuxThArgs *)p;
+    DWORD (*fn)(void *) = a->fn; void *arg = a->arg; free(a); fn(arg); return NULL;
+}
+static inline HANDLE CreateEvent(void *sa, BOOL manual, BOOL init, const char *name) {
+    (void)sa; (void)name;
+    LinuxEvent *e = (LinuxEvent *)calloc(1, sizeof(LinuxEvent));
+    if (!e) return NULL;
+    e->type = LH_EVENT; e->manual = manual ? 1 : 0; e->set = init ? 1 : 0;
+    pthread_mutex_init(&e->m, NULL); pthread_cond_init(&e->c, NULL);
+    return (HANDLE)e;
+}
+static inline BOOL SetEvent(HANDLE h) {
+    LinuxEvent *e = (LinuxEvent *)h;
+    pthread_mutex_lock(&e->m); e->set = 1; pthread_cond_broadcast(&e->c);
+    pthread_mutex_unlock(&e->m); return TRUE;
+}
+static inline BOOL ResetEvent(HANDLE h) {
+    LinuxEvent *e = (LinuxEvent *)h;
+    pthread_mutex_lock(&e->m); e->set = 0; pthread_mutex_unlock(&e->m); return TRUE;
+}
+static inline DWORD WaitForSingleObject(HANDLE h, DWORD ms) {
+    LinuxEvent *e = (LinuxEvent *)h;
+    pthread_mutex_lock(&e->m);
+    if (ms == INFINITE) {
+        while (!e->set) pthread_cond_wait(&e->c, &e->m);
+    } else {
+        struct timespec ts; clock_gettime(CLOCK_REALTIME, &ts);
+        ts.tv_sec += ms / 1000; ts.tv_nsec += (long)(ms % 1000) * 1000000L;
+        if (ts.tv_nsec >= 1000000000L) { ts.tv_sec++; ts.tv_nsec -= 1000000000L; }
+        while (!e->set) {
+            if (pthread_cond_timedwait(&e->c, &e->m, &ts) != 0) {
+                pthread_mutex_unlock(&e->m); return WAIT_TIMEOUT;
+            }
+        }
+    }
+    if (!e->manual) e->set = 0;
+    pthread_mutex_unlock(&e->m); return WAIT_OBJECT_0;
+}
+static inline DWORD WaitForMultipleObjects(DWORD n, const HANDLE *h, BOOL all, DWORD ms) {
+    (void)all;
+    for (DWORD i = 0; i < n; i++) { DWORD r = WaitForSingleObject(h[i], ms); if (r != WAIT_OBJECT_0) return r; }
+    return WAIT_OBJECT_0;
+}
+static inline HANDLE CreateThread(void *sa, size_t stack, DWORD (*fn)(void *), void *arg, DWORD flags, DWORD *id) {
+    (void)sa; (void)stack; (void)flags; (void)id;
+    LinuxThread *t = (LinuxThread *)calloc(1, sizeof(LinuxThread));
+    LinuxThArgs *a = (LinuxThArgs *)malloc(sizeof(LinuxThArgs));
+    if (!t || !a) { free(t); free(a); return NULL; }
+    t->type = LH_THREAD; a->fn = fn; a->arg = arg;
+    if (pthread_create(&t->tid, NULL, lh_thread_entry, a) != 0) { free(a); free(t); return NULL; }
+    return (HANDLE)t;
+}
+static inline BOOL TerminateThread(HANDLE h, DWORD code) {
+    (void)code; pthread_cancel(((LinuxThread *)h)->tid); return TRUE;
+}
+/* Unified CloseHandle: detects pthread handles by magic tag; falls back to fd close.
+   Guard prevents redefinition from compat_winfile.h in TUs that include both headers. */
+#define LINUX_LH_CLOSEHANDLE 1
+static inline BOOL CloseHandle(HANDLE h) {
+    if (!h || h == (HANDLE)(uintptr_t)-1) return FALSE;
+    uintptr_t hval = (uintptr_t)h;
+    /* Heap pointers are well above the fd range; fds stored as (HANDLE)(intptr_t)fd are small */
+    if (hval > 65535u && (hval & 3u) == 0u) {
+        unsigned int tag = *(unsigned int *)h;
+        if (tag == LH_EVENT) {
+            LinuxEvent *e = (LinuxEvent *)h;
+            pthread_mutex_destroy(&e->m); pthread_cond_destroy(&e->c); free(e); return TRUE;
+        } else if (tag == LH_THREAD) { free(h); return TRUE; }
+    }
+    return close((int)(intptr_t)h) == 0 ? TRUE : FALSE;
+}
+static inline BOOL GetExitCodeThread(HANDLE h, DWORD *c) { (void)h; if (c) *c = 0; return TRUE; }
+static inline HANDLE GetCurrentThread(void) { return (HANDLE)(uintptr_t)pthread_self(); }
+static inline BOOL SetThreadPriority(HANDLE h, int prio) { (void)h; (void)prio; return TRUE; }
 
 /* System info */
 static inline void GetSystemInfo(SYSTEM_INFO *si)

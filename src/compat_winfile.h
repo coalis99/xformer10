@@ -90,12 +90,14 @@ static inline BOOL WriteFile(HANDLE h, const void *buf, DWORD n,
     return TRUE;
 }
 
-/* CloseHandle */
+/* CloseHandle — suppressed when compat_win.h provides the pthread-unified version */
+#ifndef LINUX_LH_CLOSEHANDLE
 static inline BOOL CloseHandle(HANDLE h)
 {
     if (h == INVALID_HANDLE_VALUE) return FALSE;
     return close((int)(intptr_t)h) == 0 ? TRUE : FALSE;
 }
+#endif
 
 /* SetFilePointer: combines low 32-bit dist with optional high 32-bit *high */
 static inline DWORD SetFilePointer(HANDLE h, LONG dist, LONG *high, DWORD method)
