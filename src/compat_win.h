@@ -771,23 +771,30 @@ typedef void *HLOCAL;
 
 /* GDI object stubs */
 static inline HGDIOBJ SelectObject(HDC hdc, HGDIOBJ hobj)
-    { (void)hdc; (void)hobj; return NULL; } // PHASE3:
-static inline BOOL DeleteObject(HGDIOBJ hobj) { (void)hobj; return TRUE; } // PHASE3:
-static inline BOOL DeleteDC(HDC hdc) { (void)hdc; return TRUE; } // PHASE3:
-static inline HDC CreateCompatibleDC(HDC hdc) { (void)hdc; return NULL; } // PHASE3:
+    { (void)hdc; (void)hobj; return NULL; }
+static inline BOOL DeleteObject(HGDIOBJ hobj) { free(hobj); return TRUE; }
+static inline BOOL DeleteDC(HDC hdc) { (void)hdc; return TRUE; }
+static inline HDC CreateCompatibleDC(HDC hdc) { (void)hdc; return (HDC)1; }
 static inline HBITMAP CreateDIBSection(HDC hdc, const BITMAPINFO *bmi, UINT usage,
-    void **ppvBits, HANDLE hSec, DWORD off)
-    { (void)hdc; (void)bmi; (void)usage; if (ppvBits) *ppvBits = NULL; (void)hSec; (void)off; return NULL; } // PHASE3:
+    void **ppvBits, HANDLE hSec, DWORD off) {
+    (void)hdc; (void)usage; (void)hSec; (void)off;
+    if (!ppvBits) return NULL;
+    size_t sz = (size_t)bmi->bmiHeader.biWidth
+              * (size_t)(bmi->bmiHeader.biHeight < 0 ? -bmi->bmiHeader.biHeight : bmi->bmiHeader.biHeight)
+              * (size_t)(bmi->bmiHeader.biBitCount < 8 ? 1 : bmi->bmiHeader.biBitCount / 8);
+    *ppvBits = calloc(sz, 1);
+    return (HBITMAP)*ppvBits;
+}
 static inline UINT SetDIBColorTable(HDC hdc, UINT start, UINT count, const RGBQUAD *colors)
-    { (void)hdc; (void)start; (void)count; (void)colors; return 0; } // PHASE3:
+    { (void)hdc; (void)start; (void)count; (void)colors; return 0; }
 static inline BOOL BitBlt(HDC dst, int x, int y, int w, int h, HDC src, int sx, int sy, DWORD rop)
-    { (void)dst; (void)x; (void)y; (void)w; (void)h; (void)src; (void)sx; (void)sy; (void)rop; return TRUE; } // PHASE3:
+    { (void)dst; (void)x; (void)y; (void)w; (void)h; (void)src; (void)sx; (void)sy; (void)rop; return TRUE; }
 static inline BOOL PatBlt(HDC hdc, int x, int y, int w, int h, DWORD rop)
-    { (void)hdc; (void)x; (void)y; (void)w; (void)h; (void)rop; return TRUE; } // PHASE3:
+    { (void)hdc; (void)x; (void)y; (void)w; (void)h; (void)rop; return TRUE; }
 static inline BOOL StretchBlt(HDC dst, int dx, int dy, int dw, int dh,
     HDC src, int sx, int sy, int sw, int sh, DWORD rop)
     { (void)dst; (void)dx; (void)dy; (void)dw; (void)dh;
-      (void)src; (void)sx; (void)sy; (void)sw; (void)sh; (void)rop; return TRUE; } // PHASE3:
+      (void)src; (void)sx; (void)sy; (void)sw; (void)sh; (void)rop; return TRUE; }
 
 /* Window geometry stubs */
 static inline BOOL GetClientRect(HWND hwnd, RECT *r)
