@@ -4,6 +4,8 @@ project(xformer10 C)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
+find_package(SDL2 REQUIRED)
+
 add_executable(xformer10
     src/atari8.vm/atari800.c
     src/atari8.vm/atarikey.c
@@ -35,6 +37,7 @@ add_executable(xformer10
 target_compile_definitions(xformer10 PRIVATE
     LINUX_PORT
     _GNU_SOURCE
+    SDL2_ENABLED
 )
 
 target_include_directories(xformer10 PRIVATE
@@ -54,4 +57,9 @@ target_compile_options(xformer10 PRIVATE
     -fcommon
 )
 
-target_link_libraries(xformer10 PRIVATE m pthread)
+if(TARGET SDL2::SDL2)
+    target_link_libraries(xformer10 PRIVATE m pthread SDL2::SDL2)
+else()
+    target_include_directories(xformer10 PRIVATE ${SDL2_INCLUDE_DIRS})
+    target_link_libraries(xformer10 PRIVATE m pthread ${SDL2_LIBRARIES})
+endif()
