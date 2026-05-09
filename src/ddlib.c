@@ -349,12 +349,7 @@ void UnlockSurface()
 
 #else /* !_WIN32 */
 
-BOOL InitDrawing(int dx, int dy, int bpp, HANDLE hwndApp, BOOL fReInit) // PHASE3:
-    { (void)dx; (void)dy; (void)bpp; (void)hwndApp; (void)fReInit; return FALSE; }
-void UninitDrawing(BOOL fFinal) { (void)fFinal; } // PHASE3:
-void ClearSurface(void) { } // PHASE3:
-BYTE *LockSurface(int *pi) { (void)pi; return NULL; } // PHASE3:
-void UnlockSurface(void) { } // PHASE3:
+/* SDL2 implementation in ddlib_sdl.c */
 
 #endif /* _WIN32 */
 

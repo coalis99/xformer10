@@ -25,6 +25,7 @@ add_executable(xformer10
     src/blocklib/mac_hfs.c
     src/gemul8r.c
     src/ddlib.c
+    src/ddlib_sdl.c
     src/sound.c
     src/props.c
     src/printer.c
