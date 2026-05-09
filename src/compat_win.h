@@ -15,6 +15,7 @@
 #include <time.h>
 #include <pthread.h>
 #include <sys/stat.h>
+#include <SDL2/SDL.h>
 
 /* Calling convention no-ops */
 #define __cdecl
@@ -213,12 +214,12 @@ static inline BOOL FileTimeToSystemTime(const FILETIME *ft, SYSTEMTIME *st)
 #define DRIVE_REMOTE          4
 #define DRIVE_CDROM           5
 #define DRIVE_RAMDISK         6
-static inline UINT GetDriveType(const char *path) { (void)path; return DRIVE_UNKNOWN; } // PHASE3:
+static inline UINT GetDriveType(const char *path) { (void)path; return DRIVE_UNKNOWN; } // LATER:
 
 /* Dynamic library stubs (ASPI not available on Linux) */
-static inline HANDLE LoadLibrary(const char *name) { (void)name; return NULL; } // PHASE3:
-static inline FARPROC GetProcAddress(HANDLE h, const char *name) { (void)h; (void)name; return NULL; } // PHASE3:
-static inline BOOL FreeLibrary(HANDLE h) { (void)h; return TRUE; } // PHASE3:
+static inline HANDLE LoadLibrary(const char *name) { (void)name; return NULL; } // LATER:
+static inline FARPROC GetProcAddress(HANDLE h, const char *name) { (void)h; (void)name; return NULL; } // LATER:
+static inline BOOL FreeLibrary(HANDLE h) { (void)h; return TRUE; } // LATER:
 
 /* Heap compact stub */
 static inline DWORD HeapCompact(HANDLE h, DWORD flags) { (void)h; (void)flags; return 0; }
@@ -231,13 +232,13 @@ static inline DWORD HeapCompact(HANDLE h, DWORD flags) { (void)h; (void)flags; r
 #define PAGE_READWRITE 0x04
 #define PAGE_READONLY  0x02
 static inline void *VirtualAlloc(void *addr, size_t sz, DWORD type, DWORD prot)
-    { (void)addr; (void)type; (void)prot; return malloc(sz); } // PHASE3:
+    { (void)addr; (void)type; (void)prot; return malloc(sz); } // LATER:
 static inline BOOL VirtualFree(void *p, size_t sz, DWORD type)
-    { (void)sz; if (type & MEM_RELEASE) free(p); return TRUE; } // PHASE3:
+    { (void)sz; if (type & MEM_RELEASE) free(p); return TRUE; } // LATER:
 
 /* SetErrorMode stub */
 #define SEM_FAILCRITICALERRORS 0x0001
-static inline DWORD SetErrorMode(DWORD mode) { (void)mode; return 0; } // PHASE3:
+static inline DWORD SetErrorMode(DWORD mode) { (void)mode; return 0; } // LATER:
 
 /* FSCTL constants (from winioctl.h; all disk I/O stubbed to FALSE) */
 #define FSCTL_LOCK_VOLUME      0x00090018
@@ -251,7 +252,7 @@ static inline DWORD SetErrorMode(DWORD mode) { (void)mode; return 0; } // PHASE3
 typedef void *LPOVERLAPPED;
 static inline BOOL DeviceIoControl(HANDLE h, DWORD code, void *in, DWORD inSz,
                                     void *out, DWORD outSz, DWORD *ret, LPOVERLAPPED ov)
-    { (void)h; (void)code; (void)in; (void)inSz; (void)out; (void)outSz; (void)ret; (void)ov; return FALSE; } // PHASE3:
+    { (void)h; (void)code; (void)in; (void)inSz; (void)out; (void)outSz; (void)ret; (void)ov; return FALSE; } // LATER:
 #define IOCTL_DISK_GET_DRIVE_GEOMETRY 0x00070000
 #define IOCTL_DISK_GET_PARTITION_INFO  0x00074004
 
@@ -271,7 +272,7 @@ typedef struct _DISK_GEOMETRY {
 #define MB_ICONERROR           0x00000010u
 #define MB_ICONINFORMATION     0x00000040u
 static inline int MessageBox(void *hwnd, const char *text, const char *caption, unsigned flags)
-    { (void)hwnd; (void)flags; fprintf(stderr, "%s: %s\n", caption, text); return 3; } // PHASE3:
+    { (void)hwnd; (void)flags; fprintf(stderr, "%s: %s\n", caption, text); return 3; } // LATER:
 static inline void *GetFocus(void) { return NULL; }
 #define wsprintf sprintf
 #ifndef __debugbreak
@@ -357,7 +358,7 @@ static inline void *HeapReAlloc(HANDLE h, DWORD flags, void *p, size_t size)
 #define STD_ERROR_HANDLE  ((DWORD)-12)
 static inline HANDLE GetStdHandle(DWORD n) { (void)n; return (HANDLE)(intptr_t)0; }
 static inline BOOL ReadConsole(HANDLE h, void *buf, DWORD n, DWORD *read, void *res)
-    { (void)h; (void)buf; (void)n; (void)res; if (read) *read = 0; return FALSE; } // PHASE3:
+    { (void)h; (void)buf; (void)n; (void)res; if (read) *read = 0; return FALSE; } // LATER:
 extern SHORT sdl_get_async_key_state(int vk);
 static inline SHORT GetAsyncKeyState(int vk) { return sdl_get_async_key_state(vk); }
 
@@ -402,9 +403,9 @@ typedef struct tagMSG {
 
 /* Message queue stubs */
 static inline BOOL PeekMessage(MSG *msg, HWND hwnd, UINT min, UINT max, UINT remove)
-    { (void)msg; (void)hwnd; (void)min; (void)max; (void)remove; return FALSE; } // PHASE3:
+    { (void)msg; (void)hwnd; (void)min; (void)max; (void)remove; return FALSE; } // LATER:
 static inline BOOL PostMessage(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
-    { (void)hwnd; (void)msg; (void)wp; (void)lp; return FALSE; } // PHASE3:
+    { (void)hwnd; (void)msg; (void)wp; (void)lp; return FALSE; } // LATER:
 static inline BOOL TranslateMessage(const MSG *msg)
     { (void)msg; return FALSE; }
 static inline LRESULT DispatchMessage(const MSG *msg)
@@ -493,7 +494,7 @@ static inline DWORD GetCurrentDirectory(DWORD sz, char *buf) {
 }
 static inline BOOL SetCurrentDirectory(const char *path) { return chdir(path) == 0; }
 static inline DWORD GetWindowsDirectory(char *buf, DWORD sz) { if (buf && sz > 0) buf[0] = 0; return 0; }
-static inline BOOL CreateDirectory(const char *path, void *sa) { (void)path; (void)sa; return TRUE; } // PHASE3:
+static inline BOOL CreateDirectory(const char *path, void *sa) { (void)sa; mkdir(path, 0755); return TRUE; }
 
 /* System metrics stub */
 #define SM_CXSCREEN         0
@@ -505,7 +506,14 @@ static inline BOOL CreateDirectory(const char *path, void *sa) { (void)path; (vo
 #define SM_CYCAPTION        4
 #define SM_CXFULLSCREEN     16
 #define SM_CYFULLSCREEN     17
-static inline int GetSystemMetrics(int idx) { (void)idx; return 0; } // PHASE3:
+static inline int GetSystemMetrics(int idx) {
+    if (idx == SM_CXSCREEN || idx == SM_CYSCREEN) {
+        SDL_DisplayMode m;
+        if (SDL_GetDisplayMode(0, 0, &m) == 0)
+            return (idx == SM_CXSCREEN) ? m.w : m.h;
+    }
+    return 0;
+}
 
 /* Window show state constants */
 #define SW_HIDE             0
@@ -530,17 +538,17 @@ static inline int GetSystemMetrics(int idx) { (void)idx; return 0; } // PHASE3:
 #define CSIDL_APPDATA       0x001a
 #define CSIDL_WINDOWS       0x0024
 static inline HRESULT SHGetFolderPath(HWND h, int f, HANDLE t, DWORD fl, char *buf)
-    { (void)h; (void)f; (void)t; (void)fl; if (buf) buf[0]=0; return E_NOTIMPL; } // PHASE3:
+    { (void)h; (void)f; (void)t; (void)fl; if (buf) buf[0]=0; return E_NOTIMPL; } // LATER:
 typedef void *LPITEMIDLIST;
 static inline LPITEMIDLIST SHBrowseForFolder(void *bi)
-    { (void)bi; return NULL; } // PHASE3:
+    { (void)bi; return NULL; } // LATER:
 static inline BOOL SHGetPathFromIDList(LPITEMIDLIST id, char *buf)
-    { (void)id; if (buf) buf[0]=0; return FALSE; } // PHASE3:
+    { (void)id; if (buf) buf[0]=0; return FALSE; } // LATER:
 #define SHGFI_DISPLAYNAME 0x200
 #define SHGFI_USEFILEATTRIBUTES 0x10
 typedef struct { void *hIcon; int iIcon; DWORD dwAttributes; char szDisplayName[260]; char szTypeName[80]; } SHFILEINFO;
 static inline DWORD_PTR SHGetFileInfo(const char *p, DWORD a, SHFILEINFO *fi, UINT sz, UINT fl)
-    { (void)p; (void)a; (void)fi; (void)sz; (void)fl; return 0; } // PHASE3:
+    { (void)p; (void)a; (void)fi; (void)sz; (void)fl; return 0; } // LATER:
 
 /* Thread/synchronization — pthreads-backed Win32 handles */
 #define INFINITE               0xFFFFFFFFu
@@ -637,8 +645,9 @@ static inline HANDLE GetCurrentThread(void) { return (HANDLE)(uintptr_t)pthread_
 static inline BOOL SetThreadPriority(HANDLE h, int prio) { (void)h; (void)prio; return TRUE; }
 
 /* System info */
-static inline void GetSystemInfo(SYSTEM_INFO *si)
-    { if (si) { memset(si, 0, sizeof(*si)); si->dwNumberOfProcessors = 1; } } // PHASE3:
+static inline void GetSystemInfo(SYSTEM_INFO *si) {
+    if (si) { memset(si, 0, sizeof(*si)); si->dwNumberOfProcessors = (DWORD)sysconf(_SC_NPROCESSORS_ONLN); }
+}
 
 /* GetLastError */
 static inline DWORD GetLastError(void) { return 0; }
@@ -793,17 +802,17 @@ typedef struct tagMENUITEMINFO {
 } MENUITEMINFO, *LPMENUITEMINFO;
 
 static inline BOOL InsertMenuItem(HMENU m, UINT i, BOOL byPos, const MENUITEMINFO *mi)
-    { (void)m; (void)i; (void)byPos; (void)mi; return FALSE; } // PHASE3:
+    { (void)m; (void)i; (void)byPos; (void)mi; return FALSE; } // LATER:
 static inline BOOL GetMenuItemInfo(HMENU m, UINT i, BOOL byPos, MENUITEMINFO *mi)
-    { (void)m; (void)i; (void)byPos; (void)mi; return FALSE; } // PHASE3:
+    { (void)m; (void)i; (void)byPos; (void)mi; return FALSE; } // LATER:
 static inline BOOL SetMenuItemInfo(HMENU m, UINT i, BOOL byPos, const MENUITEMINFO *mi)
-    { (void)m; (void)i; (void)byPos; (void)mi; return FALSE; } // PHASE3:
-static inline int CheckMenuItem(HMENU m, UINT i, UINT f) { (void)m; (void)i; (void)f; return -1; } // PHASE3:
-static inline BOOL EnableMenuItem(HMENU m, UINT i, UINT f) { (void)m; (void)i; (void)f; return FALSE; } // PHASE3:
-static inline int GetMenuItemCount(HMENU m) { (void)m; return 0; } // PHASE3:
-static inline BOOL DeleteMenu(HMENU m, UINT i, UINT f) { (void)m; (void)i; (void)f; return FALSE; } // PHASE3:
-static inline BOOL AppendMenu(HMENU m, UINT f, UINT_PTR id, const char *s) { (void)m; (void)f; (void)id; (void)s; return FALSE; } // PHASE3:
-static inline HMENU GetSubMenu(HMENU m, int i) { (void)m; (void)i; return NULL; } // PHASE3:
+    { (void)m; (void)i; (void)byPos; (void)mi; return FALSE; } // LATER:
+static inline int CheckMenuItem(HMENU m, UINT i, UINT f) { (void)m; (void)i; (void)f; return -1; } // LATER:
+static inline BOOL EnableMenuItem(HMENU m, UINT i, UINT f) { (void)m; (void)i; (void)f; return FALSE; } // LATER:
+static inline int GetMenuItemCount(HMENU m) { (void)m; return 0; } // LATER:
+static inline BOOL DeleteMenu(HMENU m, UINT i, UINT f) { (void)m; (void)i; (void)f; return FALSE; } // LATER:
+static inline BOOL AppendMenu(HMENU m, UINT f, UINT_PTR id, const char *s) { (void)m; (void)f; (void)id; (void)s; return FALSE; } // LATER:
+static inline HMENU GetSubMenu(HMENU m, int i) { (void)m; (void)i; return NULL; } // LATER:
 
 /* Common file dialog stubs */
 #define OFN_EXPLORER        0x00080000u
@@ -836,8 +845,8 @@ typedef struct tagOFN {
     const char  *lpTemplateName;
 } OPENFILENAME, *LPOPENFILENAME;
 
-static inline BOOL GetOpenFileName(OPENFILENAME *ofn) { (void)ofn; return FALSE; } // PHASE3:
-static inline BOOL GetSaveFileName(OPENFILENAME *ofn) { (void)ofn; return FALSE; } // PHASE3:
+static inline BOOL GetOpenFileName(OPENFILENAME *ofn) { (void)ofn; return FALSE; } // LATER:
+static inline BOOL GetSaveFileName(OPENFILENAME *ofn) { (void)ofn; return FALSE; } // LATER:
 
 /* GDI object handle types */
 typedef void *HGDIOBJ;
@@ -876,32 +885,32 @@ static inline BOOL StretchBlt(HDC dst, int dx, int dy, int dw, int dh,
 
 /* Window geometry stubs */
 static inline BOOL GetClientRect(HWND hwnd, RECT *r)
-    { (void)hwnd; if (r) { r->left=0; r->top=0; r->right=0; r->bottom=0; } return TRUE; } // PHASE3:
-static inline BOOL GetCursorPos(POINT *pt) { (void)pt; return FALSE; } // PHASE3:
-static inline BOOL ScreenToClient(HWND hwnd, POINT *pt) { (void)hwnd; (void)pt; return FALSE; } // PHASE3:
-static inline BOOL ClientToScreen(HWND hwnd, POINT *pt) { (void)hwnd; (void)pt; return FALSE; } // PHASE3:
+    { (void)hwnd; if (r) { r->left=0; r->top=0; r->right=0; r->bottom=0; } return TRUE; } // LATER:
+static inline BOOL GetCursorPos(POINT *pt) { (void)pt; return FALSE; } // LATER:
+static inline BOOL ScreenToClient(HWND hwnd, POINT *pt) { (void)hwnd; (void)pt; return FALSE; } // LATER:
+static inline BOOL ClientToScreen(HWND hwnd, POINT *pt) { (void)hwnd; (void)pt; return FALSE; } // LATER:
 static inline BOOL SetWindowPos(HWND hwnd, HWND ins, int x, int y, int cx, int cy, UINT fl)
-    { (void)hwnd; (void)ins; (void)x; (void)y; (void)cx; (void)cy; (void)fl; return TRUE; } // PHASE3:
-static inline BOOL SetWindowText(HWND hwnd, const char *s) { (void)hwnd; (void)s; return TRUE; } // PHASE3:
+    { (void)hwnd; (void)ins; (void)x; (void)y; (void)cx; (void)cy; (void)fl; return TRUE; } // LATER:
+static inline BOOL SetWindowText(HWND hwnd, const char *s) { (void)hwnd; (void)s; return TRUE; } // LATER:
 
 /* Window show/cursor stubs */
-static inline BOOL ShowWindow(HWND hwnd, int cmd) { (void)hwnd; (void)cmd; return FALSE; } // PHASE3:
-static inline int ShowCursor(BOOL show) { (void)show; return 0; } // PHASE3:
-static inline BOOL ClipCursor(const RECT *r) { (void)r; return TRUE; } // PHASE3:
+static inline BOOL ShowWindow(HWND hwnd, int cmd) { (void)hwnd; (void)cmd; return FALSE; } // LATER:
+static inline int ShowCursor(BOOL show) { (void)show; return 0; } // LATER:
+static inline BOOL ClipCursor(const RECT *r) { (void)r; return TRUE; } // LATER:
 
 /* Message stubs */
 static inline LRESULT SendMessage(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
-    { (void)hwnd; (void)msg; (void)wp; (void)lp; return 0; } // PHASE3:
+    { (void)hwnd; (void)msg; (void)wp; (void)lp; return 0; } // LATER:
 
 /* Keyboard state stub */
-static inline SHORT GetKeyState(int vk) { (void)vk; return 0; } // PHASE3:
+static inline SHORT GetKeyState(int vk) { (void)vk; return 0; } // LATER:
 
 /* Console stubs */
-static inline BOOL AllocConsole(void) { return FALSE; } // PHASE3:
-static inline HWND GetConsoleWindow(void) { return NULL; } // PHASE3:
-static inline BOOL SetConsoleTitle(const char *s) { (void)s; return TRUE; } // PHASE3:
-static inline BOOL FreeConsole(void) { return TRUE; } // PHASE3:
-static inline BOOL FlushConsoleInputBuffer(HANDLE h) { (void)h; return FALSE; } // PHASE3:
+static inline BOOL AllocConsole(void) { return FALSE; } // LATER:
+static inline HWND GetConsoleWindow(void) { return NULL; } // LATER:
+static inline BOOL SetConsoleTitle(const char *s) { (void)s; return TRUE; } // LATER:
+static inline BOOL FreeConsole(void) { return TRUE; } // LATER:
+static inline BOOL FlushConsoleInputBuffer(HANDLE h) { (void)h; return FALSE; } // LATER:
 
 /* CRT compatibility aliases */
 #define _stricmp  strcasecmp

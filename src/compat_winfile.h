@@ -145,17 +145,17 @@ typedef struct _WIN32_FIND_DATAA {
 static inline HANDLE FindFirstFileA(const char *path, WIN32_FIND_DATAA *fd)
 {
     (void)path; (void)fd;
-    return INVALID_HANDLE_VALUE; // PHASE3: directory enumeration not implemented
+    return INVALID_HANDLE_VALUE; // LATER: directory enumeration not implemented
 }
 static inline BOOL FindNextFileA(HANDLE h, WIN32_FIND_DATAA *fd)
 {
     (void)h; (void)fd;
-    return FALSE; // PHASE3:
+    return FALSE; // LATER:
 }
 static inline BOOL FindClose(HANDLE h)
 {
     (void)h;
-    return TRUE; // PHASE3:
+    return TRUE; // LATER:
 }
 
 #define FindFirstFile  FindFirstFileA
@@ -183,7 +183,7 @@ static inline DWORD GetFileAttributes(const char *path)
 }
 
 /* SetFileAttributes: no-op on Linux */
-static inline BOOL SetFileAttributes(const char *path, DWORD attr) { (void)path; (void)attr; return TRUE; } // PHASE3:
+static inline BOOL SetFileAttributes(const char *path, DWORD attr) { (void)path; (void)attr; return TRUE; } // LATER:
 
 /* DeleteFile: map to unlink */
 static inline BOOL DeleteFile(const char *path) { return unlink(path) == 0 ? TRUE : FALSE; }

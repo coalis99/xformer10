@@ -59,7 +59,7 @@ BOOL FWriteSerialPort(BYTE b)
         }
     return cch;
 #else
-    (void)b; return FALSE; // PHASE3:
+    (void)b; return FALSE; // LATER:
 #endif
 }
 
@@ -86,7 +86,7 @@ int CchSerialPending()
 //    DebugStr("CchSerialPending returning %d\n", ComStat.cbInQue);
     return (vi.cchserial = ComStat.cbInQue);
 #else
-    vi.cchserial = 0; return 0; // PHASE3:
+    vi.cchserial = 0; return 0; // LATER:
 #endif
 }
 
@@ -105,7 +105,7 @@ BOOL CchSerialRead(char *rgb, int cchRead)
     DebugStr("CchSerialRead returning %d %02X\n", cch, rgb[0]);
     return cch;
 #else
-    (void)rgb; (void)cchRead; return 0; // PHASE3:
+    (void)rgb; (void)cchRead; return 0; // LATER:
 #endif
 }
 
@@ -131,7 +131,7 @@ void __inline CheckError(BOOL f, int iCOM, HANDLE hComm2, char *pch)
     if (!f)
         MessageBox(GetFocus(), rgch, rgchErr, MB_OK|MB_ICONHAND);
 #else
-    (void)f; (void)iCOM; (void)hComm2; (void)pch; // PHASE3:
+    (void)f; (void)iCOM; (void)hComm2; (void)pch; // LATER:
 #endif
 }
 
@@ -276,7 +276,7 @@ BOOL FInitSerialPort(int iCOM)
 
     return TRUE;
 #else
-    (void)iCOM; return FALSE; // PHASE3:
+    (void)iCOM; return FALSE; // LATER:
 #endif
 }
 
@@ -401,7 +401,7 @@ BOOL FSetBaudRate(int tsr, int ucr, int tddr, int tcdcr)
     SetCommMask(hComm, EV_RXCHAR);
     return f;
 #else
-    (void)tsr; (void)ucr; (void)tddr; (void)tcdcr; return FALSE; // PHASE3:
+    (void)tsr; (void)ucr; (void)tddr; (void)tcdcr; return FALSE; // LATER:
 #endif
 }
 
@@ -414,7 +414,7 @@ void SetRTS(BOOL f)
 
     EscapeCommFunction(hComm, f ? SETRTS : CLRRTS);
 #else
-    (void)f; // PHASE3:
+    (void)f; // LATER:
 #endif
 }
 
@@ -427,7 +427,7 @@ void SetDTR(BOOL f)
 
     EscapeCommFunction(hComm, f ? SETDTR : CLRDTR);
 #else
-    (void)f; // PHASE3:
+    (void)f; // LATER:
 #endif
 }
 
@@ -470,6 +470,6 @@ ULONG GetModemStatus()
     old = new;
     return (new << 8) | changed;
 #else
-    return 0; // PHASE3:
+    return 0; // LATER:
 #endif
 }
