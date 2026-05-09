@@ -5,6 +5,15 @@
 #include "atari800.h"
 
 void UninitThreads(void);
+extern const int sdl_to_vk[];
+
+static LPARAM make_key_lparam(int scancode, int is_up)
+{
+    DWORD oem = (DWORD)(unsigned)scancode;
+    if (is_up)
+        return (LPARAM)((oem << 16) | 0xC0000001u);
+    return (LPARAM)((oem << 16) | 1u);
+}
 
 int main(void)
 {
@@ -46,8 +55,17 @@ int main(void)
     SDL_Event e;
     while (!vi.fQuitting) {
         while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT)
+            if (e.type == SDL_QUIT) {
                 vi.fQuitting = TRUE;
+            } else if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
+                int sc = (int)e.key.keysym.scancode;
+                int vk = (sc >= 0 && sc < 512) ? sdl_to_vk[sc] : 0;
+                if (vk && v.cVM > 0)
+                    FWinMsgVM(v.iVM, vi.hWnd,
+                              e.type == SDL_KEYDOWN ? WM_KEYDOWN : WM_KEYUP,
+                              (WPARAM)vk,
+                              make_key_lparam(sc, e.type == SDL_KEYUP));
+            }
         }
         if (v.cVM > 0 && !vi.fQuitting) {
             SetEvent(ThreadStuff[0].hGoEvent);

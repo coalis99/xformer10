@@ -358,7 +358,8 @@ static inline void *HeapReAlloc(HANDLE h, DWORD flags, void *p, size_t size)
 static inline HANDLE GetStdHandle(DWORD n) { (void)n; return (HANDLE)(intptr_t)0; }
 static inline BOOL ReadConsole(HANDLE h, void *buf, DWORD n, DWORD *read, void *res)
     { (void)h; (void)buf; (void)n; (void)res; if (read) *read = 0; return FALSE; } // PHASE3:
-static inline SHORT GetAsyncKeyState(int vk) { (void)vk; return 0; } // PHASE3:
+extern SHORT sdl_get_async_key_state(int vk);
+static inline SHORT GetAsyncKeyState(int vk) { return sdl_get_async_key_state(vk); }
 
 /* Windows message constants */
 #define WM_NULL           0x0000

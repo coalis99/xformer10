@@ -31,6 +31,7 @@ add_executable(xformer10
     src/printer.c
     src/serial.c
     src/romcard.c
+    src/keymap_sdl.c
     src/main_linux.c
     src/stubs_linux.c
 )
