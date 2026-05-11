@@ -1,11 +1,14 @@
 #ifndef _WIN32
 
+#include <signal.h>
 #include <SDL2/SDL.h>
 #include "gemtypes.h"
 #include "atari800.h"
 
 void UninitThreads(void);
 extern const int sdl_to_vk[];
+
+static void sigint_handler(int s) { (void)s; vi.fQuitting = TRUE; }
 
 static LPARAM make_key_lparam(int scancode, int is_up)
 {
@@ -51,6 +54,8 @@ int main(void)
     InitThreads();
 
     vi.fExecuting = TRUE;
+
+    signal(SIGINT, sigint_handler);
 
     SDL_Event e;
     while (!vi.fQuitting) {
