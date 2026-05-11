@@ -10,9 +10,10 @@ extern const int sdl_to_vk[];
 
 static void sigint_handler(int s) { (void)s; vi.fQuitting = TRUE; }
 
-static LPARAM make_key_lparam(int scancode, int is_up)
+static LPARAM make_key_lparam(int sdl_sc, int is_up)
 {
-    DWORD oem = (DWORD)(unsigned)scancode;
+    extern const unsigned char sdl_to_ps2[];
+    DWORD oem = (sdl_sc >= 0 && sdl_sc < 512) ? sdl_to_ps2[sdl_sc] : 0;
     if (is_up)
         return (LPARAM)((oem << 16) | 0xC0000001u);
     return (LPARAM)((oem << 16) | 1u);
