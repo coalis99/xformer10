@@ -31,7 +31,8 @@
 HWAVEOUT hWave;
 #else
 static SDL_AudioDeviceID gAudioDev;
-static int gSndBufIdx;
+static volatile int gSndWriteIdx;
+static volatile int gSndReadIdx;
 #endif
 //FILE *fp; // for debug printing of the wave buffer
 
@@ -167,6 +168,7 @@ void SoundDoneCallback(void *candy, int iCurSample)
         {
             wCONSOL |= 8;  // !!! periodically reset the internal speaker if an app forgets to, so it doesn't distort sound forever
 
+#ifdef _WIN32
             for (int i = 0; i < SNDBUFS; i++)
             {
                 if (pwhdr[i].dwFlags & WHDR_DONE) {
@@ -174,6 +176,12 @@ void SoundDoneCallback(void *candy, int iCurSample)
                     sOldSample = 0;    // start writing at the beginning of it
                 }
             }
+#else
+            if ((gSndWriteIdx - gSndReadIdx) < SNDBUFS) {
+                sCurBuf = gSndWriteIdx % SNDBUFS;
+                sOldSample = 0;
+            }
+#endif
         }
 
         // uh oh, no free buffers to write into (this will happen naturally when tiling or without brakes)
@@ -438,6 +446,9 @@ void SoundDoneCallback(void *candy, int iCurSample)
             pwhdr[sCurBuf].dwFlags &= ~WHDR_DONE;
 #ifdef _WIN32
             waveOutWrite(hWave, &pwhdr[sCurBuf], sizeof(WAVEHDR));
+#else
+            SDL_MemoryBarrierRelease();
+            ++gSndWriteIdx;
 #endif
 
             //ODS("Write (%d) %08x @ %llu\n", sCurBuf, &pwhdr[sCurBuf], GetJiffies());
@@ -938,13 +949,18 @@ void UninitSound()
 static void SDLAudioCallback(void *ud, Uint8 *stream, int len)
 {
     (void)ud;
-    int bufBytes = SAMPLES_NTSC * 2;
-    int copy = len < bufBytes ? len : bufBytes;
-    memcpy(stream, vi.rgbSndBufN[gSndBufIdx], copy);
-    if (copy < len)
-        memset(stream + copy, 0, len - copy);
-    vi.rgwhdrN[gSndBufIdx].dwFlags |= WHDR_DONE;
-    gSndBufIdx = (gSndBufIdx + 1) % SNDBUFS;
+    if (gSndWriteIdx > gSndReadIdx) {
+        SDL_MemoryBarrierAcquire();
+        int idx = gSndReadIdx % SNDBUFS;
+        int bufBytes = SAMPLES_NTSC * 2;
+        int copy = len < bufBytes ? len : bufBytes;
+        memcpy(stream, vi.rgbSndBufN[idx], copy);
+        if (copy < len)
+            memset(stream + copy, 0, len - copy);
+        ++gSndReadIdx;
+    } else {
+        memset(stream, 0, len);
+    }
 }
 #endif
 
@@ -1039,6 +1055,8 @@ void InitSound()
             vi.rgwhdrP[iHdr].dwBufferLength = SAMPLES_PAL * 2;
             vi.rgwhdrP[iHdr].dwFlags = WHDR_DONE;
         }
+        gSndWriteIdx = 0;
+        gSndReadIdx  = 0;
         SDL_AudioSpec want, have;
         SDL_zero(want);
         want.freq = SAMPLE_RATE;
@@ -1051,6 +1069,10 @@ void InitSound()
         {
             vi.fWaveOutput = TRUE;
             SDL_PauseAudioDevice(gAudioDev, 0);
+        }
+        else
+        {
+            fprintf(stderr, "SDL_OpenAudioDevice failed: %s\n", SDL_GetError());
         }
     }
 #endif
