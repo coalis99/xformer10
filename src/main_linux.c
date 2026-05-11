@@ -66,11 +66,33 @@ int main(void)
             } else if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
                 int sc = (int)e.key.keysym.scancode;
                 int vk = (sc >= 0 && sc < 512) ? sdl_to_vk[sc] : 0;
-                if (vk && v.cVM > 0)
-                    FWinMsgVM(v.iVM, vi.hWnd,
-                              e.type == SDL_KEYDOWN ? WM_KEYDOWN : WM_KEYUP,
-                              (WPARAM)vk,
-                              make_key_lparam(sc, e.type == SDL_KEYUP));
+                if (vk && v.cVM > 0) {
+                    int is_down = (e.type == SDL_KEYDOWN);
+                    SDL_Keymod mod = SDL_GetModState();
+                    LPARAM lp = make_key_lparam(sc, !is_down);
+                    if (sc == SDL_SCANCODE_F4 && (mod & KMOD_ALT) && is_down) {
+                        /* Alt+F4: close emulator */
+                        vi.fQuitting = TRUE;
+                    } else if (sc == SDL_SCANCODE_F4) {
+                        /* F4 without Alt: xkey.c case 0x3e swallows bare F4,
+                           so set the Win32 extended-key bit (bit 24) to make
+                           the switch see 0x13E instead of 0x3E, falling to
+                           default which passes scan 0x3E to CheckKey. */
+                        FWinMsgVM(v.iVM, vi.hWnd,
+                                  is_down ? WM_KEYDOWN : WM_KEYUP,
+                                  (WPARAM)vk, lp | (LPARAM)0x01000000);
+                    } else if (sc == SDL_SCANCODE_F10 && is_down) {
+                        /* F10 = Warm Reset, Ctrl+F10 = Cold Reset */
+                        if (mod & KMOD_CTRL)
+                            ColdStart(v.iVM);
+                        else
+                            FWarmbootVM(v.iVM);
+                    } else {
+                        FWinMsgVM(v.iVM, vi.hWnd,
+                                  is_down ? WM_KEYDOWN : WM_KEYUP,
+                                  (WPARAM)vk, lp);
+                    }
+                }
             }
         }
         if (v.cVM > 0 && !vi.fQuitting) {
