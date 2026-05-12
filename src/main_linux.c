@@ -43,7 +43,7 @@ int main(void)
     }
 
     if (v.cVM == 0) {
-        int iVM = AddVM(0, FALSE, FALSE);
+        int iVM = AddVM(1, FALSE, FALSE);
         if (iVM >= 0) {
             FInitVM(iVM);
             ColdStart(iVM);
