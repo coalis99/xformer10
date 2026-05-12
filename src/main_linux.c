@@ -71,6 +71,17 @@ int main(void)
                     int is_down = (e.type == SDL_KEYDOWN);
                     SDL_Keymod mod = SDL_GetModState();
                     LPARAM lp = make_key_lparam(sc, !is_down);
+                    switch (sc) {
+                    case SDL_SCANCODE_UP:    case SDL_SCANCODE_DOWN:
+                    case SDL_SCANCODE_LEFT:  case SDL_SCANCODE_RIGHT:
+                    case SDL_SCANCODE_HOME:  case SDL_SCANCODE_END:
+                    case SDL_SCANCODE_INSERT: case SDL_SCANCODE_DELETE:
+                    case SDL_SCANCODE_PAGEUP: case SDL_SCANCODE_PAGEDOWN:
+                        lp |= 0x01000000;
+                        break;
+                    default:
+                        break;
+                    }
                     if (sc == SDL_SCANCODE_F4 && (mod & KMOD_ALT) && is_down) {
                         /* Alt+F4: close emulator */
                         vi.fQuitting = TRUE;
