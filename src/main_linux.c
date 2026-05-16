@@ -1,6 +1,9 @@
 #ifndef _WIN32
 
 #include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <SDL2/SDL.h>
 #include "gemtypes.h"
 #include "atari800.h"
@@ -21,7 +24,18 @@ static LPARAM make_key_lparam(int sdl_sc, int is_up)
 
 int main(void)
 {
-    SDL_setenv("SDL_AUDIODRIVER", "pulseaudio", 1);
+    {
+        char path[64];
+        int uid = (int)getuid();
+        if (!getenv("PULSE_SERVER")) {
+            snprintf(path, sizeof(path), "unix:/run/user/%d/pulse/native", uid);
+            setenv("PULSE_SERVER", path, 0);
+        }
+        if (!getenv("PIPEWIRE_REMOTE")) {
+            snprintf(path, sizeof(path), "/run/user/%d/pipewire-0", uid);
+            setenv("PIPEWIRE_REMOTE", path, 0);
+        }
+    }
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
         return 1;
