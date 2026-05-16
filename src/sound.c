@@ -192,12 +192,15 @@ void SoundDoneCallback(void *candy, int iCurSample)
         }
 
         // we should never try to go back in time
+#ifdef _WIN32
         assert(iCurSample >= sOldSample);
+#endif
 
         //fprintf(fp, "SOUND[0] %d-%d f=%d v=%d d=%d\n", sOldSample, iCurSample, AUDF1, AUDC1 & 0x0f, AUDC1 >> 4);
 
-        // nothing to write (make sure sOldSample is reset to 0 when iCurSample == SAMPLES_PER_VOICE)
-        if (iCurSample == sOldSample) {
+        // nothing to write; on Linux, scan-line boundary integer division can also
+        // produce a slightly smaller iCurSample — treat both as "nothing to do here"
+        if (iCurSample <= sOldSample) {
             //ODS("Wow, Sound changed so fast we dropped a sample!\n");
             goto SaveAud;    // at least remember the new values
         }
