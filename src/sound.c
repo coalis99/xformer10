@@ -33,6 +33,7 @@ HWAVEOUT hWave;
 static SDL_AudioDeviceID gAudioDev;
 static volatile int gSndWriteIdx;
 static volatile int gSndReadIdx;
+static BOOL gAudioAvail = FALSE;
 #endif
 //FILE *fp; // for debug printing of the wave buffer
 
@@ -939,10 +940,10 @@ void UninitSound()
 
     hWave = NULL;
 #else
-    if (gAudioDev)
-    {
-        SDL_CloseAudioDevice(gAudioDev);
-        gAudioDev = 0;
+    if (gAudioAvail) {
+        if (gAudioDev) { SDL_CloseAudioDevice(gAudioDev); gAudioDev = 0; }
+        SDL_QuitSubSystem(SDL_INIT_AUDIO);
+        gAudioAvail = FALSE;
     }
 #endif
     vi.fWaveOutput = FALSE;
@@ -1060,6 +1061,13 @@ void InitSound()
         }
         gSndWriteIdx = 0;
         gSndReadIdx  = 0;
+        if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
+            fprintf(stderr, "SDL audio init failed: %s -- audio disabled\n",
+                    SDL_GetError());
+            gAudioAvail = FALSE;
+            return;
+        }
+        gAudioAvail = TRUE;
         SDL_AudioSpec want, have;
         SDL_zero(want);
         want.freq = SAMPLE_RATE;
