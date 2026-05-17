@@ -22,9 +22,9 @@ static LPARAM make_key_lparam(int sdl_sc, int is_up)
     return (LPARAM)((oem << 16) | 1u);
 }
 
-int main(void)
+int main(int argc, char *argv[])
 {
-    {
+    if (!getenv("SDL_AUDIODRIVER")) {
         char path[64];
         int uid = (int)getuid();
         if (!getenv("PULSE_SERVER")) {
@@ -35,6 +35,8 @@ int main(void)
             snprintf(path, sizeof(path), "/run/user/%d/pipewire-0", uid);
             setenv("PIPEWIRE_REMOTE", path, 0);
         }
+        setenv("SDL_AUDIODRIVER", "pulseaudio", 1);
+        execvp(argv[0], argv);
     }
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
