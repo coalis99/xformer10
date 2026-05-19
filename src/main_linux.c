@@ -10,6 +10,7 @@
 #include "gemtypes.h"
 #include "atari800.h"
 #include "res/resource.h"
+#include "menu_sdl.h"
 
 void UninitThreads(void);
 void LinuxDoCommand(int idm);
@@ -83,6 +84,7 @@ int main(void)
     SDL_Event e;
     while (!vi.fQuitting) {
         while (SDL_PollEvent(&e)) {
+            if (MenuHandleEvent(&e)) continue;
             if (e.type == SDL_QUIT) {
                 vi.fQuitting = TRUE;
             } else if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {

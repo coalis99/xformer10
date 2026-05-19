@@ -22,6 +22,8 @@
 #include "gemtypes.h"
 #include "menu_sdl.h"
 
+extern void LinuxDoCommand(int idm);
+
 #define FONT_PATH         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
 #define FONT_SIZE         14
 #define NUM_TOPS          4
@@ -134,6 +136,16 @@ static int HitItem(int m, int x, int y)
         yacc += h;
     }
     return -1;
+}
+
+static void DispatchMenuCmd(int idm)
+{
+    switch (idm) {
+    case IDM_EXIT:      vi.fQuitting = TRUE;      break;
+    case IDM_WARMSTART: FWarmbootVM(v.iVM);        break;
+    case IDM_COLDSTART: ColdStart(v.iVM);          break;
+    default:            LinuxDoCommand(idm);       break;
+    }
 }
 
 void MenuInit(SDL_Renderer *ren)
@@ -333,8 +345,15 @@ int MenuHandleEvent(SDL_Event *e)
             if (gMenuOpen >= 0) {
                 SDL_Rect dr = DropRect(gMenuOpen);
                 if (x >= dr.x && x < dr.x + dr.w &&
-                    y >= dr.y && y < dr.y + dr.h)
-                    return 1;  /* consumed; dispatch deferred to step 3 */
+                    y >= dr.y && y < dr.y + dr.h) {
+                    int j = HitItem(gMenuOpen, x, y);
+                    int m = gMenuOpen;
+                    gMenuOpen  = -1;
+                    gMenuHover = -1;
+                    if (j >= 0 && gItems[m][j].idm > 0)
+                        DispatchMenuCmd(gItems[m][j].idm);
+                    return 1;
+                }
                 gMenuOpen  = -1;
                 gMenuHover = -1;
                 return 0;
