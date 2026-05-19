@@ -891,8 +891,6 @@ static inline BOOL ScreenToClient(HWND hwnd, POINT *pt) { (void)hwnd; (void)pt; 
 static inline BOOL ClientToScreen(HWND hwnd, POINT *pt) { (void)hwnd; (void)pt; return FALSE; } // LATER:
 static inline BOOL SetWindowPos(HWND hwnd, HWND ins, int x, int y, int cx, int cy, UINT fl)
     { (void)hwnd; (void)ins; (void)x; (void)y; (void)cx; (void)cy; (void)fl; return TRUE; } // LATER:
-static inline BOOL SetWindowText(HWND hwnd, const char *s) { (void)hwnd; (void)s; return TRUE; } // LATER:
-
 /* Window show/cursor stubs */
 static inline BOOL ShowWindow(HWND hwnd, int cmd) { (void)hwnd; (void)cmd; return FALSE; } // LATER:
 static inline int ShowCursor(BOOL show) { (void)show; return 0; } // LATER:
@@ -903,7 +901,10 @@ static inline LRESULT SendMessage(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     { (void)hwnd; (void)msg; (void)wp; (void)lp; return 0; } // LATER:
 
 /* Keyboard state stub */
-static inline SHORT GetKeyState(int vk) { (void)vk; return 0; } // LATER:
+static inline SHORT GetKeyState(int vk) { return sdl_get_async_key_state(vk); }
+
+void linux_set_window_title(const char *s);
+static inline BOOL SetWindowText(HWND hwnd, const char *s) { (void)hwnd; linux_set_window_title(s); return TRUE; }
 
 /* Console stubs */
 static inline BOOL AllocConsole(void) { return FALSE; } // LATER:

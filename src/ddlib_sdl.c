@@ -29,12 +29,17 @@ static int gTexW, gTexH;
 
 extern BYTE const abRainbow[3][256];
 
+void linux_set_window_title(const char *s)
+{
+    if (gSDLWin) SDL_SetWindowTitle(gSDLWin, s);
+}
+
 BOOL InitDrawing(int dx, int dy, int bpp, HANDLE hwndApp, BOOL fReInit)
 {
     (void)bpp; (void)hwndApp; (void)fReInit;
     gSDLWin = SDL_CreateWindow("Xformer 10",
                                SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                               dx, dy,
+                               dx * 3, dy * 3,
                                SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     if (!gSDLWin) return FALSE;
     gSDLRen = SDL_CreateRenderer(gSDLWin, -1, SDL_RENDERER_PRESENTVSYNC);

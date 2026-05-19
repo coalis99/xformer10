@@ -9,8 +9,10 @@
 #include <SDL2/SDL.h>
 #include "gemtypes.h"
 #include "atari800.h"
+#include "res/resource.h"
 
 void UninitThreads(void);
+void LinuxDoCommand(int idm);
 extern const int sdl_to_vk[];
 
 static void sigint_handler(int s) { (void)s; vi.fQuitting = TRUE; }
@@ -33,6 +35,9 @@ int main(void)
 
     InitProperties();
     LoadProperties(NULL, TRUE);
+
+    vi.szAppName = "Xformer";
+    vi.szTitle   = "Xformer";
 
     rgpvm = malloc(128 * (sizeof(VM) + sizeof(VMINST)));
     cpvm = 128;
@@ -109,12 +114,21 @@ int main(void)
                         FWinMsgVM(v.iVM, vi.hWnd,
                                   is_down ? WM_KEYDOWN : WM_KEYUP,
                                   (WPARAM)vk, lp | (LPARAM)0x01000000);
+                    } else if (sc == SDL_SCANCODE_F1 && (mod & KMOD_ALT) && is_down) {
+                        LinuxDoCommand(IDM_TURBO);
                     } else if (sc == SDL_SCANCODE_F10 && is_down) {
-                        /* F10 = Warm Reset, Ctrl+F10 = Cold Reset */
-                        if (mod & KMOD_CTRL)
+                        if (mod & KMOD_ALT)
+                            LinuxDoCommand(IDM_CHANGEVM);
+                        else if (mod & KMOD_SHIFT)
+                            LinuxDoCommand(IDM_TOGGLEBASIC);
+                        else if (mod & KMOD_CTRL)
                             ColdStart(v.iVM);
                         else
                             FWarmbootVM(v.iVM);
+                    } else if (sc == SDL_SCANCODE_F12 && (mod & KMOD_ALT) && is_down) {
+                        LinuxDoCommand(IDM_NTSCPAL);
+                    } else if (sc == SDL_SCANCODE_F12 && (mod & KMOD_SHIFT) && is_down) {
+                        LinuxDoCommand(IDM_COLORMONO);
                     } else {
                         FWinMsgVM(v.iVM, vi.hWnd,
                                   is_down ? WM_KEYDOWN : WM_KEYUP,

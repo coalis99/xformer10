@@ -6372,6 +6372,79 @@ Lhib:
 }
 #endif /* _WIN32 - WndProc */
 
+#ifndef _WIN32
+void LinuxDoCommand(int idm)
+{
+    switch (idm)
+    {
+    case IDM_TURBO:
+        fBrakes = !fBrakes;
+        uExecSpeed = 0;
+        DisplayStatus(v.iVM);
+        break;
+
+    case IDM_NTSCPAL:
+        if (v.iVM >= 0)
+        {
+            rgpvm[v.iVM]->fEmuPAL = !rgpvm[v.iVM]->fEmuPAL;
+            DisplayStatus(v.iVM);
+        }
+        break;
+
+    case IDM_TOGGLEBASIC:
+        if (v.iVM >= 0)
+        {
+            rgpvmi(v.iVM)->fKillMePlease = 5;
+            if (!ColdStart(v.iVM))
+            {
+                rgpvmi(v.iVM)->fKillMePlease = 0;
+                DeleteVM(v.iVM, TRUE);
+            }
+        }
+        break;
+
+    case IDM_COLORMONO:
+        if (v.iVM >= 0)
+            FToggleMonitor(v.iVM);
+        break;
+
+    case IDM_CHANGEVM:
+        if (v.iVM >= 0)
+        {
+            int type = rgpvm[v.iVM]->bfHW;
+            int otype = 0;
+            while (type >>= 1)
+                otype++;
+            type = ((otype + 1) & 0x1f);
+            for (int zz = 0; zz < 32; zz++)
+            {
+                if (type == otype)
+                    break;
+                PVMINFO pvmi = DetermineVMType(type);
+                if (pvmi)
+                {
+                    BOOL fOK = FALSE;
+                    FUnInitVM(v.iVM);
+                    FUnInstallVM(v.iVM);
+                    rgpvmi(v.iVM)->pPrivate = NULL;
+                    rgpvmi(v.iVM)->iPrivateSize = 0;
+                    if (FInstallVM(&rgpvmi(v.iVM)->pPrivate, &rgpvmi(v.iVM)->iPrivateSize, rgpvm[v.iVM], pvmi, type))
+                        if (FInitVM(v.iVM))
+                            if (ColdStart(v.iVM))
+                                fOK = TRUE;
+                    if (!fOK)
+                        DeleteVM(v.iVM, TRUE);
+                    DisplayStatus(v.iVM);
+                    break;
+                }
+                type = ((type + 1) & 0x1f);
+            }
+        }
+        break;
+    }
+}
+#endif /* !_WIN32 */
+
 //
 //   FUNCTION: OpenTheFile(HWND hwnd, HWND hwndEdit)
 //
