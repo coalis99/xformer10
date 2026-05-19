@@ -21,6 +21,7 @@
 #include <SDL2/SDL.h>
 #include "gemtypes.h"
 #include "atari800.h"
+#include "menu_sdl.h"
 
 static SDL_Window   *gSDLWin;
 static SDL_Renderer *gSDLRen;
@@ -39,7 +40,7 @@ BOOL InitDrawing(int dx, int dy, int bpp, HANDLE hwndApp, BOOL fReInit)
     (void)bpp; (void)hwndApp; (void)fReInit;
     gSDLWin = SDL_CreateWindow("Xformer 10",
                                SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                               dx * 3, dy * 3,
+                               dx * 3, dy * 3 + MENU_H,
                                SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     if (!gSDLWin) return FALSE;
     gSDLRen = SDL_CreateRenderer(gSDLWin, -1, SDL_RENDERER_PRESENTVSYNC);
@@ -51,6 +52,7 @@ BOOL InitDrawing(int dx, int dy, int bpp, HANDLE hwndApp, BOOL fReInit)
     if (!gSDLTex) return FALSE;
     gTexW = dx;
     gTexH = dy;
+    MenuInit(gSDLRen);
     return TRUE;
 }
 
@@ -79,6 +81,7 @@ void UninitDrawing(BOOL fFinal)
 {
     if (fFinal)
     {
+        MenuQuit();
         if (gSDLTex) { SDL_DestroyTexture(gSDLTex);   gSDLTex = NULL; }
         if (gSDLRen) { SDL_DestroyRenderer(gSDLRen);  gSDLRen = NULL; }
         if (gSDLWin) { SDL_DestroyWindow(gSDLWin);    gSDLWin = NULL; }
@@ -102,7 +105,9 @@ void RenderBitmap_SDL(void)
     }
 
     SDL_UpdateTexture(gSDLTex, NULL, argbBuf, gTexW * 4);
-    SDL_RenderCopy(gSDLRen, gSDLTex, NULL, NULL);
+    SDL_Rect dest = {0, MENU_H, gTexW * 3, gTexH * 3};
+    SDL_RenderCopy(gSDLRen, gSDLTex, NULL, &dest);
+    MenuRender(gSDLRen);
     SDL_RenderPresent(gSDLRen);
 }
 
