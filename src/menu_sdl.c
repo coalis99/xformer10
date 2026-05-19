@@ -33,6 +33,7 @@ extern void LinuxDoCommand(int idm);
 #define MENU_PAD          8
 #define MENU_SHORTCUT_GAP 16
 #define MENU_DROP_MIN_W   160
+#define MENU_CHECK_AREA   16  /* reserved width for checkmark left of label */
 
 static const char *gTopLabels[NUM_TOPS] = { "File", "VM", "Window", "Disk" };
 static const int   gTopX[NUM_TOPS]      = { 8, 60, 110, 185 };
@@ -41,6 +42,9 @@ static TTF_Font    *gFont         = NULL;
 static SDL_Texture *gTopTex[NUM_TOPS];
 static int          gTopW[NUM_TOPS];
 static int          gTopH[NUM_TOPS];
+static SDL_Texture *gCheckTex     = NULL;
+static int          gCheckW       = 0;
+static int          gCheckH       = 0;
 static int          gMenuReady    = 0;
 static int          gMenuOpen     = -1;
 static int          gMenuHover    = -1;
@@ -49,6 +53,7 @@ typedef struct {
     const char  *label;
     const char  *shortcut;
     int          idm;       /* 0=separator, -1=always-grayed, else IDM */
+    int          needsVM;   /* gray when v.iVM < 0 */
     SDL_Texture *labelTex;
     int          labelW, labelH;
     SDL_Texture *shortTex;
@@ -59,32 +64,32 @@ static MenuItem gItems[NUM_TOPS][MAX_ITEMS];
 static int      gItemCount[NUM_TOPS];
 static int      gDropW[NUM_TOPS];
 
-static const struct { const char *lbl; const char *sc; int idm; }
+static const struct { const char *lbl; const char *sc; int idm; int needsVM; }
 kDef[NUM_TOPS][MAX_ITEMS] = {
     /* File */
-    { {"Exit", NULL, IDM_EXIT} },
+    { {"Exit", NULL, IDM_EXIT, 0} },
     /* VM */
     {
-        {"Warm Start",     "F10",       IDM_WARMSTART},
-        {"Cold Start",     "Ctrl+F10",  IDM_COLDSTART},
-        {"Toggle BASIC",   "Shift+F10", IDM_TOGGLEBASIC},
-        {"Change Type",    "Alt+F10",   IDM_CHANGEVM},
-        {NULL,             NULL,        0},
-        {"Emulate PAL",    "Alt+F12",   IDM_NTSCPAL},
-        {"Switch Monitor", "Shift+F12", IDM_COLORMONO},
+        {"Warm Start",     "F10",       IDM_WARMSTART,   1},
+        {"Cold Start",     "Ctrl+F10",  IDM_COLDSTART,   1},
+        {"Toggle BASIC",   "Shift+F10", IDM_TOGGLEBASIC, 1},
+        {"Change Type",    "Alt+F10",   IDM_CHANGEVM,    1},
+        {NULL,             NULL,        0,               0},
+        {"Emulate PAL",    "Alt+F12",   IDM_NTSCPAL,     1},
+        {"Switch Monitor", "Shift+F12", IDM_COLORMONO,   1},
     },
     /* Window */
-    { {"Turbo Mode", "Alt+F1", IDM_TURBO} },
+    { {"Turbo Mode", "Alt+F1", IDM_TURBO, 1} },
     /* Disk */
     {
-        {"D1: Mount",        NULL, -1},
-        {"D1: Unmount",      NULL, -1},
-        {NULL,               NULL,  0},
-        {"D2: Mount",        NULL, -1},
-        {"D2: Unmount",      NULL, -1},
-        {NULL,               NULL,  0},
-        {"Cartridge",        NULL, -1},
-        {"Remove Cartridge", NULL, -1},
+        {"D1: Mount",        NULL, -1, 0},
+        {"D1: Unmount",      NULL, -1, 0},
+        {NULL,               NULL,  0, 0},
+        {"D2: Mount",        NULL, -1, 0},
+        {"D2: Unmount",      NULL, -1, 0},
+        {NULL,               NULL,  0, 0},
+        {"Cartridge",        NULL, -1, 0},
+        {"Remove Cartridge", NULL, -1, 0},
     },
 };
 
@@ -172,8 +177,19 @@ void MenuInit(SDL_Renderer *ren)
         SDL_FreeSurface(surf);
     }
 
-    /* Item textures — white so SDL_SetTextureColorMod can dim them */
+    /* Checkmark texture (U+2713 ✓) */
     SDL_Color white = {255, 255, 255, 255};
+    {
+        SDL_Surface *surf = TTF_RenderUTF8_Blended(gFont, "\xe2\x9c\x93", white);
+        if (surf) {
+            gCheckTex = SDL_CreateTextureFromSurface(ren, surf);
+            gCheckW   = surf->w;
+            gCheckH   = surf->h;
+            SDL_FreeSurface(surf);
+        }
+    }
+
+    /* Item textures — white so SDL_SetTextureColorMod can dim them */
     for (int m = 0; m < NUM_TOPS; m++) {
         gItemCount[m] = kItemCount[m];
         int maxW = 0;
@@ -182,6 +198,7 @@ void MenuInit(SDL_Renderer *ren)
             it->label    = kDef[m][j].lbl;
             it->shortcut = kDef[m][j].sc;
             it->idm      = kDef[m][j].idm;
+            it->needsVM  = kDef[m][j].needsVM;
             if (it->idm == 0 || !it->label) continue;
 
             SDL_Surface *surf = TTF_RenderUTF8_Blended(gFont, it->label, white);
@@ -200,7 +217,7 @@ void MenuInit(SDL_Renderer *ren)
                     SDL_FreeSurface(surf);
                 }
             }
-            int needed = MENU_PAD + it->labelW
+            int needed = MENU_PAD + MENU_CHECK_AREA + it->labelW
                        + (it->shortcut ? MENU_SHORTCUT_GAP + it->shortW : 0)
                        + MENU_PAD;
             if (needed > maxW) maxW = needed;
@@ -229,6 +246,7 @@ void MenuQuit(void)
             }
         }
     }
+    if (gCheckTex) { SDL_DestroyTexture(gCheckTex); gCheckTex = NULL; }
     if (gFont) { TTF_CloseFont(gFont); gFont = NULL; }
     TTF_Quit();
     gMenuReady = 0;
@@ -280,18 +298,30 @@ void MenuRender(SDL_Renderer *ren)
                 dr.x + MENU_PAD,          yacc + MENU_SEP_H / 2,
                 dr.x + dr.w - MENU_PAD,   yacc + MENU_SEP_H / 2);
         } else {
-            if (gMenuHover == j && it->idm > 0) {
+            int isGrayed  = (it->idm < 0) || (it->needsVM && v.iVM < 0);
+            int isChecked = 0;
+            if (it->idm == IDM_TURBO)   isChecked = !fBrakes;
+            if (it->idm == IDM_NTSCPAL) isChecked = (v.iVM >= 0 && rgpvm[v.iVM]->fEmuPAL);
+
+            if (gMenuHover == j && !isGrayed) {
                 SDL_SetRenderDrawColor(ren, 80, 110, 160, 255);
                 SDL_Rect hlr = { dr.x + 1, yacc + 1, dr.w - 2, itemH - 2 };
                 SDL_RenderFillRect(ren, &hlr);
             }
 
-            Uint8 c = (it->idm < 0) ? 100 : 230;
+            Uint8 c = isGrayed ? 100 : 230;
 
+            if (isChecked && gCheckTex) {
+                SDL_SetTextureColorMod(gCheckTex, c, c, c);
+                int ty = yacc + (itemH - gCheckH) / 2;
+                SDL_Rect dst = { dr.x + MENU_PAD, ty, gCheckW, gCheckH };
+                SDL_RenderCopy(ren, gCheckTex, NULL, &dst);
+            }
             if (it->labelTex) {
                 SDL_SetTextureColorMod(it->labelTex, c, c, c);
                 int ty = yacc + (itemH - it->labelH) / 2;
-                SDL_Rect dst = { dr.x + MENU_PAD, ty, it->labelW, it->labelH };
+                SDL_Rect dst = { dr.x + MENU_PAD + MENU_CHECK_AREA, ty,
+                                 it->labelW, it->labelH };
                 SDL_RenderCopy(ren, it->labelTex, NULL, &dst);
             }
             if (it->shortTex) {
@@ -350,8 +380,11 @@ int MenuHandleEvent(SDL_Event *e)
                     int m = gMenuOpen;
                     gMenuOpen  = -1;
                     gMenuHover = -1;
-                    if (j >= 0 && gItems[m][j].idm > 0)
-                        DispatchMenuCmd(gItems[m][j].idm);
+                    if (j >= 0) {
+                        MenuItem *it = &gItems[m][j];
+                        if (it->idm > 0 && !(it->needsVM && v.iVM < 0))
+                            DispatchMenuCmd(it->idm);
+                    }
                     return 1;
                 }
                 gMenuOpen  = -1;
