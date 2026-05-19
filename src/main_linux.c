@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <glob.h>
+#include <limits.h>
 #include <SDL2/SDL.h>
 #include "gemtypes.h"
 #include "atari800.h"
@@ -22,22 +24,8 @@ static LPARAM make_key_lparam(int sdl_sc, int is_up)
     return (LPARAM)((oem << 16) | 1u);
 }
 
-int main(int argc, char *argv[])
+int main(void)
 {
-    if (!getenv("SDL_AUDIODRIVER")) {
-        char path[64];
-        int uid = (int)getuid();
-        if (!getenv("PULSE_SERVER")) {
-            snprintf(path, sizeof(path), "unix:/run/user/%d/pulse/native", uid);
-            setenv("PULSE_SERVER", path, 0);
-        }
-        if (!getenv("PIPEWIRE_REMOTE")) {
-            snprintf(path, sizeof(path), "/run/user/%d/pipewire-0", uid);
-            setenv("PIPEWIRE_REMOTE", path, 0);
-        }
-        setenv("SDL_AUDIODRIVER", "pulseaudio", 1);
-        execvp(argv[0], argv);
-    }
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
         return 1;
@@ -66,6 +54,18 @@ int main(int argc, char *argv[])
             ColdStart(iVM);
             SelectInstance(iVM);
         }
+    }
+
+    setenv("SDL_AUDIODRIVER", "pulseaudio", 1);
+    {
+        glob_t gl;
+        if (glob("/run/user/*/pulse/native", GLOB_NOSORT, NULL, &gl) == 0
+                && gl.gl_pathc > 0) {
+            char buf[PATH_MAX];
+            snprintf(buf, sizeof buf, "unix:%s", gl.gl_pathv[0]);
+            setenv("PULSE_SERVER", buf, 1);
+        }
+        globfree(&gl);
     }
 
     InitSound();
