@@ -28,7 +28,7 @@ static SDL_Renderer *gSDLRen;
 static SDL_Texture  *gSDLTex;
 static int gTexW, gTexH;
 
-extern BYTE const abRainbow[3][256];
+extern BYTE rgbRainbow[];  /* atari800.c: interleaved [R,G,B] * 256 */
 
 void linux_set_window_title(const char *s)
 {
@@ -98,10 +98,13 @@ void RenderBitmap_SDL(void)
     for (int i = 0; i < gTexW * gTexH; i++)
     {
         BYTE p = ((BYTE *)src)[i];
+        BYTE r = rgbRainbow[p * 3    ];
+        BYTE g = rgbRainbow[p * 3 + 1];
+        BYTE b = rgbRainbow[p * 3 + 2];
         argbBuf[i] = (Uint32)0xFF000000
-            | ((Uint32)abRainbow[0][p] << (2 + 16))
-            | ((Uint32)abRainbow[1][p] << (2 +  8))
-            | ((Uint32)abRainbow[2][p] <<  2       );
+            | (Uint32)((r << 2) | (r >> 5)) << 16
+            | (Uint32)((g << 2) | (g >> 5)) <<  8
+            | (Uint32)((b << 2) | (b >> 5));
     }
 
     SDL_UpdateTexture(gSDLTex, NULL, argbBuf, gTexW * 4);
