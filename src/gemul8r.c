@@ -6504,6 +6504,45 @@ void LinuxDoCommand(int idm)
             rgpvm[v.iVM]->rgvd[1].dt = DISK_NONE;
         }
         break;
+
+    case IDM_NEW:
+    {
+        int prevcount = v.cVM;
+        for (int z = 0; z < prevcount; z++)
+            DeleteVM(v.cVM - 1, FALSE);
+        DeleteVM(-1, TRUE);
+        CreateAllVMs();
+        v.sWheelOffset = 0;
+        break;
+    }
+    case IDM_DELVM:
+        if (v.iVM >= 0)
+            DeleteVM(v.iVM, TRUE);
+        break;
+    case IDM_AUTOLOAD:
+        v.fSaveOnExit = !v.fSaveOnExit;
+        DisplayStatus(v.iVM);
+        break;
+    case IDM_ADDVM1:
+    {
+        int vmNew = AddVM(0, TRUE, FALSE);
+        if (vmNew >= 0)
+        {
+            if (FInitVM(vmNew) && ColdStart(vmNew))
+                SelectInstance(vmNew);
+            else
+                DeleteVM(vmNew, TRUE);
+        }
+        break;
+    }
+    case IDM_NEXTVM:
+        if (v.cVM > 1)
+            SelectInstance(v.iVM + 1);
+        break;
+    case IDM_PREVVM:
+        if (v.cVM > 1)
+            SelectInstance(-1);
+        break;
     }
 }
 #endif /* !_WIN32 */
