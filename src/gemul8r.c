@@ -6398,6 +6398,31 @@ void LinuxDoCommand(int idm)
         DisplayStatus(v.iVM);
         break;
 
+    case IDM_STRETCH:
+        v.fZoomColor = !v.fZoomColor;
+        DisplayStatus(v.iVM);
+        break;
+
+    case IDM_AUTOKILL:
+        v.fAutoKill = !v.fAutoKill;
+        break;
+
+    case IDM_LCTRLFIRE:
+        v.fDisableLCTRLFire = !v.fDisableLCTRLFire;
+        break;
+
+    case IDM_WHEELSENS:
+        v.fWheelSensitive = !v.fWheelSensitive;
+        break;
+
+    case IDM_MYVIDEOCARDSUCKS:
+        v.fMyVideoCardSucks = !v.fMyVideoCardSucks;
+        break;
+
+    case IDM_TOGGLESOUND:
+        v.fSilentMode = !v.fSilentMode;
+        break;
+
     case IDM_NTSCPAL:
         if (v.iVM >= 0)
         {
