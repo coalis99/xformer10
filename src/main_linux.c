@@ -29,6 +29,25 @@ static LPARAM make_key_lparam(int sdl_sc, int is_up)
 
 static SDL_Joystick *gJoy;
 static SDL_JoystickID gJoyID;
+static int gJoyDir;   /* bits: 0=UP 1=DOWN 2=LEFT 3=RIGHT */
+
+static void joy_key(int sc, int is_down)
+{
+    int vk = (sc >= 0 && sc < 512) ? sdl_to_vk[sc] : 0;
+    if (!vk || v.iVM < 0) return;
+    LPARAM lp = make_key_lparam(sc, !is_down) | 0x01000000;
+    FWinMsgVM(v.iVM, vi.hWnd, is_down ? WM_KEYDOWN : WM_KEYUP, (WPARAM)vk, lp);
+}
+
+static void joy_update_dir(int new_dir)
+{
+    int changed = gJoyDir ^ new_dir;
+    if (changed & 1) joy_key(SDL_SCANCODE_UP,    new_dir & 1);
+    if (changed & 2) joy_key(SDL_SCANCODE_DOWN,  (new_dir >> 1) & 1);
+    if (changed & 4) joy_key(SDL_SCANCODE_LEFT,  (new_dir >> 2) & 1);
+    if (changed & 8) joy_key(SDL_SCANCODE_RIGHT, (new_dir >> 3) & 1);
+    gJoyDir = new_dir;
+}
 
 int main(void)
 {
@@ -117,6 +136,18 @@ int main(void)
             } else if (e.type == SDL_JOYBUTTONUP) {
                 if (gJoy && (e.jbutton.button == 0 || e.jbutton.button == 1) && v.iVM >= 0)
                     FWinMsgVM(v.iVM, vi.hWnd, MM_JOY1BUTTONUP, 0, 0);
+            } else if (e.type == SDL_JOYAXISMOTION && gJoy) {
+                int new_dir = gJoyDir;
+                if (e.jaxis.axis == 0) {         /* X axis → LEFT/RIGHT */
+                    new_dir &= ~(4 | 8);
+                    if      (e.jaxis.value < -8192) new_dir |= 4;
+                    else if (e.jaxis.value >  8192) new_dir |= 8;
+                } else if (e.jaxis.axis == 1) {  /* Y axis → UP/DOWN */
+                    new_dir &= ~(1 | 2);
+                    if      (e.jaxis.value < -8192) new_dir |= 1;
+                    else if (e.jaxis.value >  8192) new_dir |= 2;
+                }
+                joy_update_dir(new_dir);
             } else if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
                 int sc = (int)e.key.keysym.scancode;
                 int vk = (sc >= 0 && sc < 512) ? sdl_to_vk[sc] : 0;
