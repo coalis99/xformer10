@@ -6559,6 +6559,30 @@ void LinuxDoCommand(int idm)
         }
         break;
     }
+    case IDM_LOAD:
+    {
+        char chFN[MAX_PATH];
+        chFN[0] = '\0';
+        if (SDL_FileBrowserRunEx(GetSDLRenderer(), GetSDLWindow(),
+                                 NULL, chFN, MAX_PATH, ".gem", 0))
+        {
+            LoadProperties(chFN, TRUE);
+            LoadProperties(chFN, FALSE);
+            v.sWheelOffset = 0;
+            sVM = -1;
+            InitThreads();
+        }
+        break;
+    }
+    case IDM_SAVEAS:
+    {
+        char chFN[MAX_PATH];
+        chFN[0] = '\0';
+        if (SDL_FileBrowserRunEx(GetSDLRenderer(), GetSDLWindow(),
+                                 NULL, chFN, MAX_PATH, ".gem", 2))
+            SaveProperties(chFN);
+        break;
+    }
     }
 }
 #endif /* !_WIN32 */
