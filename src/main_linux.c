@@ -15,6 +15,7 @@
 void UninitThreads(void);
 void LinuxDoCommand(int idm);
 extern const int sdl_to_vk[];
+void linux_get_client_rect(RECT *r);
 
 static void sigint_handler(int s) { (void)s; vi.fQuitting = TRUE; }
 
@@ -73,6 +74,15 @@ int main(void)
     sMaxTiles = 2;
 
     InitDrawing(X8, Y8, 8, NULL, FALSE);
+
+    {   /* compute tile capacity now that the window exists */
+        RECT rc; linux_get_client_rect(&rc);
+        int cols = rc.right  > 0 ? rc.right  / (int)X8 : 1;
+        int rows = rc.bottom > 0 ? rc.bottom / (int)Y8 : 1;
+        sTilesPerRow = cols + 1;           /* +1: partial tiles on right */
+        sMaxTiles    = sTilesPerRow * (rows + 2); /* +2: partial top+bottom */
+        if (sMaxTiles < 2) sMaxTiles = 2;
+    }
 
     if (!CreateNewBitmaps()) {
         fprintf(stderr, "CreateNewBitmaps failed\n");
