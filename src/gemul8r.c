@@ -6423,6 +6423,12 @@ void LinuxDoCommand(int idm)
         v.fSilentMode = !v.fSilentMode;
         break;
 
+    case IDM_FULLSCREEN:
+        v.fFullScreen = !v.fFullScreen;
+        SDL_SetWindowFullscreen(GetSDLWindow(),
+            v.fFullScreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+        break;
+
     case IDM_NTSCPAL:
         if (v.iVM >= 0)
         {
