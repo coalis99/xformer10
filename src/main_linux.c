@@ -148,6 +148,14 @@ int main(void)
                     else if (e.jaxis.value >  8192) new_dir |= 2;
                 }
                 joy_update_dir(new_dir);
+            } else if (e.type == SDL_JOYHATMOTION && gJoy && e.jhat.hat == 0) {
+                int hv = e.jhat.value;
+                int new_dir = 0;
+                if (hv & SDL_HAT_UP)    new_dir |= 1;
+                if (hv & SDL_HAT_DOWN)  new_dir |= 2;
+                if (hv & SDL_HAT_LEFT)  new_dir |= 4;
+                if (hv & SDL_HAT_RIGHT) new_dir |= 8;
+                joy_update_dir(new_dir);
             } else if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
                 int sc = (int)e.key.keysym.scancode;
                 int vk = (sc >= 0 && sc < 512) ? sdl_to_vk[sc] : 0;
