@@ -6429,6 +6429,24 @@ void LinuxDoCommand(int idm)
             v.fFullScreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
         break;
 
+    case IDM_TILE:
+        v.fTiling = !v.fTiling;
+        if (v.fTiling) {
+            sVM = -1;
+            v.sWheelOffset = 0;
+            {   /* recalculate sTilesPerRow from current window */
+                RECT rc; GetClientRect(vi.hWnd, &rc);
+                int nx = rc.right > 0 ? (rc.right * 10 / (int)sTileSize.x + 5) / 10 : 1;
+                sTilesPerRow = nx;
+            }
+            InitThreads();
+        } else {
+            /* leaving tiled mode: select the VM that was in focus */
+            SelectInstance(v.iVM >= 0 ? v.iVM : (nFirstVisibleTile >= 0 ? nFirstVisibleTile : 0));
+        }
+        DisplayStatus(v.iVM);
+        break;
+
     case IDM_NTSCPAL:
         if (v.iVM >= 0)
         {

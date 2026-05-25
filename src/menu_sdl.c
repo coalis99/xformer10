@@ -361,7 +361,7 @@ void MenuRender(SDL_Renderer *ren)
             if (it->idm == IDM_FULLSCREEN)       isChecked = v.fFullScreen;
             if (it->idm == IDM_STRETCH)          isChecked = v.fZoomColor;
             if (it->idm == IDM_STRETCH)          isGrayed  |= v.fTiling;
-            if (it->idm == IDM_TILE)             isGrayed   = TRUE;
+            if (it->idm == IDM_TILE)             isChecked  = v.fTiling;
             if (it->idm == IDM_AUTOKILL)         isChecked = v.fAutoKill;
             if (it->idm == IDM_LCTRLFIRE)        isChecked = v.fDisableLCTRLFire;
             if (it->idm == IDM_WHEELSENS)        isChecked = v.fWheelSensitive;
@@ -459,7 +459,6 @@ int MenuHandleEvent(SDL_Event *e)
                         if (it->idm == IDM_NEXTVM) grayed |= (v.cVM <= 1);
                         if (it->idm == IDM_PREVVM) grayed |= (v.cVM <= 1);
                         if (it->idm == IDM_STRETCH) grayed |= v.fTiling;
-                        if (it->idm == IDM_TILE)    grayed  = TRUE;
                         if (!grayed)
                             DispatchMenuCmd(it->idm);
                     }
