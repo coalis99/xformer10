@@ -160,6 +160,10 @@ typedef BOOL(__fastcall *PFNWRITE)(void *, ADDR, BYTE);
 
 int sTilesPerRow;           // how many tiles we are currently fitting per row
 extern int sVM;             // which tile you're hovering over, -1 means none so this must be signed
+extern int cThreads;
+extern int nFirstVisibleTile;
+extern int sTilesPerRow;
+extern int sMaxTiles;
 POINT sTileSize;            // the size of the tiles, we have to pick one when mixing VM types
 int sMaxTiles;              // how many can possibly fit on all multimons when maximized?
 

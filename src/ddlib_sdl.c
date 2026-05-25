@@ -35,6 +35,14 @@ void linux_set_window_title(const char *s)
     if (gSDLWin) SDL_SetWindowTitle(gSDLWin, s);
 }
 
+void linux_get_client_rect(RECT *r)
+{
+    int w = 0, h = 0;
+    if (gSDLWin) SDL_GetWindowSize(gSDLWin, &w, &h);
+    r->left = 0; r->top = 0;
+    r->right = w; r->bottom = (h > MENU_H) ? h - MENU_H : 0;
+}
+
 BOOL InitDrawing(int dx, int dy, int bpp, HANDLE hwndApp, BOOL fReInit)
 {
     (void)bpp; (void)hwndApp; (void)fReInit;
@@ -108,7 +116,33 @@ void RenderBitmap_SDL(void)
     }
 
     SDL_UpdateTexture(gSDLTex, NULL, argbBuf, gTexW * 4);
-    SDL_Rect dest = {0, MENU_H, gTexW * 3, gTexH * 3};
+
+    SDL_Rect dest;
+    if (v.fZoomColor || v.fFullScreen) {
+        int winW, winH;
+        SDL_GetWindowSize(gSDLWin, &winW, &winH);
+        int availW = winW;
+        int availH = winH - MENU_H;
+        if (availH < 1) availH = 1;
+        if (v.fZoomColor) {
+            /* stretch: fill entire available area */
+            dest = (SDL_Rect){0, MENU_H, availW, availH};
+        } else {
+            /* fullscreen without stretch: letterbox proportionally */
+            int scaledW = availH * gTexW / gTexH;
+            if (scaledW <= availW)
+                dest = (SDL_Rect){(availW - scaledW) / 2, MENU_H, scaledW, availH};
+            else {
+                int scaledH = availW * gTexH / gTexW;
+                dest = (SDL_Rect){0, MENU_H + (availH - scaledH) / 2, availW, scaledH};
+            }
+        }
+    } else {
+        /* normal windowed: fixed 3× */
+        dest = (SDL_Rect){0, MENU_H, gTexW * 3, gTexH * 3};
+    }
+
+    SDL_RenderClear(gSDLRen);
     SDL_RenderCopy(gSDLRen, gSDLTex, NULL, &dest);
     MenuRender(gSDLRen);
     SDL_RenderPresent(gSDLRen);

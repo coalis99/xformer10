@@ -884,8 +884,9 @@ static inline BOOL StretchBlt(HDC dst, int dx, int dy, int dw, int dh,
       (void)src; (void)sx; (void)sy; (void)sw; (void)sh; (void)rop; return TRUE; }
 
 /* Window geometry stubs */
+void linux_get_client_rect(RECT *r);
 static inline BOOL GetClientRect(HWND hwnd, RECT *r)
-    { (void)hwnd; if (r) { r->left=0; r->top=0; r->right=0; r->bottom=0; } return TRUE; } // LATER:
+    { (void)hwnd; if (r) linux_get_client_rect(r); return TRUE; }
 static inline BOOL GetCursorPos(POINT *pt) { (void)pt; return FALSE; } // LATER:
 static inline BOOL ScreenToClient(HWND hwnd, POINT *pt) { (void)hwnd; (void)pt; return FALSE; } // LATER:
 static inline BOOL ClientToScreen(HWND hwnd, POINT *pt) { (void)hwnd; (void)pt; return FALSE; } // LATER:
