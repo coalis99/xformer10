@@ -111,6 +111,12 @@ int main(void)
                     SDL_JoystickClose(gJoy);
                     gJoy = NULL;
                 }
+            } else if (e.type == SDL_JOYBUTTONDOWN) {
+                if (gJoy && (e.jbutton.button == 0 || e.jbutton.button == 1) && v.iVM >= 0)
+                    FWinMsgVM(v.iVM, vi.hWnd, MM_JOY1BUTTONDOWN, JOY_BUTTON1, 0);
+            } else if (e.type == SDL_JOYBUTTONUP) {
+                if (gJoy && (e.jbutton.button == 0 || e.jbutton.button == 1) && v.iVM >= 0)
+                    FWinMsgVM(v.iVM, vi.hWnd, MM_JOY1BUTTONUP, 0, 0);
             } else if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
                 int sc = (int)e.key.keysym.scancode;
                 int vk = (sc >= 0 && sc < 512) ? sdl_to_vk[sc] : 0;
