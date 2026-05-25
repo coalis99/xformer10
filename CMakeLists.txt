@@ -36,6 +36,7 @@ add_executable(xformer10
     src/main_linux.c
     src/stubs_linux.c
     src/menu_sdl.c
+    src/sdl_filebrowser.c
 )
 
 target_compile_definitions(xformer10 PRIVATE
