@@ -27,7 +27,7 @@ extern void LinuxDoCommand(int idm);
 #define FONT_PATH         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
 #define FONT_SIZE         14
 #define NUM_TOPS          4
-#define MAX_ITEMS         10
+#define MAX_ITEMS         16
 #define MENU_ITEM_H       20
 #define MENU_SEP_H        8
 #define MENU_PAD          8
@@ -67,7 +67,22 @@ static int      gDropW[NUM_TOPS];
 static const struct { const char *lbl; const char *sc; int idm; int needsVM; }
 kDef[NUM_TOPS][MAX_ITEMS] = {
     /* File */
-    { {"Exit", NULL, IDM_EXIT, 0} },
+    {
+        {"Open Folder...",             NULL, IDM_OPENFOLDER, 0},
+        {"Add Atari 800",              NULL, IDM_ADDVM1,     0},
+        {"Delete VM",                  NULL, IDM_DELVM,      1},
+        {NULL,                         NULL, 0,              0},
+        {"New Session",                NULL, IDM_NEW,        0},
+        {"Load Session...",            NULL, IDM_LOAD,       0},
+        {"Save Session As...",         NULL, IDM_SAVEAS,     0},
+        {NULL,                         NULL, 0,              0},
+        {"Restore Last Session",       NULL, IDM_AUTOLOAD,   0},
+        {NULL,                         NULL, 0,              0},
+        {"Next VM",                    NULL, IDM_NEXTVM,     1},
+        {"Previous VM",                NULL, IDM_PREVVM,     1},
+        {NULL,                         NULL, 0,              0},
+        {"Exit",                       NULL, IDM_EXIT,       0},
+    },
     /* VM */
     {
         {"Warm Start",     "F10",       IDM_WARMSTART,   1},
@@ -93,7 +108,7 @@ kDef[NUM_TOPS][MAX_ITEMS] = {
     },
 };
 
-static const int kItemCount[NUM_TOPS] = {1, 7, 1, 8};
+static const int kItemCount[NUM_TOPS] = {14, 7, 1, 8};
 
 /* Returns y offset of item j within dropdown m (relative to MENU_H) */
 static int ItemYOffset(int m, int j)
@@ -305,9 +320,12 @@ void MenuRender(SDL_Renderer *ren)
             int isGrayed  = (it->idm < 0) || (it->needsVM && v.iVM < 0);
             if (it->idm == IDM_D1U && v.iVM >= 0) isGrayed |= !rgpvm[v.iVM]->rgvd[0].sz[0];
             if (it->idm == IDM_D2U && v.iVM >= 0) isGrayed |= !rgpvm[v.iVM]->rgvd[1].sz[0];
+            if (it->idm == IDM_NEXTVM) isGrayed |= (v.cVM <= 1);
+            if (it->idm == IDM_PREVVM) isGrayed |= (v.cVM <= 1);
             int isChecked = 0;
-            if (it->idm == IDM_TURBO)   isChecked = !fBrakes;
-            if (it->idm == IDM_NTSCPAL) isChecked = (v.iVM >= 0 && rgpvm[v.iVM]->fEmuPAL);
+            if (it->idm == IDM_TURBO)    isChecked = !fBrakes;
+            if (it->idm == IDM_NTSCPAL)  isChecked = (v.iVM >= 0 && rgpvm[v.iVM]->fEmuPAL);
+            if (it->idm == IDM_AUTOLOAD) isChecked = v.fSaveOnExit;
 
             if (gMenuHover == j && !isGrayed) {
                 SDL_SetRenderDrawColor(ren, 80, 110, 160, 255);
@@ -391,6 +409,8 @@ int MenuHandleEvent(SDL_Event *e)
                         int grayed = (it->idm <= 0) || (it->needsVM && v.iVM < 0);
                         if (it->idm == IDM_D1U && v.iVM >= 0) grayed |= !rgpvm[v.iVM]->rgvd[0].sz[0];
                         if (it->idm == IDM_D2U && v.iVM >= 0) grayed |= !rgpvm[v.iVM]->rgvd[1].sz[0];
+                        if (it->idm == IDM_NEXTVM) grayed |= (v.cVM <= 1);
+                        if (it->idm == IDM_PREVVM) grayed |= (v.cVM <= 1);
                         if (!grayed)
                             DispatchMenuCmd(it->idm);
                     }
