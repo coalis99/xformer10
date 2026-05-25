@@ -307,7 +307,12 @@ int SDL_FileBrowserRunEx(SDL_Renderer *ren, SDL_Window *win,
 
         case SDL_TEXTINPUT:
             if (mode == 2) {
-                strncat(inputbuf, ev.text.text, 255 - strlen(inputbuf));
+                /* filter newlines — Enter generates SDL_TEXTINPUT "\n" on some SDL2/X11 builds */
+                for (const char *p = ev.text.text; *p; p++) {
+                    if (*p == '\n' || *p == '\r') continue;
+                    int len = strlen(inputbuf);
+                    if (len < 255) { inputbuf[len] = *p; inputbuf[len+1] = '\0'; }
+                }
                 redraw = 1;
             }
             break;
@@ -328,14 +333,18 @@ int SDL_FileBrowserRunEx(SDL_Renderer *ren, SDL_Window *win,
 
             case SDLK_RETURN:
             case SDLK_KP_ENTER:
-                if (nEntries > 0) {
-                    if (mode == 2 && inputbuf[0] != '\0') {
-                        /* save-as: commit typed filename regardless of selection */
-                        snprintf(out, sz, "%s/%s", cwd, inputbuf);
-                        TTF_CloseFont(font);
-                        SDL_StopTextInput();
-                        return 1;
-                    } else if (entries[selected].is_dir) {
+                if (mode == 2 && inputbuf[0] != '\0') {
+                    /* strip any trailing newline that Enter may have added via SDL_TEXTINPUT */
+                    { int n = strlen(inputbuf);
+                      while (n > 0 && (inputbuf[n-1]=='\n'||inputbuf[n-1]=='\r')) inputbuf[--n]='\0'; }
+                    if (inputbuf[0] == '\0') break; /* nothing left after strip */
+                    /* save-as with typed name: commit regardless of entry list */
+                    snprintf(out, sz, "%s/%s", cwd, inputbuf);
+                    TTF_CloseFont(font);
+                    SDL_StopTextInput();
+                    return 1;
+                } else if (nEntries > 0) {
+                    if (entries[selected].is_dir) {
                         char newpath[PATH_MAX];
                         snprintf(newpath, sizeof(newpath), "%s/%s",
                                  cwd, entries[selected].name);
@@ -387,6 +396,9 @@ int SDL_FileBrowserRunEx(SDL_Renderer *ren, SDL_Window *win,
 
             case SDLK_ESCAPE:
                 running = 0;
+                break;
+
+            default:
                 break;
             }
             /* clamp scroll */

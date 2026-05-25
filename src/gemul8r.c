@@ -6583,8 +6583,12 @@ void LinuxDoCommand(int idm)
         char chFN[MAX_PATH];
         chFN[0] = '\0';
         if (SDL_FileBrowserRunEx(GetSDLRenderer(), GetSDLWindow(),
-                                 NULL, chFN, MAX_PATH, ".gem", 2))
+                                 NULL, chFN, MAX_PATH, ".gem", 2)) {
+            size_t n = strlen(chFN);
+            if (n < 4 || strcmp(chFN + n - 4, ".gem") != 0)
+                strncat(chFN, ".gem", MAX_PATH - n - 1);
             SaveProperties(chFN);
+        }
         break;
     }
     case IDM_CART:
@@ -6640,6 +6644,9 @@ void LinuxDoCommand(int idm)
         path[0] = '\0';
         if (SDL_FileBrowserRunEx(GetSDLRenderer(), GetSDLWindow(),
                                  NULL, path, MAX_PATH, ".atr", 2)) {
+            size_t _n = strlen(path);
+            if (_n < 4 || strcmp(path + _n - 4, ".atr") != 0)
+                strncat(path, ".atr", MAX_PATH - _n - 1);
             int h = _open(path,
                           _O_BINARY | _O_CREAT | _O_WRONLY | _O_TRUNC,
                           _S_IREAD | _S_IWRITE);
