@@ -129,6 +129,9 @@ int main(void)
                 if (gJoy && e.jdevice.which == gJoyID) {
                     SDL_JoystickClose(gJoy);
                     gJoy = NULL;
+                    joy_update_dir(0);   /* release held directions */
+                    if (v.iVM >= 0)
+                        FWinMsgVM(v.iVM, vi.hWnd, MM_JOY1BUTTONUP, 0, 0);
                 }
             } else if (e.type == SDL_JOYBUTTONDOWN) {
                 if (gJoy && (e.jbutton.button == 0 || e.jbutton.button == 1) && v.iVM >= 0)
