@@ -17,6 +17,7 @@
 #define FB_PATH_H     28
 #define FB_ITEM_H     22
 #define FB_PAD         8
+#define FB_INPUT_H    30
 #define FB_MAX_ENTRIES 512
 
 typedef struct {
@@ -24,13 +25,22 @@ typedef struct {
     int  is_dir;
 } FbEntry;
 
-static int fb_ext_ok(const char *name)
+static int fb_ext_ok_ex(const char *name, const char *exts)
 {
+    if (!exts || exts[0] == '\0')
+        return 1;
     const char *dot = strrchr(name, '.');
     if (!dot) return 0;
-    return strcasecmp(dot, ".atr") == 0 ||
-           strcasecmp(dot, ".atx") == 0 ||
-           strcasecmp(dot, ".xfd") == 0;
+    char buf[256];
+    strncpy(buf, exts, 255);
+    buf[255] = '\0';
+    char *tok = strtok(buf, ",");
+    while (tok) {
+        if (strcasecmp(dot, tok) == 0)
+            return 1;
+        tok = strtok(NULL, ",");
+    }
+    return 0;
 }
 
 static int fb_cmp(const void *a, const void *b)
@@ -38,11 +48,12 @@ static int fb_cmp(const void *a, const void *b)
     const FbEntry *ea = (const FbEntry *)a;
     const FbEntry *eb = (const FbEntry *)b;
     if (ea->is_dir != eb->is_dir)
-        return eb->is_dir - ea->is_dir;  /* dirs first */
+        return eb->is_dir - ea->is_dir;
     return strcasecmp(ea->name, eb->name);
 }
 
-static int fb_load_dir(const char *path, FbEntry *entries, int max)
+static int fb_load_dir_ex(const char *path, FbEntry *entries, int max,
+                           const char *exts, int mode)
 {
     DIR *dp = opendir(path);
     if (!dp) return 0;
@@ -55,7 +66,11 @@ static int fb_load_dir(const char *path, FbEntry *entries, int max)
         struct stat st;
         if (stat(full, &st) != 0) continue;
         int is_dir = S_ISDIR(st.st_mode);
-        if (!is_dir && !fb_ext_ok(de->d_name)) continue;
+        if (mode == 1) {
+            if (!is_dir) continue;
+        } else {
+            if (!is_dir && !fb_ext_ok_ex(de->d_name, exts)) continue;
+        }
         strncpy(entries[n].name, de->d_name, 255);
         entries[n].name[255] = '\0';
         entries[n].is_dir    = is_dir;
@@ -63,12 +78,18 @@ static int fb_load_dir(const char *path, FbEntry *entries, int max)
     }
     closedir(dp);
     qsort(entries, n, sizeof(FbEntry), fb_cmp);
+    if (mode == 1) {
+        memmove(&entries[1], &entries[0], n * sizeof(FbEntry));
+        strcpy(entries[0].name, "[ This Folder ]");
+        entries[0].is_dir = 0;
+        return n + 1;
+    }
     return n;
 }
 
 static void fb_render(SDL_Renderer *ren, SDL_Window *win, TTF_Font *font,
                       const char *cwd, FbEntry *entries, int nEntries,
-                      int selected, int scroll)
+                      int selected, int scroll, int mode, const char *inputbuf)
 {
     int winW, winH;
     SDL_GetWindowSize(win, &winW, &winH);
@@ -97,7 +118,6 @@ static void fb_render(SDL_Renderer *ren, SDL_Window *win, TTF_Font *font,
         SDL_Texture *pt = SDL_CreateTextureFromSurface(ren, ps);
         int tw = ps->w, th = ps->h;
         SDL_FreeSurface(ps);
-        /* right-align / clip to bar width */
         int tx = ox + FB_OVL_W - tw - FB_PAD;
         if (tx < ox + FB_PAD) tx = ox + FB_PAD;
         SDL_Rect dst = {tx, oy + (FB_PATH_H - th) / 2, tw, th};
@@ -109,16 +129,22 @@ static void fb_render(SDL_Renderer *ren, SDL_Window *win, TTF_Font *font,
     SDL_SetRenderDrawColor(ren, 80, 80, 80, 255);
     SDL_RenderDrawLine(ren, ox, oy + FB_PATH_H, ox + FB_OVL_W - 1, oy + FB_PATH_H);
 
-    /* set clip to list area */
-    SDL_Rect listClip = {ox + 1, oy + FB_PATH_H + 1, FB_OVL_W - 2, FB_OVL_H - FB_PATH_H - 2};
+    /* list area height (reduced for mode=2 input bar) */
+    int listH = (mode == 2) ? (FB_OVL_H - FB_PATH_H - FB_INPUT_H)
+                             : (FB_OVL_H - FB_PATH_H);
+    int visRows = listH / FB_ITEM_H;
+
+    SDL_Rect listClip = {ox + 1, oy + FB_PATH_H + 1, FB_OVL_W - 2, listH - 2};
     SDL_RenderSetClipRect(ren, &listClip);
 
-    int visRows = (FB_OVL_H - FB_PATH_H) / FB_ITEM_H;
     for (int i = scroll; i < nEntries && i < scroll + visRows; i++) {
         int rowY = oy + FB_PATH_H + (i - scroll) * FB_ITEM_H;
 
         if (i == selected) {
-            SDL_SetRenderDrawColor(ren, 60, 100, 170, 255);
+            if (mode == 1 && i == 0)
+                SDL_SetRenderDrawColor(ren, 160, 140, 40, 255);
+            else
+                SDL_SetRenderDrawColor(ren, 60, 100, 170, 255);
             SDL_Rect hr = {ox + 1, rowY, FB_OVL_W - 2, FB_ITEM_H};
             SDL_RenderFillRect(ren, &hr);
         }
@@ -139,7 +165,6 @@ static void fb_render(SDL_Renderer *ren, SDL_Window *win, TTF_Font *font,
             int th = ls->h;
             SDL_FreeSurface(ls);
             SDL_Rect dst = {ox + FB_PAD, rowY + (FB_ITEM_H - th) / 2, 0, th};
-            /* re-query width from texture */
             int tw2; SDL_QueryTexture(lt, NULL, NULL, &tw2, NULL);
             dst.w = tw2;
             SDL_RenderCopy(ren, lt, NULL, &dst);
@@ -148,28 +173,60 @@ static void fb_render(SDL_Renderer *ren, SDL_Window *win, TTF_Font *font,
     }
 
     SDL_RenderSetClipRect(ren, NULL);
+
+    /* input bar for mode=2 */
+    if (mode == 2) {
+        SDL_SetRenderDrawColor(ren, 25, 35, 60, 255);
+        SDL_Rect inputBar = {ox, oy + FB_OVL_H - FB_INPUT_H, FB_OVL_W, FB_INPUT_H};
+        SDL_RenderFillRect(ren, &inputBar);
+
+        SDL_SetRenderDrawColor(ren, 80, 80, 80, 255);
+        SDL_RenderDrawLine(ren, ox, oy + FB_OVL_H - FB_INPUT_H,
+                           ox + FB_OVL_W - 1, oy + FB_OVL_H - FB_INPUT_H);
+
+        char prompt[260];
+        snprintf(prompt, sizeof(prompt), "> %s_", inputbuf ? inputbuf : "");
+        SDL_Surface *is = TTF_RenderUTF8_Blended(font, prompt, white);
+        if (is) {
+            SDL_Texture *it_tex = SDL_CreateTextureFromSurface(ren, is);
+            int tw = is->w, th = is->h;
+            SDL_FreeSurface(is);
+            SDL_Rect dst = {ox + FB_PAD,
+                            oy + FB_OVL_H - FB_INPUT_H + (FB_INPUT_H - th) / 2,
+                            tw, th};
+            SDL_RenderCopy(ren, it_tex, NULL, &dst);
+            SDL_DestroyTexture(it_tex);
+        }
+    }
 }
 
-int SDL_FileBrowserRun(SDL_Renderer *ren, SDL_Window *win,
-                       const char *start_path, char *out, int sz)
+int SDL_FileBrowserRunEx(SDL_Renderer *ren, SDL_Window *win,
+                         const char *start_path, char *out, int sz,
+                         const char *exts, int mode)
 {
     TTF_Font *font = TTF_OpenFont(FONT_PATH, FB_FONT_SIZE);
     if (!font) return 0;
 
     char cwd[PATH_MAX];
     if (start_path && start_path[0] != '\0') {
-        char tmp[PATH_MAX];
-        strncpy(tmp, start_path, PATH_MAX - 1);
-        tmp[PATH_MAX - 1] = '\0';
-        char *dir = dirname(tmp);
-        struct stat st;
-        if (stat(dir, &st) == 0 && S_ISDIR(st.st_mode)) {
-            strncpy(cwd, dir, PATH_MAX - 1);
+        struct stat st0;
+        if (stat(start_path, &st0) == 0 && S_ISDIR(st0.st_mode)) {
+            strncpy(cwd, start_path, PATH_MAX - 1);
             cwd[PATH_MAX - 1] = '\0';
         } else {
-            const char *home = getenv("HOME");
-            strncpy(cwd, home ? home : "/", PATH_MAX - 1);
-            cwd[PATH_MAX - 1] = '\0';
+            char tmp[PATH_MAX];
+            strncpy(tmp, start_path, PATH_MAX - 1);
+            tmp[PATH_MAX - 1] = '\0';
+            char *dir = dirname(tmp);
+            struct stat st;
+            if (stat(dir, &st) == 0 && S_ISDIR(st.st_mode)) {
+                strncpy(cwd, dir, PATH_MAX - 1);
+                cwd[PATH_MAX - 1] = '\0';
+            } else {
+                const char *home = getenv("HOME");
+                strncpy(cwd, home ? home : "/", PATH_MAX - 1);
+                cwd[PATH_MAX - 1] = '\0';
+            }
         }
     } else {
         const char *home = getenv("HOME");
@@ -178,14 +235,21 @@ int SDL_FileBrowserRun(SDL_Renderer *ren, SDL_Window *win,
     }
 
     static FbEntry entries[FB_MAX_ENTRIES];
-    int nEntries = fb_load_dir(cwd, entries, FB_MAX_ENTRIES);
+    int nEntries = fb_load_dir_ex(cwd, entries, FB_MAX_ENTRIES, exts, mode);
     int selected = 0, scroll = 0;
-    int visRows = (FB_OVL_H - FB_PATH_H) / FB_ITEM_H;
+    int listH = (mode == 2) ? (FB_OVL_H - FB_PATH_H - FB_INPUT_H)
+                             : (FB_OVL_H - FB_PATH_H);
+    int visRows = listH / FB_ITEM_H;
+
+    char inputbuf[256] = "";
+
+    if (mode == 2)
+        SDL_StartTextInput();
 
     Uint32 last_click_time  = 0;
     int    last_click_index = -1;
 
-    fb_render(ren, win, font, cwd, entries, nEntries, selected, scroll);
+    fb_render(ren, win, font, cwd, entries, nEntries, selected, scroll, mode, inputbuf);
     SDL_RenderPresent(ren);
 
     int running = 1;
@@ -198,6 +262,13 @@ int SDL_FileBrowserRun(SDL_Renderer *ren, SDL_Window *win,
 
         case SDL_QUIT:
             running = 0;
+            break;
+
+        case SDL_TEXTINPUT:
+            if (mode == 2) {
+                strncat(inputbuf, ev.text.text, 255 - strlen(inputbuf));
+                redraw = 1;
+            }
             break;
 
         case SDL_KEYDOWN:
@@ -223,10 +294,25 @@ int SDL_FileBrowserRun(SDL_Renderer *ren, SDL_Window *win,
                                  cwd, entries[selected].name);
                         strncpy(cwd, newpath, PATH_MAX - 1);
                         cwd[PATH_MAX - 1] = '\0';
-                        nEntries = fb_load_dir(cwd, entries, FB_MAX_ENTRIES);
+                        nEntries = fb_load_dir_ex(cwd, entries, FB_MAX_ENTRIES, exts, mode);
                         selected = 0; scroll = 0;
                         last_click_time = 0; last_click_index = -1;
                         redraw = 1;
+                    } else if (mode == 1 && selected == 0) {
+                        snprintf(out, sz, "%s", cwd);
+                        TTF_CloseFont(font);
+                        return 1;
+                    } else if (mode == 2) {
+                        if (inputbuf[0] != '\0') {
+                            snprintf(out, sz, "%s/%s", cwd, inputbuf);
+                            TTF_CloseFont(font);
+                            SDL_StopTextInput();
+                            return 1;
+                        } else {
+                            strncpy(inputbuf, entries[selected].name, 255);
+                            inputbuf[255] = '\0';
+                            redraw = 1;
+                        }
                     } else {
                         snprintf(out, sz, "%s/%s", cwd, entries[selected].name);
                         TTF_CloseFont(font);
@@ -236,17 +322,25 @@ int SDL_FileBrowserRun(SDL_Renderer *ren, SDL_Window *win,
                 break;
 
             case SDLK_BACKSPACE:
-                if (strcmp(cwd, "/") != 0) {
-                    char tmp[PATH_MAX];
-                    strncpy(tmp, cwd, PATH_MAX - 1);
-                    tmp[PATH_MAX - 1] = '\0';
-                    char *par = dirname(tmp);
-                    strncpy(cwd, par, PATH_MAX - 1);
-                    cwd[PATH_MAX - 1] = '\0';
-                    nEntries = fb_load_dir(cwd, entries, FB_MAX_ENTRIES);
-                    selected = 0; scroll = 0;
-                    last_click_time = 0; last_click_index = -1;
-                    redraw = 1;
+                if (mode == 2) {
+                    int len = strlen(inputbuf);
+                    if (len > 0) {
+                        inputbuf[len - 1] = '\0';
+                        redraw = 1;
+                    }
+                } else {
+                    if (strcmp(cwd, "/") != 0) {
+                        char tmp[PATH_MAX];
+                        strncpy(tmp, cwd, PATH_MAX - 1);
+                        tmp[PATH_MAX - 1] = '\0';
+                        char *par = dirname(tmp);
+                        strncpy(cwd, par, PATH_MAX - 1);
+                        cwd[PATH_MAX - 1] = '\0';
+                        nEntries = fb_load_dir_ex(cwd, entries, FB_MAX_ENTRIES, exts, mode);
+                        selected = 0; scroll = 0;
+                        last_click_time = 0; last_click_index = -1;
+                        redraw = 1;
+                    }
                 }
                 break;
 
@@ -270,8 +364,9 @@ int SDL_FileBrowserRun(SDL_Renderer *ren, SDL_Window *win,
                 int oy = (winH - FB_OVL_H) / 2;
                 int mx = ev.button.x;
                 int my = ev.button.y;
+                int listBottom = oy + FB_PATH_H + listH;
                 if (mx >= ox && mx < ox + FB_OVL_W &&
-                    my >= oy + FB_PATH_H && my < oy + FB_OVL_H) {
+                    my >= oy + FB_PATH_H && my < listBottom) {
                     int idx = scroll + (my - oy - FB_PATH_H) / FB_ITEM_H;
                     if (idx >= 0 && idx < nEntries) {
                         Uint32 now = SDL_GetTicks();
@@ -284,18 +379,37 @@ int SDL_FileBrowserRun(SDL_Renderer *ren, SDL_Window *win,
                                          cwd, entries[idx].name);
                                 strncpy(cwd, newpath, PATH_MAX - 1);
                                 cwd[PATH_MAX - 1] = '\0';
-                                nEntries = fb_load_dir(cwd, entries, FB_MAX_ENTRIES);
+                                nEntries = fb_load_dir_ex(cwd, entries, FB_MAX_ENTRIES, exts, mode);
                                 selected = 0; scroll = 0;
                                 last_click_time = 0; last_click_index = -1;
                                 redraw = 1;
+                            } else if (mode == 1 && idx == 0) {
+                                snprintf(out, sz, "%s", cwd);
+                                TTF_CloseFont(font);
+                                return 1;
+                            } else if (mode == 2) {
+                                if (inputbuf[0] != '\0') {
+                                    snprintf(out, sz, "%s/%s", cwd, inputbuf);
+                                    TTF_CloseFont(font);
+                                    SDL_StopTextInput();
+                                    return 1;
+                                } else {
+                                    strncpy(inputbuf, entries[idx].name, 255);
+                                    inputbuf[255] = '\0';
+                                    redraw = 1;
+                                }
                             } else {
                                 snprintf(out, sz, "%s/%s", cwd, entries[idx].name);
                                 TTF_CloseFont(font);
                                 return 1;
                             }
                         } else {
-                            /* single click: select */
+                            /* single click */
                             selected = idx;
+                            if (mode == 2 && !entries[idx].is_dir) {
+                                strncpy(inputbuf, entries[idx].name, 255);
+                                inputbuf[255] = '\0';
+                            }
                             last_click_time = now;
                             last_click_index = idx;
                             redraw = 1;
@@ -321,12 +435,21 @@ int SDL_FileBrowserRun(SDL_Renderer *ren, SDL_Window *win,
         }
 
         if (redraw) {
-            fb_render(ren, win, font, cwd, entries, nEntries, selected, scroll);
+            fb_render(ren, win, font, cwd, entries, nEntries, selected, scroll, mode, inputbuf);
             SDL_RenderPresent(ren);
         }
     }
 
     TTF_CloseFont(font);
+    if (mode == 2)
+        SDL_StopTextInput();
     return 0;
+}
+
+int SDL_FileBrowserRun(SDL_Renderer *ren, SDL_Window *win,
+                       const char *start_path, char *out, int sz)
+{
+    return SDL_FileBrowserRunEx(ren, win, start_path, out, sz,
+                                ".atr,.atx,.xfd", 0);
 }
 #endif /* !_WIN32 */
