@@ -244,9 +244,10 @@ int main(void)
                 }
             }
         }
-        if (v.cVM > 0 && !vi.fQuitting) {
-            SetEvent(ThreadStuff[0].hGoEvent);
-            WaitForMultipleObjects(1, hDoneEvent, TRUE, INFINITE);
+        if (v.cVM > 0 && cThreads > 0 && !vi.fQuitting) {
+            for (int t = 0; t < cThreads; t++)
+                SetEvent(ThreadStuff[t].hGoEvent);
+            WaitForMultipleObjects(cThreads, hDoneEvent, TRUE, INFINITE);
             RenderBitmap_SDL();
         }
     }

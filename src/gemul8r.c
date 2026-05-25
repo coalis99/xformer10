@@ -6442,6 +6442,7 @@ void LinuxDoCommand(int idm)
             InitThreads();
         } else {
             /* leaving tiled mode: select the VM that was in focus */
+            sVM = -1;
             SelectInstance(v.iVM >= 0 ? v.iVM : (nFirstVisibleTile >= 0 ? nFirstVisibleTile : 0));
         }
         DisplayStatus(v.iVM);

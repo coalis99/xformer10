@@ -28,6 +28,10 @@ static SDL_Renderer *gSDLRen;
 static SDL_Texture  *gSDLTex;
 static int gTexW, gTexH;
 
+/* Per-tile textures for tiling mode — avoids single-texture update race */
+#define MAX_TILE_TEX 64
+static SDL_Texture *gTileTex[MAX_TILE_TEX];
+
 extern BYTE rgbRainbow[];  /* atari800.c: interleaved [R,G,B] * 256 */
 
 void linux_set_window_title(const char *s)
@@ -90,6 +94,9 @@ void UninitDrawing(BOOL fFinal)
     if (fFinal)
     {
         MenuQuit();
+        for (int i = 0; i < MAX_TILE_TEX; i++) {
+            if (gTileTex[i]) { SDL_DestroyTexture(gTileTex[i]); gTileTex[i] = NULL; }
+        }
         if (gSDLTex) { SDL_DestroyTexture(gSDLTex);   gSDLTex = NULL; }
         if (gSDLRen) { SDL_DestroyRenderer(gSDLRen);  gSDLRen = NULL; }
         if (gSDLWin) { SDL_DestroyWindow(gSDLWin);    gSDLWin = NULL; }
@@ -109,6 +116,13 @@ void RenderBitmap_SDL(void)
             BYTE *src = (BYTE *)vvmhw.pbmTile[t].pvBits;
             if (!src) continue;
 
+            /* Ensure a per-tile texture exists */
+            if (t < MAX_TILE_TEX && !gTileTex[t]) {
+                gTileTex[t] = SDL_CreateTexture(gSDLRen, SDL_PIXELFORMAT_ARGB8888,
+                                                SDL_TEXTUREACCESS_STREAMING, gTexW, gTexH);
+            }
+            SDL_Texture *tex = (t < MAX_TILE_TEX && gTileTex[t]) ? gTileTex[t] : gSDLTex;
+
             for (int i = 0; i < gTexW * gTexH; i++) {
                 BYTE p = src[i];
                 BYTE r = rgbRainbow[p * 3    ];
@@ -119,7 +133,7 @@ void RenderBitmap_SDL(void)
                     | (Uint32)((g << 2) | (g >> 5)) <<  8
                     | (Uint32)((b << 2) | (b >> 5));
             }
-            SDL_UpdateTexture(gSDLTex, NULL, argbBuf, gTexW * 4);
+            SDL_UpdateTexture(tex, NULL, argbBuf, gTexW * 4);
 
             int slot = nFirstVisibleTile + t;
             int col  = (sTilesPerRow > 0) ? slot % sTilesPerRow : 0;
@@ -127,7 +141,7 @@ void RenderBitmap_SDL(void)
             SDL_Rect dest = {col * gTexW,
                              MENU_H + v.sWheelOffset + row * gTexH,
                              gTexW, gTexH};
-            SDL_RenderCopy(gSDLRen, gSDLTex, NULL, &dest);
+            SDL_RenderCopy(gSDLRen, tex, NULL, &dest);
 
             if (sVM >= 0 && slot == sVM) {
                 SDL_SetRenderDrawColor(gSDLRen, 255, 255, 255, 255);
