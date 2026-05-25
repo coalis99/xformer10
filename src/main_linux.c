@@ -16,6 +16,7 @@ void UninitThreads(void);
 void LinuxDoCommand(int idm);
 extern const int sdl_to_vk[];
 void linux_get_client_rect(RECT *r);
+extern int GetTileFromPos(int xPos, int yPos, void *ppt);
 
 static void sigint_handler(int s) { (void)s; vi.fQuitting = TRUE; }
 
@@ -169,6 +170,22 @@ int main(void)
                 if (hv & SDL_HAT_LEFT)  new_dir |= 4;
                 if (hv & SDL_HAT_RIGHT) new_dir |= 8;
                 joy_update_dir(new_dir);
+            } else if (e.type == SDL_MOUSEMOTION && v.fTiling) {
+                int hit = GetTileFromPos(e.motion.x, e.motion.y - MENU_H, NULL);
+                if (hit != sVM) { sVM = hit; }
+            } else if (e.type == SDL_MOUSEBUTTONDOWN
+                       && e.button.button == SDL_BUTTON_LEFT
+                       && v.fTiling && v.cVM > 0) {
+                int hit = GetTileFromPos(e.button.x, e.button.y - MENU_H, NULL);
+                if (hit >= 0) {
+                    v.iVM = hit;
+                    LinuxDoCommand(IDM_TILE);
+                }
+            } else if (e.type == SDL_MOUSEWHEEL && v.fTiling && v.cVM > 0
+                       && (int)sTileSize.y > 0) {
+                v.sWheelOffset += e.wheel.y * (int)sTileSize.y;
+                if (v.sWheelOffset > 0) v.sWheelOffset = 0;
+                InitThreads();
             } else if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
                 int sc = (int)e.key.keysym.scancode;
                 int vk = (sc >= 0 && sc < 512) ? sdl_to_vk[sc] : 0;
