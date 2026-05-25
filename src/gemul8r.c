@@ -3761,7 +3761,11 @@ BOOL SaveATARIDOS(int inst, int drive)
         if (ij == 0)
             fB = CreateDirectory(szDir, NULL); // error OK, it may already exist
 
+#ifndef _WIN32
+        strcat(szDir, "/");
+#else
         strcat(szDir, "\\");                    // add '\'
+#endif
         strcat(szDir, pdi->pfd[ij % pdi->cfd].cFileName);    // add the filename
         if (ij >= pdi->cfd)
             // 2nd time around, save everything as text, with _, a character not supported by ATARI
@@ -6583,6 +6587,88 @@ void LinuxDoCommand(int idm)
             SaveProperties(chFN);
         break;
     }
+    case IDM_CART:
+        if (v.iVM >= 0) {
+            char path[MAX_PATH];
+            strncpy(path, rgpvm[v.iVM]->rgcart.szName, MAX_PATH - 1);
+            path[MAX_PATH - 1] = '\0';
+            if (SDL_FileBrowserRunEx(GetSDLRenderer(), GetSDLWindow(),
+                                     path[0] ? path : NULL,
+                                     path, MAX_PATH, ".rom,.bin,.car", 0)) {
+                strncpy(rgpvm[v.iVM]->rgcart.szName, path, MAX_PATH - 1);
+                rgpvm[v.iVM]->rgcart.szName[MAX_PATH - 1] = '\0';
+                rgpvm[v.iVM]->rgcart.fCartIn = TRUE;
+                FUnInitVM(v.iVM);
+                if (!FInitVM(v.iVM) || !ColdStart(v.iVM)) {
+                    rgpvm[v.iVM]->rgcart.fCartIn = FALSE;
+                    rgpvm[v.iVM]->rgcart.szName[0] = '\0';
+                    FInitVM(v.iVM);
+                }
+            }
+        }
+        break;
+    case IDM_NOCART:
+        if (v.iVM >= 0) {
+            rgpvm[v.iVM]->rgcart.fCartIn = FALSE;
+            rgpvm[v.iVM]->rgcart.szName[0] = '\0';
+            FUnInitVM(v.iVM);
+            BOOL f = FALSE;
+            if (FInitVM(v.iVM))
+                f = ColdStart(v.iVM);
+            if (!f)
+                DeleteVM(v.iVM, TRUE);
+        }
+        break;
+    case IDM_WP1:
+        if (v.iVM >= 0) {
+            BOOL fWP = FWriteProtectDiskVM(v.iVM, 0, FALSE, FALSE);
+            FWriteProtectDiskVM(v.iVM, 0, TRUE, !fWP);
+        }
+        break;
+    case IDM_WP2:
+        if (v.iVM >= 0) {
+            BOOL fWP = FWriteProtectDiskVM(v.iVM, 1, FALSE, FALSE);
+            FWriteProtectDiskVM(v.iVM, 1, TRUE, !fWP);
+        }
+        break;
+    case IDM_D1BLANKSD:
+    case IDM_D2BLANKSD:
+    {
+        if (v.iVM < 0) break;
+        int disk = idm - IDM_D1BLANKSD;
+        char path[MAX_PATH];
+        path[0] = '\0';
+        if (SDL_FileBrowserRunEx(GetSDLRenderer(), GetSDLWindow(),
+                                 NULL, path, MAX_PATH, ".atr", 2)) {
+            int h = _open(path,
+                          _O_BINARY | _O_CREAT | _O_WRONLY | _O_TRUNC,
+                          _S_IREAD | _S_IWRITE);
+            if (h != -1) {
+                BYTE header[5] = {0x96, 0x02, 0x80, 0x16, 0x80};
+                BYTE zero = 0x00;
+                int ok = (_write(h, header, 5) == 5);
+                ok = ok && (_lseek(h, 92175, SEEK_SET) == 92175);
+                ok = ok && (_write(h, &zero, 1) == 1);
+                _close(h);
+                if (ok) {
+                    strncpy(rgpvm[v.iVM]->rgvd[disk].sz, path, MAX_PATH - 1);
+                    rgpvm[v.iVM]->rgvd[disk].sz[MAX_PATH - 1] = '\0';
+                    rgpvm[v.iVM]->rgvd[disk].dt = DISK_IMAGE;
+                    if (!FMountDiskVM(v.iVM, disk)) {
+                        FUnmountDiskVM(v.iVM, disk);
+                        rgpvm[v.iVM]->rgvd[disk].sz[0] = '\0';
+                        rgpvm[v.iVM]->rgvd[disk].dt = DISK_NONE;
+                    }
+                }
+            }
+        }
+        break;
+    }
+    case IDM_IMPORTDOS1:
+    case IDM_IMPORTDOS2:
+        if (v.iVM >= 0)
+            SaveATARIDOS(v.iVM, idm - IDM_IMPORTDOS1);
+        break;
     }
 }
 #endif /* !_WIN32 */
