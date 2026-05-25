@@ -27,11 +27,19 @@ static LPARAM make_key_lparam(int sdl_sc, int is_up)
     return (LPARAM)((oem << 16) | 1u);
 }
 
+static SDL_Joystick *gJoy;
+static SDL_JoystickID gJoyID;
+
 int main(void)
 {
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) != 0) {
         fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
         return 1;
+    }
+
+    if (SDL_NumJoysticks() > 0) {
+        gJoy = SDL_JoystickOpen(0);
+        if (gJoy) gJoyID = SDL_JoystickInstanceID(gJoy);
     }
 
     InitProperties();
@@ -93,6 +101,16 @@ int main(void)
                     vi.fHaveFocus = TRUE;
                 else if (e.window.event == SDL_WINDOWEVENT_FOCUS_LOST)
                     vi.fHaveFocus = FALSE;
+            } else if (e.type == SDL_JOYDEVICEADDED) {
+                if (!gJoy) {
+                    gJoy = SDL_JoystickOpen(e.jdevice.which);
+                    if (gJoy) gJoyID = SDL_JoystickInstanceID(gJoy);
+                }
+            } else if (e.type == SDL_JOYDEVICEREMOVED) {
+                if (gJoy && e.jdevice.which == gJoyID) {
+                    SDL_JoystickClose(gJoy);
+                    gJoy = NULL;
+                }
             } else if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
                 int sc = (int)e.key.keysym.scancode;
                 int vk = (sc >= 0 && sc < 512) ? sdl_to_vk[sc] : 0;
