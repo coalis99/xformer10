@@ -139,12 +139,6 @@ int main(void)
                 }
             }
         }
-        /* Dispatch any dialog-opening command now that mouse-up has been
-           processed and the compositor's implicit pointer grab is released */
-        {
-            int pending = MenuPendingCommand();
-            if (pending) LinuxDoCommand(pending);
-        }
         if (v.cVM > 0 && !vi.fQuitting) {
             SetEvent(ThreadStuff[0].hGoEvent);
             WaitForMultipleObjects(1, hDoneEvent, TRUE, INFINITE);

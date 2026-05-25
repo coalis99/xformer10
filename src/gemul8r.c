@@ -6375,21 +6375,13 @@ Lhib:
 #ifndef _WIN32
 #include <stdio.h>
 #include <string.h>
+#include "sdl_filebrowser.h"
+#include "ddlib_sdl.h"
 
 static BOOL LinuxPickFile(char *out, int sz)
 {
-    FILE *f = popen("zenity --file-selection"
-                    " --file-filter='Atari disk images (*.atr *.atx *.xfd)|*.atr *.ATR *.atx *.ATX *.xfd *.XFD'"
-                    " --file-filter='All files|*'"
-                    " 2>/dev/null", "r");
-    if (!f) return FALSE;
-    BOOL got = (fgets(out, sz, f) != NULL);
-    pclose(f);
-    if (got) {
-        int n = (int)strlen(out);
-        if (n > 0 && out[n - 1] == '\n') out[n - 1] = '\0';
-    }
-    return got && out[0] != '\0';
+    return (BOOL)SDL_FileBrowserRun(GetSDLRenderer(), GetSDLWindow(),
+                                    out, out, sz);
 }
 
 void LinuxDoCommand(int idm)

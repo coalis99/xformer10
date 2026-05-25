@@ -48,7 +48,6 @@ static int          gCheckH       = 0;
 static int          gMenuReady    = 0;
 static int          gMenuOpen        = -1;
 static int          gMenuHover       = -1;
-static int          gPendingCommand  = 0;  /* IDM deferred past mouse-up to release implicit pointer grab */
 
 typedef struct {
     const char  *label;
@@ -152,17 +151,10 @@ static void DispatchMenuCmd(int idm)
     case IDM_COLDSTART: ColdStart(v.iVM);          break;
     case IDM_D1:
     case IDM_D2:
-        gPendingCommand = idm;  /* defer until mouse-up releases implicit pointer grab */
+        LinuxDoCommand(idm);
         break;
     default:            LinuxDoCommand(idm);       break;
     }
-}
-
-int MenuPendingCommand(void)
-{
-    int cmd = gPendingCommand;
-    gPendingCommand = 0;
-    return cmd;
 }
 
 void MenuInit(SDL_Renderer *ren)

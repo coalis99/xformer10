@@ -114,4 +114,7 @@ void RenderBitmap_SDL(void)
     SDL_RenderPresent(gSDLRen);
 }
 
+SDL_Renderer *GetSDLRenderer(void) { return gSDLRen; }
+SDL_Window   *GetSDLWindow(void)   { return gSDLWin; }
+
 #endif /* !_WIN32 */
