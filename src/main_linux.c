@@ -78,6 +78,7 @@ int main(void)
     InitThreads();
 
     vi.fExecuting = TRUE;
+    vi.fHaveFocus = TRUE;
 
     signal(SIGINT, sigint_handler);
 
@@ -87,6 +88,11 @@ int main(void)
             if (MenuHandleEvent(&e)) continue;
             if (e.type == SDL_QUIT) {
                 vi.fQuitting = TRUE;
+            } else if (e.type == SDL_WINDOWEVENT) {
+                if (e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED)
+                    vi.fHaveFocus = TRUE;
+                else if (e.window.event == SDL_WINDOWEVENT_FOCUS_LOST)
+                    vi.fHaveFocus = FALSE;
             } else if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
                 int sc = (int)e.key.keysym.scancode;
                 int vk = (sc >= 0 && sc < 512) ? sdl_to_vk[sc] : 0;
