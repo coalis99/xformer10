@@ -153,8 +153,6 @@ static void fb_render(SDL_Renderer *ren, SDL_Window *win, TTF_Font *font,
 int SDL_FileBrowserRun(SDL_Renderer *ren, SDL_Window *win,
                        const char *start_path, char *out, int sz)
 {
-    (void)out; (void)sz;
-
     TTF_Font *font = TTF_OpenFont(FONT_PATH, FB_FONT_SIZE);
     if (!font) return 0;
 
@@ -182,9 +180,151 @@ int SDL_FileBrowserRun(SDL_Renderer *ren, SDL_Window *win,
     static FbEntry entries[FB_MAX_ENTRIES];
     int nEntries = fb_load_dir(cwd, entries, FB_MAX_ENTRIES);
     int selected = 0, scroll = 0;
+    int visRows = (FB_OVL_H - FB_PATH_H) / FB_ITEM_H;
+
+    Uint32 last_click_time  = 0;
+    int    last_click_index = -1;
 
     fb_render(ren, win, font, cwd, entries, nEntries, selected, scroll);
     SDL_RenderPresent(ren);
+
+    int running = 1;
+    SDL_Event ev;
+
+    while (running && SDL_WaitEvent(&ev)) {
+        int redraw = 0;
+
+        switch (ev.type) {
+
+        case SDL_QUIT:
+            running = 0;
+            break;
+
+        case SDL_KEYDOWN:
+            switch (ev.key.keysym.sym) {
+            case SDLK_UP:
+                if (selected > 0) selected--;
+                if (selected < scroll) scroll = selected;
+                redraw = 1;
+                break;
+
+            case SDLK_DOWN:
+                if (selected < nEntries - 1) selected++;
+                if (selected >= scroll + visRows) scroll = selected - visRows + 1;
+                redraw = 1;
+                break;
+
+            case SDLK_RETURN:
+            case SDLK_KP_ENTER:
+                if (nEntries > 0) {
+                    if (entries[selected].is_dir) {
+                        char newpath[PATH_MAX];
+                        snprintf(newpath, sizeof(newpath), "%s/%s",
+                                 cwd, entries[selected].name);
+                        strncpy(cwd, newpath, PATH_MAX - 1);
+                        cwd[PATH_MAX - 1] = '\0';
+                        nEntries = fb_load_dir(cwd, entries, FB_MAX_ENTRIES);
+                        selected = 0; scroll = 0;
+                        last_click_time = 0; last_click_index = -1;
+                        redraw = 1;
+                    } else {
+                        snprintf(out, sz, "%s/%s", cwd, entries[selected].name);
+                        TTF_CloseFont(font);
+                        return 1;
+                    }
+                }
+                break;
+
+            case SDLK_BACKSPACE:
+                if (strcmp(cwd, "/") != 0) {
+                    char tmp[PATH_MAX];
+                    strncpy(tmp, cwd, PATH_MAX - 1);
+                    tmp[PATH_MAX - 1] = '\0';
+                    char *par = dirname(tmp);
+                    strncpy(cwd, par, PATH_MAX - 1);
+                    cwd[PATH_MAX - 1] = '\0';
+                    nEntries = fb_load_dir(cwd, entries, FB_MAX_ENTRIES);
+                    selected = 0; scroll = 0;
+                    last_click_time = 0; last_click_index = -1;
+                    redraw = 1;
+                }
+                break;
+
+            case SDLK_ESCAPE:
+                running = 0;
+                break;
+            }
+            /* clamp scroll */
+            {
+                int maxScroll = nEntries > visRows ? nEntries - visRows : 0;
+                if (scroll < 0) scroll = 0;
+                if (scroll > maxScroll) scroll = maxScroll;
+            }
+            break;
+
+        case SDL_MOUSEBUTTONDOWN:
+            if (ev.button.button == SDL_BUTTON_LEFT) {
+                int winW, winH;
+                SDL_GetWindowSize(win, &winW, &winH);
+                int ox = (winW - FB_OVL_W) / 2;
+                int oy = (winH - FB_OVL_H) / 2;
+                int mx = ev.button.x;
+                int my = ev.button.y;
+                if (mx >= ox && mx < ox + FB_OVL_W &&
+                    my >= oy + FB_PATH_H && my < oy + FB_OVL_H) {
+                    int idx = scroll + (my - oy - FB_PATH_H) / FB_ITEM_H;
+                    if (idx >= 0 && idx < nEntries) {
+                        Uint32 now = SDL_GetTicks();
+                        if (idx == last_click_index &&
+                            (now - last_click_time) < 400) {
+                            /* double-click */
+                            if (entries[idx].is_dir) {
+                                char newpath[PATH_MAX];
+                                snprintf(newpath, sizeof(newpath), "%s/%s",
+                                         cwd, entries[idx].name);
+                                strncpy(cwd, newpath, PATH_MAX - 1);
+                                cwd[PATH_MAX - 1] = '\0';
+                                nEntries = fb_load_dir(cwd, entries, FB_MAX_ENTRIES);
+                                selected = 0; scroll = 0;
+                                last_click_time = 0; last_click_index = -1;
+                                redraw = 1;
+                            } else {
+                                snprintf(out, sz, "%s/%s", cwd, entries[idx].name);
+                                TTF_CloseFont(font);
+                                return 1;
+                            }
+                        } else {
+                            /* single click: select */
+                            selected = idx;
+                            last_click_time = now;
+                            last_click_index = idx;
+                            redraw = 1;
+                        }
+                    }
+                }
+            }
+            break;
+
+        case SDL_MOUSEWHEEL:
+            {
+                int maxScroll = nEntries > visRows ? nEntries - visRows : 0;
+                if (ev.wheel.y > 0) {
+                    scroll -= 3;
+                    if (scroll < 0) scroll = 0;
+                } else if (ev.wheel.y < 0) {
+                    scroll += 3;
+                    if (scroll > maxScroll) scroll = maxScroll;
+                }
+                redraw = 1;
+            }
+            break;
+        }
+
+        if (redraw) {
+            fb_render(ren, win, font, cwd, entries, nEntries, selected, scroll);
+            SDL_RenderPresent(ren);
+        }
+    }
 
     TTF_CloseFont(font);
     return 0;
