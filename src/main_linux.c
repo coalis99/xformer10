@@ -133,10 +133,16 @@ int main(void)
                             ColdStart(v.iVM);
                         else
                             FWarmbootVM(v.iVM);
+                    } else if (sc == SDL_SCANCODE_F12 && !(mod & (KMOD_ALT|KMOD_SHIFT)) && is_down) {
+                        LinuxDoCommand(IDM_STRETCH);
                     } else if (sc == SDL_SCANCODE_F12 && (mod & KMOD_ALT) && is_down) {
                         LinuxDoCommand(IDM_NTSCPAL);
                     } else if (sc == SDL_SCANCODE_F12 && (mod & KMOD_SHIFT) && is_down) {
                         LinuxDoCommand(IDM_COLORMONO);
+                    } else if (sc == SDL_SCANCODE_RETURN && (mod & KMOD_ALT) && is_down) {
+                        LinuxDoCommand(IDM_FULLSCREEN);
+                    } else if (sc == SDL_SCANCODE_S && (mod & KMOD_ALT) && is_down) {
+                        LinuxDoCommand(IDM_TOGGLESOUND);
                     } else {
                         FWinMsgVM(v.iVM, vi.hWnd,
                                   is_down ? WM_KEYDOWN : WM_KEYUP,
