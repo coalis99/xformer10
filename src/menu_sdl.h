@@ -10,5 +10,6 @@ void MenuInit(SDL_Renderer *ren);
 void MenuQuit(void);
 void MenuRender(SDL_Renderer *ren);
 int  MenuHandleEvent(SDL_Event *e);  /* returns 1 if event consumed */
+int  MenuPendingCommand(void);       /* returns and clears any command deferred past mouse-up */
 #endif /* !_WIN32 */
 #endif /* MENU_SDL_H */

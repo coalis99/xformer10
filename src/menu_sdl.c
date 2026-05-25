@@ -46,8 +46,9 @@ static SDL_Texture *gCheckTex     = NULL;
 static int          gCheckW       = 0;
 static int          gCheckH       = 0;
 static int          gMenuReady    = 0;
-static int          gMenuOpen     = -1;
-static int          gMenuHover    = -1;
+static int          gMenuOpen        = -1;
+static int          gMenuHover       = -1;
+static int          gPendingCommand  = 0;  /* IDM deferred past mouse-up to release implicit pointer grab */
 
 typedef struct {
     const char  *label;
@@ -82,14 +83,14 @@ kDef[NUM_TOPS][MAX_ITEMS] = {
     { {"Turbo Mode", "Alt+F1", IDM_TURBO, 1} },
     /* Disk */
     {
-        {"D1: Mount",        NULL, -1, 0},
-        {"D1: Unmount",      NULL, -1, 0},
-        {NULL,               NULL,  0, 0},
-        {"D2: Mount",        NULL, -1, 0},
-        {"D2: Unmount",      NULL, -1, 0},
-        {NULL,               NULL,  0, 0},
-        {"Cartridge",        NULL, -1, 0},
-        {"Remove Cartridge", NULL, -1, 0},
+        {"D1: Mount...",     NULL, IDM_D1,  1},
+        {"D1: Unmount",      NULL, IDM_D1U, 1},
+        {NULL,               NULL,  0,      0},
+        {"D2: Mount...",     NULL, IDM_D2,  1},
+        {"D2: Unmount",      NULL, IDM_D2U, 1},
+        {NULL,               NULL,  0,      0},
+        {"Cartridge",        NULL, -1,      0},
+        {"Remove Cartridge", NULL, -1,      0},
     },
 };
 
@@ -149,8 +150,19 @@ static void DispatchMenuCmd(int idm)
     case IDM_EXIT:      vi.fQuitting = TRUE;      break;
     case IDM_WARMSTART: FWarmbootVM(v.iVM);        break;
     case IDM_COLDSTART: ColdStart(v.iVM);          break;
+    case IDM_D1:
+    case IDM_D2:
+        gPendingCommand = idm;  /* defer until mouse-up releases implicit pointer grab */
+        break;
     default:            LinuxDoCommand(idm);       break;
     }
+}
+
+int MenuPendingCommand(void)
+{
+    int cmd = gPendingCommand;
+    gPendingCommand = 0;
+    return cmd;
 }
 
 void MenuInit(SDL_Renderer *ren)
@@ -299,6 +311,8 @@ void MenuRender(SDL_Renderer *ren)
                 dr.x + dr.w - MENU_PAD,   yacc + MENU_SEP_H / 2);
         } else {
             int isGrayed  = (it->idm < 0) || (it->needsVM && v.iVM < 0);
+            if (it->idm == IDM_D1U && v.iVM >= 0) isGrayed |= !rgpvm[v.iVM]->rgvd[0].sz[0];
+            if (it->idm == IDM_D2U && v.iVM >= 0) isGrayed |= !rgpvm[v.iVM]->rgvd[1].sz[0];
             int isChecked = 0;
             if (it->idm == IDM_TURBO)   isChecked = !fBrakes;
             if (it->idm == IDM_NTSCPAL) isChecked = (v.iVM >= 0 && rgpvm[v.iVM]->fEmuPAL);
@@ -382,7 +396,10 @@ int MenuHandleEvent(SDL_Event *e)
                     gMenuHover = -1;
                     if (j >= 0) {
                         MenuItem *it = &gItems[m][j];
-                        if (it->idm > 0 && !(it->needsVM && v.iVM < 0))
+                        int grayed = (it->idm <= 0) || (it->needsVM && v.iVM < 0);
+                        if (it->idm == IDM_D1U && v.iVM >= 0) grayed |= !rgpvm[v.iVM]->rgvd[0].sz[0];
+                        if (it->idm == IDM_D2U && v.iVM >= 0) grayed |= !rgpvm[v.iVM]->rgvd[1].sz[0];
+                        if (!grayed)
                             DispatchMenuCmd(it->idm);
                     }
                     return 1;

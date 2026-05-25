@@ -6373,6 +6373,25 @@ Lhib:
 #endif /* _WIN32 - WndProc */
 
 #ifndef _WIN32
+#include <stdio.h>
+#include <string.h>
+
+static BOOL LinuxPickFile(char *out, int sz)
+{
+    FILE *f = popen("zenity --file-selection"
+                    " --file-filter='Atari disk images (*.atr *.atx *.xfd)|*.atr *.ATR *.atx *.ATX *.xfd *.XFD'"
+                    " --file-filter='All files|*'"
+                    " 2>/dev/null", "r");
+    if (!f) return FALSE;
+    BOOL got = (fgets(out, sz, f) != NULL);
+    pclose(f);
+    if (got) {
+        int n = (int)strlen(out);
+        if (n > 0 && out[n - 1] == '\n') out[n - 1] = '\0';
+    }
+    return got && out[0] != '\0';
+}
+
 void LinuxDoCommand(int idm)
 {
     switch (idm)
@@ -6439,6 +6458,58 @@ void LinuxDoCommand(int idm)
                 }
                 type = ((type + 1) & 0x1f);
             }
+        }
+        break;
+
+    case IDM_D1:
+        if (v.iVM >= 0) {
+            char path[MAX_PATH];
+            strncpy(path, rgpvm[v.iVM]->rgvd[0].sz, MAX_PATH - 1);
+            path[MAX_PATH - 1] = '\0';
+            if (LinuxPickFile(path, MAX_PATH)) {
+                strncpy(rgpvm[v.iVM]->rgvd[0].sz, path, MAX_PATH - 1);
+                rgpvm[v.iVM]->rgvd[0].sz[MAX_PATH - 1] = '\0';
+                rgpvm[v.iVM]->rgvd[0].dt = DISK_IMAGE;
+                if (!FMountDiskVM(v.iVM, 0)) {
+                    FUnmountDiskVM(v.iVM, 0);
+                    rgpvm[v.iVM]->rgvd[0].sz[0] = '\0';
+                    rgpvm[v.iVM]->rgvd[0].dt = DISK_NONE;
+                }
+            }
+        }
+        break;
+
+    case IDM_D2:
+        if (v.iVM >= 0) {
+            char path[MAX_PATH];
+            strncpy(path, rgpvm[v.iVM]->rgvd[1].sz, MAX_PATH - 1);
+            path[MAX_PATH - 1] = '\0';
+            if (LinuxPickFile(path, MAX_PATH)) {
+                strncpy(rgpvm[v.iVM]->rgvd[1].sz, path, MAX_PATH - 1);
+                rgpvm[v.iVM]->rgvd[1].sz[MAX_PATH - 1] = '\0';
+                rgpvm[v.iVM]->rgvd[1].dt = DISK_IMAGE;
+                if (!FMountDiskVM(v.iVM, 1)) {
+                    FUnmountDiskVM(v.iVM, 1);
+                    rgpvm[v.iVM]->rgvd[1].sz[0] = '\0';
+                    rgpvm[v.iVM]->rgvd[1].dt = DISK_NONE;
+                }
+            }
+        }
+        break;
+
+    case IDM_D1U:
+        if (v.iVM >= 0) {
+            FUnmountDiskVM(v.iVM, 0);
+            rgpvm[v.iVM]->rgvd[0].sz[0] = '\0';
+            rgpvm[v.iVM]->rgvd[0].dt = DISK_NONE;
+        }
+        break;
+
+    case IDM_D2U:
+        if (v.iVM >= 0) {
+            FUnmountDiskVM(v.iVM, 1);
+            rgpvm[v.iVM]->rgvd[1].sz[0] = '\0';
+            rgpvm[v.iVM]->rgvd[1].dt = DISK_NONE;
         }
         break;
     }
