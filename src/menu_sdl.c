@@ -358,6 +358,15 @@ void MenuRender(SDL_Renderer *ren)
                 isChecked = FWriteProtectDiskVM(v.iVM, 0, FALSE, FALSE);
             if (it->idm == IDM_WP2 && v.iVM >= 0 && rgpvm[v.iVM]->rgvd[1].sz[0])
                 isChecked = FWriteProtectDiskVM(v.iVM, 1, FALSE, FALSE);
+            if (it->idm == IDM_FULLSCREEN)       isChecked = v.fFullScreen;
+            if (it->idm == IDM_STRETCH)          isChecked = v.fZoomColor;
+            if (it->idm == IDM_STRETCH)          isGrayed  |= v.fTiling;
+            if (it->idm == IDM_TILE)             isGrayed   = TRUE;
+            if (it->idm == IDM_AUTOKILL)         isChecked = v.fAutoKill;
+            if (it->idm == IDM_LCTRLFIRE)        isChecked = v.fDisableLCTRLFire;
+            if (it->idm == IDM_WHEELSENS)        isChecked = v.fWheelSensitive;
+            if (it->idm == IDM_MYVIDEOCARDSUCKS) isChecked = v.fMyVideoCardSucks;
+            if (it->idm == IDM_TOGGLESOUND)      isChecked = !v.fSilentMode;
 
             if (gMenuHover == j && !isGrayed) {
                 SDL_SetRenderDrawColor(ren, 80, 110, 160, 255);
@@ -449,6 +458,8 @@ int MenuHandleEvent(SDL_Event *e)
                         if (it->idm == IDM_DELVM)  grayed |= (v.cVM <= 1);
                         if (it->idm == IDM_NEXTVM) grayed |= (v.cVM <= 1);
                         if (it->idm == IDM_PREVVM) grayed |= (v.cVM <= 1);
+                        if (it->idm == IDM_STRETCH) grayed |= v.fTiling;
+                        if (it->idm == IDM_TILE)    grayed  = TRUE;
                         if (!grayed)
                             DispatchMenuCmd(it->idm);
                     }
