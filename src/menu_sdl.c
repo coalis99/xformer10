@@ -331,6 +331,7 @@ void MenuRender(SDL_Renderer *ren)
             if (it->idm == IDM_IMPORTDOS1 && v.iVM >= 0) isGrayed |= !rgpvm[v.iVM]->rgvd[0].sz[0];
             if (it->idm == IDM_IMPORTDOS2 && v.iVM >= 0) isGrayed |= !rgpvm[v.iVM]->rgvd[1].sz[0];
             if (it->idm == IDM_NOCART && v.iVM >= 0)     isGrayed |= !rgpvm[v.iVM]->rgcart.fCartIn;
+            if (it->idm == IDM_DELVM)  isGrayed |= (v.cVM <= 1);
             if (it->idm == IDM_NEXTVM) isGrayed |= (v.cVM <= 1);
             if (it->idm == IDM_PREVVM) isGrayed |= (v.cVM <= 1);
             int isChecked = 0;
@@ -429,6 +430,7 @@ int MenuHandleEvent(SDL_Event *e)
                         if (it->idm == IDM_IMPORTDOS1 && v.iVM >= 0) grayed |= !rgpvm[v.iVM]->rgvd[0].sz[0];
                         if (it->idm == IDM_IMPORTDOS2 && v.iVM >= 0) grayed |= !rgpvm[v.iVM]->rgvd[1].sz[0];
                         if (it->idm == IDM_NOCART && v.iVM >= 0)     grayed |= !rgpvm[v.iVM]->rgcart.fCartIn;
+                        if (it->idm == IDM_DELVM)  grayed |= (v.cVM <= 1);
                         if (it->idm == IDM_NEXTVM) grayed |= (v.cVM <= 1);
                         if (it->idm == IDM_PREVVM) grayed |= (v.cVM <= 1);
                         if (!grayed)

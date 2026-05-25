@@ -25,6 +25,49 @@ typedef struct {
     int  is_dir;
 } FbEntry;
 
+/* Returns the best available home directory, skipping /root when a real
+   user home under /home/ can be found. */
+static const char *fb_default_dir(void)
+{
+    const char *home = getenv("HOME");
+
+    /* Prefer HOME if it looks like a real user home (not /root) */
+    if (home && home[0] && strcmp(home, "/root") != 0) {
+        struct stat st;
+        if (stat(home, &st) == 0 && S_ISDIR(st.st_mode))
+            return home;
+    }
+
+    /* sudo session: try the real user's home */
+    const char *sudo_user = getenv("SUDO_USER");
+    if (sudo_user && sudo_user[0]) {
+        static char sudo_home[PATH_MAX];
+        snprintf(sudo_home, sizeof(sudo_home), "/home/%s", sudo_user);
+        struct stat st;
+        if (stat(sudo_home, &st) == 0 && S_ISDIR(st.st_mode))
+            return sudo_home;
+    }
+
+    /* Scan /home for first accessible user directory */
+    DIR *dp = opendir("/home");
+    if (dp) {
+        struct dirent *de;
+        static char hbuf[PATH_MAX];
+        while ((de = readdir(dp)) != NULL) {
+            if (de->d_name[0] == '.') continue;
+            snprintf(hbuf, sizeof(hbuf), "/home/%s", de->d_name);
+            struct stat st;
+            if (stat(hbuf, &st) == 0 && S_ISDIR(st.st_mode)) {
+                closedir(dp);
+                return hbuf;
+            }
+        }
+        closedir(dp);
+    }
+
+    return home ? home : "/";
+}
+
 static int fb_ext_ok_ex(const char *name, const char *exts)
 {
     if (!exts || exts[0] == '\0')
@@ -223,14 +266,12 @@ int SDL_FileBrowserRunEx(SDL_Renderer *ren, SDL_Window *win,
                 strncpy(cwd, dir, PATH_MAX - 1);
                 cwd[PATH_MAX - 1] = '\0';
             } else {
-                const char *home = getenv("HOME");
-                strncpy(cwd, home ? home : "/", PATH_MAX - 1);
+                strncpy(cwd, fb_default_dir(), PATH_MAX - 1);
                 cwd[PATH_MAX - 1] = '\0';
             }
         }
     } else {
-        const char *home = getenv("HOME");
-        strncpy(cwd, home ? home : "/", PATH_MAX - 1);
+        strncpy(cwd, fb_default_dir(), PATH_MAX - 1);
         cwd[PATH_MAX - 1] = '\0';
     }
 
@@ -288,7 +329,13 @@ int SDL_FileBrowserRunEx(SDL_Renderer *ren, SDL_Window *win,
             case SDLK_RETURN:
             case SDLK_KP_ENTER:
                 if (nEntries > 0) {
-                    if (entries[selected].is_dir) {
+                    if (mode == 2 && inputbuf[0] != '\0') {
+                        /* save-as: commit typed filename regardless of selection */
+                        snprintf(out, sz, "%s/%s", cwd, inputbuf);
+                        TTF_CloseFont(font);
+                        SDL_StopTextInput();
+                        return 1;
+                    } else if (entries[selected].is_dir) {
                         char newpath[PATH_MAX];
                         snprintf(newpath, sizeof(newpath), "%s/%s",
                                  cwd, entries[selected].name);
@@ -303,16 +350,10 @@ int SDL_FileBrowserRunEx(SDL_Renderer *ren, SDL_Window *win,
                         TTF_CloseFont(font);
                         return 1;
                     } else if (mode == 2) {
-                        if (inputbuf[0] != '\0') {
-                            snprintf(out, sz, "%s/%s", cwd, inputbuf);
-                            TTF_CloseFont(font);
-                            SDL_StopTextInput();
-                            return 1;
-                        } else {
-                            strncpy(inputbuf, entries[selected].name, 255);
-                            inputbuf[255] = '\0';
-                            redraw = 1;
-                        }
+                        /* empty inputbuf: populate from selected file */
+                        strncpy(inputbuf, entries[selected].name, 255);
+                        inputbuf[255] = '\0';
+                        redraw = 1;
                     } else {
                         snprintf(out, sz, "%s/%s", cwd, entries[selected].name);
                         TTF_CloseFont(font);
