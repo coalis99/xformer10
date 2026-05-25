@@ -97,18 +97,24 @@ kDef[NUM_TOPS][MAX_ITEMS] = {
     { {"Turbo Mode", "Alt+F1", IDM_TURBO, 1} },
     /* Disk */
     {
-        {"D1: Mount...",     NULL, IDM_D1,  1},
-        {"D1: Unmount",      NULL, IDM_D1U, 1},
-        {NULL,               NULL,  0,      0},
-        {"D2: Mount...",     NULL, IDM_D2,  1},
-        {"D2: Unmount",      NULL, IDM_D2U, 1},
-        {NULL,               NULL,  0,      0},
-        {"Cartridge",        NULL, -1,      0},
-        {"Remove Cartridge", NULL, -1,      0},
+        {"D1: Mount...",           NULL, IDM_D1,         1},
+        {"D1: Unmount",            NULL, IDM_D1U,        1},
+        {"D1: Write Protect",      NULL, IDM_WP1,        1},
+        {"D1: Create Blank",       NULL, IDM_D1BLANKSD,  1},
+        {"D1: Extract DOS Files",  NULL, IDM_IMPORTDOS1, 1},
+        {NULL,                     NULL, 0,              0},
+        {"D2: Mount...",           NULL, IDM_D2,         1},
+        {"D2: Unmount",            NULL, IDM_D2U,        1},
+        {"D2: Write Protect",      NULL, IDM_WP2,        1},
+        {"D2: Create Blank",       NULL, IDM_D2BLANKSD,  1},
+        {"D2: Extract DOS Files",  NULL, IDM_IMPORTDOS2, 1},
+        {NULL,                     NULL, 0,              0},
+        {"Cartridge...",           NULL, IDM_CART,       1},
+        {"Remove Cartridge",       NULL, IDM_NOCART,     1},
     },
 };
 
-static const int kItemCount[NUM_TOPS] = {14, 7, 1, 8};
+static const int kItemCount[NUM_TOPS] = {14, 7, 1, 14};
 
 /* Returns y offset of item j within dropdown m (relative to MENU_H) */
 static int ItemYOffset(int m, int j)
@@ -320,12 +326,21 @@ void MenuRender(SDL_Renderer *ren)
             int isGrayed  = (it->idm < 0) || (it->needsVM && v.iVM < 0);
             if (it->idm == IDM_D1U && v.iVM >= 0) isGrayed |= !rgpvm[v.iVM]->rgvd[0].sz[0];
             if (it->idm == IDM_D2U && v.iVM >= 0) isGrayed |= !rgpvm[v.iVM]->rgvd[1].sz[0];
+            if (it->idm == IDM_WP1 && v.iVM >= 0)        isGrayed |= !rgpvm[v.iVM]->rgvd[0].sz[0];
+            if (it->idm == IDM_WP2 && v.iVM >= 0)        isGrayed |= !rgpvm[v.iVM]->rgvd[1].sz[0];
+            if (it->idm == IDM_IMPORTDOS1 && v.iVM >= 0) isGrayed |= !rgpvm[v.iVM]->rgvd[0].sz[0];
+            if (it->idm == IDM_IMPORTDOS2 && v.iVM >= 0) isGrayed |= !rgpvm[v.iVM]->rgvd[1].sz[0];
+            if (it->idm == IDM_NOCART && v.iVM >= 0)     isGrayed |= !rgpvm[v.iVM]->rgcart.fCartIn;
             if (it->idm == IDM_NEXTVM) isGrayed |= (v.cVM <= 1);
             if (it->idm == IDM_PREVVM) isGrayed |= (v.cVM <= 1);
             int isChecked = 0;
             if (it->idm == IDM_TURBO)    isChecked = !fBrakes;
             if (it->idm == IDM_NTSCPAL)  isChecked = (v.iVM >= 0 && rgpvm[v.iVM]->fEmuPAL);
             if (it->idm == IDM_AUTOLOAD) isChecked = v.fSaveOnExit;
+            if (it->idm == IDM_WP1 && v.iVM >= 0 && rgpvm[v.iVM]->rgvd[0].sz[0])
+                isChecked = FWriteProtectDiskVM(v.iVM, 0, FALSE, FALSE);
+            if (it->idm == IDM_WP2 && v.iVM >= 0 && rgpvm[v.iVM]->rgvd[1].sz[0])
+                isChecked = FWriteProtectDiskVM(v.iVM, 1, FALSE, FALSE);
 
             if (gMenuHover == j && !isGrayed) {
                 SDL_SetRenderDrawColor(ren, 80, 110, 160, 255);
@@ -409,6 +424,11 @@ int MenuHandleEvent(SDL_Event *e)
                         int grayed = (it->idm <= 0) || (it->needsVM && v.iVM < 0);
                         if (it->idm == IDM_D1U && v.iVM >= 0) grayed |= !rgpvm[v.iVM]->rgvd[0].sz[0];
                         if (it->idm == IDM_D2U && v.iVM >= 0) grayed |= !rgpvm[v.iVM]->rgvd[1].sz[0];
+                        if (it->idm == IDM_WP1 && v.iVM >= 0)        grayed |= !rgpvm[v.iVM]->rgvd[0].sz[0];
+                        if (it->idm == IDM_WP2 && v.iVM >= 0)        grayed |= !rgpvm[v.iVM]->rgvd[1].sz[0];
+                        if (it->idm == IDM_IMPORTDOS1 && v.iVM >= 0) grayed |= !rgpvm[v.iVM]->rgvd[0].sz[0];
+                        if (it->idm == IDM_IMPORTDOS2 && v.iVM >= 0) grayed |= !rgpvm[v.iVM]->rgvd[1].sz[0];
+                        if (it->idm == IDM_NOCART && v.iVM >= 0)     grayed |= !rgpvm[v.iVM]->rgcart.fCartIn;
                         if (it->idm == IDM_NEXTVM) grayed |= (v.cVM <= 1);
                         if (it->idm == IDM_PREVVM) grayed |= (v.cVM <= 1);
                         if (!grayed)
