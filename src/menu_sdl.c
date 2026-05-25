@@ -94,7 +94,23 @@ kDef[NUM_TOPS][MAX_ITEMS] = {
         {"Switch Monitor", "Shift+F12", IDM_COLORMONO,   1},
     },
     /* Window */
-    { {"Turbo Mode", "Alt+F1", IDM_TURBO, 1} },
+    {
+        {"Full Screen",                "Alt+Enter", IDM_FULLSCREEN,       0},
+        {"Stretch Mode",               "F12",       IDM_STRETCH,          0},
+        {"Tile All VMs",               "F5",        IDM_TILE,             0},
+        {NULL,                         NULL,        0,                    0},
+        {"Turbo Mode",                 "Alt+F1",    IDM_TURBO,            1},
+        {NULL,                         NULL,        0,                    0},
+        {"Auto-detect VM Type",        NULL,        IDM_AUTOKILL,         0},
+        {NULL,                         NULL,        0,                    0},
+        {"Disable L-CTRL as FIRE",     NULL,        IDM_LCTRLFIRE,        0},
+        {NULL,                         NULL,        0,                    0},
+        {"Mouse Wheel Sensitivity High", NULL,      IDM_WHEELSENS,        0},
+        {NULL,                         NULL,        0,                    0},
+        {"My Video Cards Sucks",       NULL,        IDM_MYVIDEOCARDSUCKS, 0},
+        {NULL,                         NULL,        0,                    0},
+        {"Enable Sound",               "Alt+S",     IDM_TOGGLESOUND,      0},
+    },
     /* Disk */
     {
         {"D1: Mount...",           NULL, IDM_D1,         1},
@@ -114,7 +130,7 @@ kDef[NUM_TOPS][MAX_ITEMS] = {
     },
 };
 
-static const int kItemCount[NUM_TOPS] = {14, 7, 1, 14};
+static const int kItemCount[NUM_TOPS] = {14, 7, 15, 14};
 
 /* Returns y offset of item j within dropdown m (relative to MENU_H) */
 static int ItemYOffset(int m, int j)
