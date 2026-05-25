@@ -6543,6 +6543,22 @@ void LinuxDoCommand(int idm)
         if (v.cVM > 1)
             SelectInstance(-1);
         break;
+    case IDM_OPENFOLDER:
+    {
+        char fold[MAX_PATH];
+        fold[0] = '\0';
+        if (SDL_FileBrowserRunEx(GetSDLRenderer(), GetSDLWindow(),
+                                 v.lpCurrentDir[0] ? v.lpCurrentDir : NULL,
+                                 fold, MAX_PATH, "", 1))
+        {
+            int iVMx = -1;
+            OpenFolders(fold, &iVMx);
+            if (iVMx >= 0)
+                SelectInstance(iVMx);
+            InitThreads();
+        }
+        break;
+    }
     }
 }
 #endif /* !_WIN32 */
