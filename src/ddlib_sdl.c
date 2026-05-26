@@ -113,6 +113,7 @@ void RenderBitmap_SDL(void)
 
     if (v.fTiling && cThreads > 0) {
         for (int t = 0; t < cThreads; t++) {
+            if (t >= vvmhw.numTiles) break;
             BYTE *src = (BYTE *)vvmhw.pbmTile[t].pvBits;
             if (!src) continue;
 

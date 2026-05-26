@@ -572,7 +572,7 @@ ThreadTry:
 
             ThreadStuff = malloc(sMaxTiles * sizeof(ThreadStuffS)); // not sure how many are visible yet, but that's an upper bound
             if (ThreadStuff)
-                memset(ThreadStuff, 0, sizeof(ThreadStuffS));
+                memset(ThreadStuff, 0, sMaxTiles * sizeof(ThreadStuffS));
 
             hDoneEvent = malloc(sMaxTiles * sizeof(HANDLE));
             if (!ThreadStuff || !hDoneEvent)
@@ -630,6 +630,8 @@ ThreadTry:
                         // But only give it a thread if it's visible
                         if (fOK && y + sTileSize.y > 0)
                         {
+                            if (cThreads >= sMaxTiles) { y = rect.bottom; break; }
+
                             // We found the actual first visible tile
                             if (nFirstVisibleTile == -1)
                                 nFirstVisibleTile = iVM;
@@ -6438,6 +6440,21 @@ void LinuxDoCommand(int idm)
                 RECT rc; GetClientRect(vi.hWnd, &rc);
                 int nx = rc.right > 0 ? (rc.right * 10 / (int)sTileSize.x + 5) / 10 : 1;
                 sTilesPerRow = nx;
+#ifndef _WIN32
+                /* On Linux the window may have been resized since startup; grow
+                   sMaxTiles and pbmTile[] before InitThreads writes past them. */
+                {
+                    int cols = nx;
+                    int rows = ((int)sTileSize.y > 0 && rc.bottom > 0)
+                               ? rc.bottom / (int)sTileSize.y + 2 : 2;
+                    int needed = cols * rows;
+                    if (needed < 2) needed = 2;
+                    if (needed > sMaxTiles) {
+                        sMaxTiles = needed;
+                        CreateNewBitmaps();
+                    }
+                }
+#endif
             }
             InitThreads();
         } else {
