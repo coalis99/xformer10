@@ -605,6 +605,14 @@ ThreadTry:
                 iVM = row * nx;
             }
 
+            // Guard: sWheelOffset was scrolled past the last VM row — reset to top
+            if (iVM >= v.cVM) {
+                v.sWheelOffset = 0;
+                y = 0;
+                nFirstVisibleTile = 0;
+                iVM = 0;
+            }
+
             for (; y < rect.bottom; y += sTileSize.y /* * vi.fYscale*/)
             {
                 for (int x = 0; x < nx * sTileSize.x; x += sTileSize.x /* * vi.fXscale*/)
@@ -2659,7 +2667,7 @@ BOOL CreateNewBitmaps()
 
     // !!! Only makes bitmaps suitable for ATARI 8 bit VMs right now
 
-    vvmhw.fMono = FMonoFromBf(monColrTV);   // !!! 
+    vvmhw.fMono = FMonoFromBf(monColrTV);   // !!!
     vvmhw.fGrey = FGreyFromBf(monColrTV);
 
     if (vvmhw.fMono)
@@ -6432,29 +6440,15 @@ void LinuxDoCommand(int idm)
         break;
 
     case IDM_TILE:
-        v.fTiling = !v.fTiling;
+        v.fTiling = v.fTiling ? 0 : 1;  /* avoid signed 1-bit bitfield becoming -1 */
         if (v.fTiling) {
             sVM = -1;
             v.sWheelOffset = 0;
             {   /* recalculate sTilesPerRow from current window */
                 RECT rc; GetClientRect(vi.hWnd, &rc);
+                if ((int)sTileSize.x <= 0) break;
                 int nx = rc.right > 0 ? (rc.right * 10 / (int)sTileSize.x + 5) / 10 : 1;
                 sTilesPerRow = nx;
-#ifndef _WIN32
-                /* On Linux the window may have been resized since startup; grow
-                   sMaxTiles and pbmTile[] before InitThreads writes past them. */
-                {
-                    int cols = nx;
-                    int rows = ((int)sTileSize.y > 0 && rc.bottom > 0)
-                               ? rc.bottom / (int)sTileSize.y + 2 : 2;
-                    int needed = cols * rows;
-                    if (needed < 2) needed = 2;
-                    if (needed > sMaxTiles) {
-                        sMaxTiles = needed;
-                        CreateNewBitmaps();
-                    }
-                }
-#endif
             }
             InitThreads();
         } else {

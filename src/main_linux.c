@@ -17,6 +17,7 @@ void LinuxDoCommand(int idm);
 extern const int sdl_to_vk[];
 void linux_get_client_rect(RECT *r);
 extern int GetTileFromPos(int xPos, int yPos, void *ppt);
+void ScrollTiles(void);
 
 static void sigint_handler(int s) { (void)s; vi.fQuitting = TRUE; }
 
@@ -76,12 +77,18 @@ int main(void)
 
     InitDrawing(X8, Y8, 8, NULL, FALSE);
 
-    {   /* compute tile capacity now that the window exists */
+    {   /* compute tile capacity from full display size so resize never needs CreateNewBitmaps */
         RECT rc; linux_get_client_rect(&rc);
         int cols = rc.right  > 0 ? rc.right  / (int)X8 : 1;
         int rows = rc.bottom > 0 ? rc.bottom / (int)Y8 : 1;
         sTilesPerRow = cols + 1;           /* +1: partial tiles on right */
-        sMaxTiles    = sTilesPerRow * (rows + 2); /* +2: partial top+bottom */
+        SDL_DisplayMode dm;
+        int maxCols = sTilesPerRow, maxRows = rows + 2;
+        if (SDL_GetCurrentDisplayMode(0, &dm) == 0) {
+            maxCols = dm.w / (int)X8 + 3;
+            maxRows = dm.h / (int)Y8 + 4;
+        }
+        sMaxTiles = maxCols * maxRows;
         if (sMaxTiles < 2) sMaxTiles = 2;
     }
 
@@ -131,6 +138,17 @@ int main(void)
                     vi.fHaveFocus = TRUE;
                 else if (e.window.event == SDL_WINDOWEVENT_FOCUS_LOST)
                     vi.fHaveFocus = FALSE;
+                else if (e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED
+                         && v.fTiling != 0 && v.cVM > 0
+                         && (int)sTileSize.x > 0 && (int)sTileSize.y > 0) {
+                    RECT rc; linux_get_client_rect(&rc);
+                    int cols = rc.right > 0
+                               ? (rc.right * 10 / (int)sTileSize.x + 5) / 10 : 1;
+                    if (cols != sTilesPerRow) {
+                        sTilesPerRow = cols;
+                        InitThreads();
+                    }
+                }
             } else if (e.type == SDL_JOYDEVICEADDED) {
                 if (!gJoy) {
                     gJoy = SDL_JoystickOpen(e.jdevice.which);
@@ -182,10 +200,10 @@ int main(void)
                     LinuxDoCommand(IDM_TILE);
                 }
             } else if (e.type == SDL_MOUSEWHEEL && v.fTiling && v.cVM > 0
-                       && (int)sTileSize.y > 0) {
+                       && sTilesPerRow > 0 && (int)sTileSize.y > 0) {
                 v.sWheelOffset += e.wheel.y * (int)sTileSize.y;
                 if (v.sWheelOffset > 0) v.sWheelOffset = 0;
-                InitThreads();
+                ScrollTiles();
             } else if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
                 int sc = (int)e.key.keysym.scancode;
                 int vk = (sc >= 0 && sc < 512) ? sdl_to_vk[sc] : 0;
