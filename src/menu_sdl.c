@@ -26,7 +26,12 @@ extern void LinuxDoCommand(int idm);
 
 #define FONT_PATH         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
 #define FONT_SIZE         14
-#define NUM_TOPS          4
+#define NUM_TOPS          5
+#define DISK_MENU_IDX     3
+#define NUM_SUBMENUS      2
+#define MAX_SUB_ITEMS     8
+#define IDM_SUB_D1        (-10)
+#define IDM_SUB_D2        (-11)
 #define MAX_ITEMS         16
 #define MENU_ITEM_H       20
 #define MENU_SEP_H        8
@@ -35,8 +40,8 @@ extern void LinuxDoCommand(int idm);
 #define MENU_DROP_MIN_W   160
 #define MENU_CHECK_AREA   16  /* reserved width for checkmark left of label */
 
-static const char *gTopLabels[NUM_TOPS] = { "File", "VM", "Window", "Disk" };
-static const int   gTopX[NUM_TOPS]      = { 8, 60, 110, 185 };
+static const char *gTopLabels[NUM_TOPS] = { "File", "VM", "Window", "Disk/Cartridge", "Help" };
+static int         gTopX[NUM_TOPS];
 
 static TTF_Font    *gFont         = NULL;
 static SDL_Texture *gTopTex[NUM_TOPS];
@@ -45,14 +50,19 @@ static int          gTopH[NUM_TOPS];
 static SDL_Texture *gCheckTex     = NULL;
 static int          gCheckW       = 0;
 static int          gCheckH       = 0;
+static SDL_Texture *gArrowTex     = NULL;
+static int          gArrowW       = 0;
+static int          gArrowH       = 0;
 static int          gMenuReady    = 0;
-static int          gMenuOpen        = -1;
-static int          gMenuHover       = -1;
+static int          gMenuOpen     = -1;
+static int          gMenuHover    = -1;
+static int          gSubmenuOpen  = -1;
+static int          gSubmenuHover = -1;
 
 typedef struct {
     const char  *label;
     const char  *shortcut;
-    int          idm;       /* 0=separator, -1=always-grayed, else IDM */
+    int          idm;       /* 0=separator, <0=special/submenu-parent, else IDM */
     int          needsVM;   /* gray when v.iVM < 0 */
     SDL_Texture *labelTex;
     int          labelW, labelH;
@@ -63,6 +73,10 @@ typedef struct {
 static MenuItem gItems[NUM_TOPS][MAX_ITEMS];
 static int      gItemCount[NUM_TOPS];
 static int      gDropW[NUM_TOPS];
+
+static MenuItem gSubItems[NUM_SUBMENUS][MAX_SUB_ITEMS];
+static int      gSubItemCount[NUM_SUBMENUS];
+static int      gSubDropW[NUM_SUBMENUS];
 
 static const struct { const char *lbl; const char *sc; int idm; int needsVM; }
 kDef[NUM_TOPS][MAX_ITEMS] = {
@@ -111,26 +125,48 @@ kDef[NUM_TOPS][MAX_ITEMS] = {
         {NULL,                         NULL,        0,                    0},
         {"Enable Sound",               "Alt+S",     IDM_TOGGLESOUND,      0},
     },
-    /* Disk */
+    /* Disk/Cartridge */
     {
-        {"D1: Mount...",           NULL, IDM_D1,         1},
-        {"D1: Unmount",            NULL, IDM_D1U,        1},
-        {"D1: Write Protect",      NULL, IDM_WP1,        1},
-        {"D1: Create Blank",       NULL, IDM_D1BLANKSD,  1},
-        {"D1: Extract DOS Files",  NULL, IDM_IMPORTDOS1, 1},
-        {NULL,                     NULL, 0,              0},
-        {"D2: Mount...",           NULL, IDM_D2,         1},
-        {"D2: Unmount",            NULL, IDM_D2U,        1},
-        {"D2: Write Protect",      NULL, IDM_WP2,        1},
-        {"D2: Create Blank",       NULL, IDM_D2BLANKSD,  1},
-        {"D2: Extract DOS Files",  NULL, IDM_IMPORTDOS2, 1},
-        {NULL,                     NULL, 0,              0},
-        {"Cartridge...",           NULL, IDM_CART,       1},
-        {"Remove Cartridge",       NULL, IDM_NOCART,     1},
+        {"D1:",              NULL, IDM_SUB_D1, 1},
+        {"D2:",              NULL, IDM_SUB_D2, 1},
+        {NULL,               NULL, 0,          0},
+        {"Cartridge...",     NULL, IDM_CART,   1},
+        {"Remove Cartridge", NULL, IDM_NOCART, 1},
+    },
+    /* Help */
+    {
+        {"Emulators.com Home Page", NULL, IDM_WEB_EMULATORS, 0},
+        {"SoftMac/XFormer10 Repo",  NULL, IDM_WEB_FREE,      0},
+        {"Online Documentation",    NULL, IDM_WEB_HELP,      0},
+        {NULL,                      NULL, 0,                 0},
+        {"About",                   NULL, IDM_ABOUT,         0},
     },
 };
 
-static const int kItemCount[NUM_TOPS] = {14, 7, 15, 14};
+static const int kItemCount[NUM_TOPS] = {14, 7, 15, 5, 5};
+
+static const struct { const char *lbl; const char *sc; int idm; int needsVM; }
+kSubDef[NUM_SUBMENUS][MAX_SUB_ITEMS] = {
+    /* [0] D1 */
+    {
+        {"Mount D1",          NULL, IDM_D1,         1},
+        {"Unmount D1",        NULL, IDM_D1U,        1},
+        {NULL,                NULL, 0,              0},
+        {"Write Protect",     NULL, IDM_WP1,        1},
+        {"Create Blank",      NULL, IDM_D1BLANKSD,  1},
+        {"Extract DOS Files", NULL, IDM_IMPORTDOS1, 1},
+    },
+    /* [1] D2 */
+    {
+        {"Mount D2",          NULL, IDM_D2,         1},
+        {"Unmount D2",        NULL, IDM_D2U,        1},
+        {NULL,                NULL, 0,              0},
+        {"Write Protect",     NULL, IDM_WP2,        1},
+        {"Create Blank",      NULL, IDM_D2BLANKSD,  1},
+        {"Extract DOS Files", NULL, IDM_IMPORTDOS2, 1},
+    },
+};
+static const int kSubItemCount[NUM_SUBMENUS] = {6, 6};
 
 /* Returns y offset of item j within dropdown m (relative to MENU_H) */
 static int ItemYOffset(int m, int j)
@@ -151,6 +187,27 @@ static int DropHeight(int m)
 static SDL_Rect DropRect(int m)
 {
     return (SDL_Rect){ gTopX[m], MENU_H, gDropW[m], DropHeight(m) };
+}
+
+/* Returns total pixel height of submenu s */
+static int SubDropHeight(int s)
+{
+    int h = 0;
+    for (int j = 0; j < gSubItemCount[s]; j++)
+        h += (gSubItems[s][j].idm == 0) ? MENU_SEP_H : MENU_ITEM_H;
+    return h;
+}
+
+/* Returns bounding rect of submenu s flyout panel */
+static SDL_Rect SubRect(int s)
+{
+    int parentRow = s;  /* D1 is row 0, D2 is row 1 in Disk/Cartridge dropdown */
+    return (SDL_Rect){
+        gTopX[DISK_MENU_IDX] + gDropW[DISK_MENU_IDX],
+        MENU_H + ItemYOffset(DISK_MENU_IDX, parentRow),
+        gSubDropW[s],
+        SubDropHeight(s)
+    };
 }
 
 /* Returns index of the top-level label hit at x, or -1 */
@@ -178,6 +235,40 @@ static int HitItem(int m, int x, int y)
         yacc += h;
     }
     return -1;
+}
+
+/* Returns item index within submenu s at pixel (x,y), or -1 */
+static int HitSubItem(int s, int x, int y)
+{
+    SDL_Rect sr = SubRect(s);
+    if (x < sr.x || x >= sr.x + sr.w || y < sr.y || y >= sr.y + sr.h)
+        return -1;
+    int yrel = y - sr.y;
+    int yacc = 0;
+    for (int j = 0; j < gSubItemCount[s]; j++) {
+        int h = (gSubItems[s][j].idm == 0) ? MENU_SEP_H : MENU_ITEM_H;
+        if (yrel < yacc + h) return j;
+        yacc += h;
+    }
+    return -1;
+}
+
+/* Returns 1 if submenu s item j should be grayed */
+static int IsSubItemGrayed(int s, int j)
+{
+    MenuItem *it = &gSubItems[s][j];
+    if (it->idm <= 0) return 1;
+    if (it->needsVM && v.iVM < 0) return 1;
+    if (v.iVM >= 0) {
+        if (s == 0) {
+            if (it->idm == IDM_D1U || it->idm == IDM_WP1 || it->idm == IDM_IMPORTDOS1)
+                return !rgpvm[v.iVM]->rgvd[0].sz[0];
+        } else {
+            if (it->idm == IDM_D2U || it->idm == IDM_WP2 || it->idm == IDM_IMPORTDOS2)
+                return !rgpvm[v.iVM]->rgvd[1].sz[0];
+        }
+    }
+    return 0;
 }
 
 static void DispatchMenuCmd(int idm)
@@ -218,6 +309,15 @@ void MenuInit(SDL_Renderer *ren)
         SDL_FreeSurface(surf);
     }
 
+    /* Compute gTopX dynamically from rendered label widths */
+    {
+        int xpos = 8;
+        for (int i = 0; i < NUM_TOPS; i++) {
+            gTopX[i] = xpos;
+            xpos += gTopW[i] + 20;
+        }
+    }
+
     /* Checkmark texture (U+2713 ✓) */
     SDL_Color white = {255, 255, 255, 255};
     {
@@ -226,6 +326,17 @@ void MenuInit(SDL_Renderer *ren)
             gCheckTex = SDL_CreateTextureFromSurface(ren, surf);
             gCheckW   = surf->w;
             gCheckH   = surf->h;
+            SDL_FreeSurface(surf);
+        }
+    }
+
+    /* Arrow texture (U+25B6 ▶) for submenu parents */
+    {
+        SDL_Surface *surf = TTF_RenderUTF8_Blended(gFont, "\xe2\x96\xb6", white);
+        if (surf) {
+            gArrowTex = SDL_CreateTextureFromSurface(ren, surf);
+            gArrowW   = surf->w;
+            gArrowH   = surf->h;
             SDL_FreeSurface(surf);
         }
     }
@@ -261,9 +372,37 @@ void MenuInit(SDL_Renderer *ren)
             int needed = MENU_PAD + MENU_CHECK_AREA + it->labelW
                        + (it->shortcut ? MENU_SHORTCUT_GAP + it->shortW : 0)
                        + MENU_PAD;
+            /* submenu parent rows reserve space for the arrow */
+            if (it->idm == IDM_SUB_D1 || it->idm == IDM_SUB_D2)
+                needed += gArrowW + MENU_PAD;
             if (needed > maxW) maxW = needed;
         }
         gDropW[m] = (maxW > MENU_DROP_MIN_W) ? maxW : MENU_DROP_MIN_W;
+    }
+
+    /* Submenu item textures */
+    for (int s = 0; s < NUM_SUBMENUS; s++) {
+        gSubItemCount[s] = kSubItemCount[s];
+        int maxW = 0;
+        for (int j = 0; j < gSubItemCount[s]; j++) {
+            MenuItem *it = &gSubItems[s][j];
+            it->label    = kSubDef[s][j].lbl;
+            it->shortcut = kSubDef[s][j].sc;
+            it->idm      = kSubDef[s][j].idm;
+            it->needsVM  = kSubDef[s][j].needsVM;
+            if (it->idm == 0 || !it->label) continue;
+
+            SDL_Surface *surf = TTF_RenderUTF8_Blended(gFont, it->label, white);
+            if (surf) {
+                it->labelTex = SDL_CreateTextureFromSurface(ren, surf);
+                it->labelW   = surf->w;
+                it->labelH   = surf->h;
+                SDL_FreeSurface(surf);
+            }
+            int needed = MENU_PAD + MENU_CHECK_AREA + it->labelW + MENU_PAD;
+            if (needed > maxW) maxW = needed;
+        }
+        gSubDropW[s] = (maxW > MENU_DROP_MIN_W) ? maxW : MENU_DROP_MIN_W;
     }
 
     gMenuReady = 1;
@@ -287,7 +426,16 @@ void MenuQuit(void)
             }
         }
     }
+    for (int s = 0; s < NUM_SUBMENUS; s++) {
+        for (int j = 0; j < gSubItemCount[s]; j++) {
+            if (gSubItems[s][j].labelTex) {
+                SDL_DestroyTexture(gSubItems[s][j].labelTex);
+                gSubItems[s][j].labelTex = NULL;
+            }
+        }
+    }
     if (gCheckTex) { SDL_DestroyTexture(gCheckTex); gCheckTex = NULL; }
+    if (gArrowTex) { SDL_DestroyTexture(gArrowTex); gArrowTex = NULL; }
     if (gFont) { TTF_CloseFont(gFont); gFont = NULL; }
     TTF_Quit();
     gMenuReady = 0;
@@ -299,6 +447,7 @@ void MenuRender(SDL_Renderer *ren)
 
     int winW, winH;
     SDL_GetRendererOutputSize(ren, &winW, &winH);
+    (void)winH;
 
     /* bar background */
     SDL_SetRenderDrawColor(ren, 50, 50, 50, 255);
@@ -339,36 +488,29 @@ void MenuRender(SDL_Renderer *ren)
                 dr.x + MENU_PAD,          yacc + MENU_SEP_H / 2,
                 dr.x + dr.w - MENU_PAD,   yacc + MENU_SEP_H / 2);
         } else {
-            int isGrayed  = (it->idm < 0) || (it->needsVM && v.iVM < 0);
-            if (it->idm == IDM_D1U && v.iVM >= 0) isGrayed |= !rgpvm[v.iVM]->rgvd[0].sz[0];
-            if (it->idm == IDM_D2U && v.iVM >= 0) isGrayed |= !rgpvm[v.iVM]->rgvd[1].sz[0];
-            if (it->idm == IDM_WP1 && v.iVM >= 0)        isGrayed |= !rgpvm[v.iVM]->rgvd[0].sz[0];
-            if (it->idm == IDM_WP2 && v.iVM >= 0)        isGrayed |= !rgpvm[v.iVM]->rgvd[1].sz[0];
-            if (it->idm == IDM_IMPORTDOS1 && v.iVM >= 0) isGrayed |= !rgpvm[v.iVM]->rgvd[0].sz[0];
-            if (it->idm == IDM_IMPORTDOS2 && v.iVM >= 0) isGrayed |= !rgpvm[v.iVM]->rgvd[1].sz[0];
-            if (it->idm == IDM_NOCART && v.iVM >= 0)     isGrayed |= !rgpvm[v.iVM]->rgcart.fCartIn;
+            int isSubParent = (it->idm == IDM_SUB_D1 || it->idm == IDM_SUB_D2);
+            int isGrayed = (!isSubParent && it->idm < 0) || (it->needsVM && v.iVM < 0);
+            if (it->idm == IDM_NOCART && v.iVM >= 0) isGrayed |= !rgpvm[v.iVM]->rgcart.fCartIn;
             if (it->idm == IDM_DELVM)  isGrayed |= (v.cVM <= 1);
             if (it->idm == IDM_NEXTVM) isGrayed |= (v.cVM <= 1);
             if (it->idm == IDM_PREVVM) isGrayed |= (v.cVM <= 1);
             int isChecked = 0;
-            if (it->idm == IDM_TURBO)    isChecked = !fBrakes;
-            if (it->idm == IDM_NTSCPAL)  isChecked = (v.iVM >= 0 && rgpvm[v.iVM]->fEmuPAL);
-            if (it->idm == IDM_AUTOLOAD) isChecked = v.fSaveOnExit;
-            if (it->idm == IDM_WP1 && v.iVM >= 0 && rgpvm[v.iVM]->rgvd[0].sz[0])
-                isChecked = FWriteProtectDiskVM(v.iVM, 0, FALSE, FALSE);
-            if (it->idm == IDM_WP2 && v.iVM >= 0 && rgpvm[v.iVM]->rgvd[1].sz[0])
-                isChecked = FWriteProtectDiskVM(v.iVM, 1, FALSE, FALSE);
+            if (it->idm == IDM_TURBO)            isChecked = !fBrakes;
+            if (it->idm == IDM_NTSCPAL)          isChecked = (v.iVM >= 0 && rgpvm[v.iVM]->fEmuPAL);
+            if (it->idm == IDM_AUTOLOAD)         isChecked = v.fSaveOnExit;
             if (it->idm == IDM_FULLSCREEN)       isChecked = v.fFullScreen;
-            if (it->idm == IDM_STRETCH)          isChecked = v.fZoomColor;
-            if (it->idm == IDM_STRETCH)          isGrayed  |= v.fTiling;
-            if (it->idm == IDM_TILE)             isChecked  = v.fTiling;
+            if (it->idm == IDM_STRETCH)        { isChecked = v.fZoomColor; isGrayed |= v.fTiling; }
+            if (it->idm == IDM_TILE)             isChecked = v.fTiling;
             if (it->idm == IDM_AUTOKILL)         isChecked = v.fAutoKill;
             if (it->idm == IDM_LCTRLFIRE)        isChecked = v.fDisableLCTRLFire;
             if (it->idm == IDM_WHEELSENS)        isChecked = v.fWheelSensitive;
             if (it->idm == IDM_MYVIDEOCARDSUCKS) isChecked = v.fMyVideoCardSucks;
             if (it->idm == IDM_TOGGLESOUND)      isChecked = !v.fSilentMode;
 
-            if (gMenuHover == j && !isGrayed) {
+            /* submenu parent rows stay highlighted while their flyout is open */
+            int subIdx = (it->idm == IDM_SUB_D1) ? 0 : (it->idm == IDM_SUB_D2) ? 1 : -1;
+            int isHovered = (gMenuHover == j) || (subIdx >= 0 && gSubmenuOpen == subIdx);
+            if (isHovered && !isGrayed) {
                 SDL_SetRenderDrawColor(ren, 80, 110, 160, 255);
                 SDL_Rect hlr = { dr.x + 1, yacc + 1, dr.w - 2, itemH - 2 };
                 SDL_RenderFillRect(ren, &hlr);
@@ -389,6 +531,13 @@ void MenuRender(SDL_Renderer *ren)
                                  it->labelW, it->labelH };
                 SDL_RenderCopy(ren, it->labelTex, NULL, &dst);
             }
+            if (isSubParent && gArrowTex) {
+                SDL_SetTextureColorMod(gArrowTex, c, c, c);
+                int ty = yacc + (itemH - gArrowH) / 2;
+                SDL_Rect dst = { dr.x + dr.w - gArrowW - MENU_PAD, ty,
+                                 gArrowW, gArrowH };
+                SDL_RenderCopy(ren, gArrowTex, NULL, &dst);
+            }
             if (it->shortTex) {
                 SDL_SetTextureColorMod(it->shortTex, c, c, c);
                 int ty = yacc + (itemH - it->shortH) / 2;
@@ -400,6 +549,60 @@ void MenuRender(SDL_Renderer *ren)
 
         yacc += itemH;
     }
+
+    /* submenu flyout panel */
+    if (m == DISK_MENU_IDX && gSubmenuOpen >= 0) {
+        int s = gSubmenuOpen;
+        SDL_Rect sr = SubRect(s);
+
+        SDL_SetRenderDrawColor(ren, 55, 55, 55, 255);
+        SDL_RenderFillRect(ren, &sr);
+        SDL_SetRenderDrawColor(ren, 100, 100, 100, 255);
+        SDL_RenderDrawRect(ren, &sr);
+
+        int sy = sr.y;
+        for (int j = 0; j < gSubItemCount[s]; j++) {
+            MenuItem *it = &gSubItems[s][j];
+            int itemH = (it->idm == 0) ? MENU_SEP_H : MENU_ITEM_H;
+
+            if (it->idm == 0) {
+                SDL_SetRenderDrawColor(ren, 90, 90, 90, 255);
+                SDL_RenderDrawLine(ren,
+                    sr.x + MENU_PAD,        sy + MENU_SEP_H / 2,
+                    sr.x + sr.w - MENU_PAD, sy + MENU_SEP_H / 2);
+            } else {
+                int isGrayed  = IsSubItemGrayed(s, j);
+                int isChecked = 0;
+                if (it->idm == IDM_WP1 && v.iVM >= 0 && rgpvm[v.iVM]->rgvd[0].sz[0])
+                    isChecked = FWriteProtectDiskVM(v.iVM, 0, FALSE, FALSE);
+                if (it->idm == IDM_WP2 && v.iVM >= 0 && rgpvm[v.iVM]->rgvd[1].sz[0])
+                    isChecked = FWriteProtectDiskVM(v.iVM, 1, FALSE, FALSE);
+
+                if (gSubmenuHover == j && !isGrayed) {
+                    SDL_SetRenderDrawColor(ren, 80, 110, 160, 255);
+                    SDL_Rect hlr = { sr.x + 1, sy + 1, sr.w - 2, itemH - 2 };
+                    SDL_RenderFillRect(ren, &hlr);
+                }
+
+                Uint8 c = isGrayed ? 100 : 230;
+
+                if (isChecked && gCheckTex) {
+                    SDL_SetTextureColorMod(gCheckTex, c, c, c);
+                    int ty = sy + (itemH - gCheckH) / 2;
+                    SDL_Rect dst = { sr.x + MENU_PAD, ty, gCheckW, gCheckH };
+                    SDL_RenderCopy(ren, gCheckTex, NULL, &dst);
+                }
+                if (it->labelTex) {
+                    SDL_SetTextureColorMod(it->labelTex, c, c, c);
+                    int ty = sy + (itemH - it->labelH) / 2;
+                    SDL_Rect dst = { sr.x + MENU_PAD + MENU_CHECK_AREA, ty,
+                                     it->labelW, it->labelH };
+                    SDL_RenderCopy(ren, it->labelTex, NULL, &dst);
+                }
+            }
+            sy += itemH;
+        }
+    }
 }
 
 int MenuHandleEvent(SDL_Event *e)
@@ -409,15 +612,39 @@ int MenuHandleEvent(SDL_Event *e)
     switch (e->type) {
     case SDL_KEYDOWN:
         if (e->key.keysym.sym == SDLK_ESCAPE && gMenuOpen >= 0) {
-            gMenuOpen  = -1;
-            gMenuHover = -1;
+            gMenuOpen     = -1;
+            gMenuHover    = -1;
+            gSubmenuOpen  = -1;
+            gSubmenuHover = -1;
             return 1;
         }
         return 0;
 
     case SDL_MOUSEMOTION:
-        if (gMenuOpen >= 0)
-            gMenuHover = HitItem(gMenuOpen, e->motion.x, e->motion.y);
+        if (gMenuOpen >= 0) {
+            int x = e->motion.x, y = e->motion.y;
+            /* if a submenu is open, check its area before processing the main dropdown */
+            if (gMenuOpen == DISK_MENU_IDX && gSubmenuOpen >= 0) {
+                SDL_Rect sr = SubRect(gSubmenuOpen);
+                if (x >= sr.x && x < sr.x + sr.w &&
+                    y >= sr.y && y < sr.y + sr.h) {
+                    gSubmenuHover = HitSubItem(gSubmenuOpen, x, y);
+                    /* keep gMenuHover on the parent row so it stays highlighted */
+                    return 0;
+                }
+            }
+            int j = HitItem(gMenuOpen, x, y);
+            gMenuHover = j;
+            if (gMenuOpen == DISK_MENU_IDX) {
+                if (j >= 0 && gItems[DISK_MENU_IDX][j].idm == IDM_SUB_D1) {
+                    gSubmenuOpen = 0; gSubmenuHover = -1;
+                } else if (j >= 0 && gItems[DISK_MENU_IDX][j].idm == IDM_SUB_D2) {
+                    gSubmenuOpen = 1; gSubmenuHover = -1;
+                } else {
+                    gSubmenuOpen = -1; gSubmenuHover = -1;
+                }
+            }
+        }
         return 0;
 
     case SDL_MOUSEBUTTONDOWN:
@@ -427,6 +654,8 @@ int MenuHandleEvent(SDL_Event *e)
 
             if (y < MENU_H) {
                 int hit = HitTopLabel(x);
+                gSubmenuOpen  = -1;
+                gSubmenuHover = -1;
                 if (hit < 0) {
                     gMenuOpen  = -1;
                     gMenuHover = -1;
@@ -438,23 +667,42 @@ int MenuHandleEvent(SDL_Event *e)
             }
 
             if (gMenuOpen >= 0) {
+                /* check submenu flyout first */
+                if (gMenuOpen == DISK_MENU_IDX && gSubmenuOpen >= 0) {
+                    SDL_Rect sr = SubRect(gSubmenuOpen);
+                    if (x >= sr.x && x < sr.x + sr.w &&
+                        y >= sr.y && y < sr.y + sr.h) {
+                        int j = HitSubItem(gSubmenuOpen, x, y);
+                        int s = gSubmenuOpen;
+                        gMenuOpen = -1; gMenuHover = -1;
+                        gSubmenuOpen = -1; gSubmenuHover = -1;
+                        if (j >= 0 && !IsSubItemGrayed(s, j))
+                            DispatchMenuCmd(gSubItems[s][j].idm);
+                        return 1;
+                    }
+                }
+
                 SDL_Rect dr = DropRect(gMenuOpen);
                 if (x >= dr.x && x < dr.x + dr.w &&
                     y >= dr.y && y < dr.y + dr.h) {
                     int j = HitItem(gMenuOpen, x, y);
                     int m = gMenuOpen;
-                    gMenuOpen  = -1;
-                    gMenuHover = -1;
+
+                    /* clicking a submenu parent opens its flyout without closing the menu */
+                    if (j >= 0 && (gItems[m][j].idm == IDM_SUB_D1 ||
+                                   gItems[m][j].idm == IDM_SUB_D2)) {
+                        gSubmenuOpen  = (gItems[m][j].idm == IDM_SUB_D1) ? 0 : 1;
+                        gMenuHover    = j;
+                        gSubmenuHover = -1;
+                        return 1;
+                    }
+
+                    gMenuOpen = -1; gMenuHover = -1;
+                    gSubmenuOpen = -1; gSubmenuHover = -1;
                     if (j >= 0) {
                         MenuItem *it = &gItems[m][j];
                         int grayed = (it->idm <= 0) || (it->needsVM && v.iVM < 0);
-                        if (it->idm == IDM_D1U && v.iVM >= 0) grayed |= !rgpvm[v.iVM]->rgvd[0].sz[0];
-                        if (it->idm == IDM_D2U && v.iVM >= 0) grayed |= !rgpvm[v.iVM]->rgvd[1].sz[0];
-                        if (it->idm == IDM_WP1 && v.iVM >= 0)        grayed |= !rgpvm[v.iVM]->rgvd[0].sz[0];
-                        if (it->idm == IDM_WP2 && v.iVM >= 0)        grayed |= !rgpvm[v.iVM]->rgvd[1].sz[0];
-                        if (it->idm == IDM_IMPORTDOS1 && v.iVM >= 0) grayed |= !rgpvm[v.iVM]->rgvd[0].sz[0];
-                        if (it->idm == IDM_IMPORTDOS2 && v.iVM >= 0) grayed |= !rgpvm[v.iVM]->rgvd[1].sz[0];
-                        if (it->idm == IDM_NOCART && v.iVM >= 0)     grayed |= !rgpvm[v.iVM]->rgcart.fCartIn;
+                        if (it->idm == IDM_NOCART && v.iVM >= 0) grayed |= !rgpvm[v.iVM]->rgcart.fCartIn;
                         if (it->idm == IDM_DELVM)  grayed |= (v.cVM <= 1);
                         if (it->idm == IDM_NEXTVM) grayed |= (v.cVM <= 1);
                         if (it->idm == IDM_PREVVM) grayed |= (v.cVM <= 1);
@@ -464,8 +712,8 @@ int MenuHandleEvent(SDL_Event *e)
                     }
                     return 1;
                 }
-                gMenuOpen  = -1;
-                gMenuHover = -1;
+                gMenuOpen = -1; gMenuHover = -1;
+                gSubmenuOpen = -1; gSubmenuHover = -1;
                 return 0;
             }
         }
