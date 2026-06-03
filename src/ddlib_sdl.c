@@ -19,6 +19,7 @@
 
 /* SDL2/SDL.h must come before gemtypes.h to avoid __inline redefinition conflict with arm_neon.h */
 #include <SDL2/SDL.h>
+#include <math.h>
 #include "gemtypes.h"
 #include "atari800.h"
 #include "menu_sdl.h"
@@ -32,7 +33,19 @@ static int gTexW, gTexH;
 #define MAX_TILE_TEX 64
 static SDL_Texture *gTileTex[MAX_TILE_TEX];
 
-extern BYTE rgbRainbow[];  /* atari800.c: interleaved [R,G,B] * 256 */
+extern BYTE rgbRainbow[];  /* atari800.c: interleaved [R,G,B] * 256 — values are 6-bit CRT voltages (0-63) */
+
+/* Converts 6-bit CRT voltage to 8-bit sRGB by applying inverse gamma 2.2 */
+static Uint8 gGammaLUT[64];
+
+static void BuildGammaLUT(void)
+{
+    gGammaLUT[0] = 0;
+    for (int i = 1; i < 64; i++) {
+        double v = pow((double)i / 63.0, 1.0 / 2.2);
+        gGammaLUT[i] = (Uint8)(v * 255.0 + 0.5);
+    }
+}
 
 void linux_set_window_title(const char *s)
 {
@@ -64,6 +77,7 @@ BOOL InitDrawing(int dx, int dy, int bpp, HANDLE hwndApp, BOOL fReInit)
     if (!gSDLTex) return FALSE;
     gTexW = dx;
     gTexH = dy;
+    BuildGammaLUT();
     MenuInit(gSDLRen);
     return TRUE;
 }
@@ -126,13 +140,10 @@ void RenderBitmap_SDL(void)
 
             for (int i = 0; i < gTexW * gTexH; i++) {
                 BYTE p = src[i];
-                BYTE r = rgbRainbow[p * 3    ];
-                BYTE g = rgbRainbow[p * 3 + 1];
-                BYTE b = rgbRainbow[p * 3 + 2];
                 argbBuf[i] = (Uint32)0xFF000000
-                    | (Uint32)((r << 2) | (r >> 5)) << 16
-                    | (Uint32)((g << 2) | (g >> 5)) <<  8
-                    | (Uint32)((b << 2) | (b >> 5));
+                    | (Uint32)gGammaLUT[rgbRainbow[p * 3    ]] << 16
+                    | (Uint32)gGammaLUT[rgbRainbow[p * 3 + 1]] <<  8
+                    | (Uint32)gGammaLUT[rgbRainbow[p * 3 + 2]];
             }
             SDL_UpdateTexture(tex, NULL, argbBuf, gTexW * 4);
 
@@ -157,13 +168,10 @@ void RenderBitmap_SDL(void)
 
         for (int i = 0; i < gTexW * gTexH; i++) {
             BYTE p = ((BYTE *)src)[i];
-            BYTE r = rgbRainbow[p * 3    ];
-            BYTE g = rgbRainbow[p * 3 + 1];
-            BYTE b = rgbRainbow[p * 3 + 2];
             argbBuf[i] = (Uint32)0xFF000000
-                | (Uint32)((r << 2) | (r >> 5)) << 16
-                | (Uint32)((g << 2) | (g >> 5)) <<  8
-                | (Uint32)((b << 2) | (b >> 5));
+                | (Uint32)gGammaLUT[rgbRainbow[p * 3    ]] << 16
+                | (Uint32)gGammaLUT[rgbRainbow[p * 3 + 1]] <<  8
+                | (Uint32)gGammaLUT[rgbRainbow[p * 3 + 2]];
         }
         SDL_UpdateTexture(gSDLTex, NULL, argbBuf, gTexW * 4);
 

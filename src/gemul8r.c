@@ -6477,6 +6477,10 @@ void LinuxDoCommand(int idm)
 
     case IDM_TILE:
         v.fTiling = v.fTiling ? 0 : 1;  /* avoid signed 1-bit bitfield becoming -1 */
+#ifndef _WIN32
+        /* Linux has no pTiledBits (no DirectDraw); force per-tile pvBits path */
+        if (v.fTiling) v.fMyVideoCardSucks = TRUE;
+#endif
         if (v.fTiling) {
             sVM = -1;
             v.sWheelOffset = 0;
