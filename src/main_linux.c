@@ -269,16 +269,7 @@ int main(void)
             }
         }
         if (v.cVM > 0 && cThreads > 0 && !vi.fQuitting) {
-            /* Mirror the Windows throttle: set fRenderThisTime at most 70 times/s.
-               Without this, xvideo.c PSLInternal skips the PMG output loop every
-               frame (sprites never written to pvBits). */
-            {
-                static Uint64 lastRenderMs;
-                Uint64 now = SDL_GetTicks64();
-                int hz = (v.vRefresh > 1) ? (int)v.vRefresh : 60;
-                fRenderThisTime = (now - lastRenderMs) >= (Uint64)(1000 / hz);
-                if (fRenderThisTime) lastRenderMs = now;
-            }
+            fRenderThisTime = TRUE;
             for (int t = 0; t < cThreads; t++)
                 SetEvent(ThreadStuff[t].hGoEvent);
             WaitForMultipleObjects(cThreads, hDoneEvent, TRUE, INFINITE);
