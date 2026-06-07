@@ -18,6 +18,7 @@ extern const int sdl_to_vk[];
 void linux_get_client_rect(RECT *r);
 extern int GetTileFromPos(int xPos, int yPos, void *ppt);
 void ScrollTiles(void);
+extern void OpenFolders(char *lpCmdLine, int *piFirstVM);
 
 static void sigint_handler(int s) { (void)s; vi.fQuitting = TRUE; }
 
@@ -58,6 +59,7 @@ int main(void)
         fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
         return 1;
     }
+    SDL_EventState(SDL_DROPFILE, SDL_ENABLE);
 
     if (SDL_NumJoysticks() > 0) {
         gJoy = SDL_JoystickOpen(0);
@@ -210,6 +212,28 @@ int main(void)
                 v.sWheelOffset += e.wheel.y * (int)sTileSize.y;
                 if (v.sWheelOffset > 0) v.sWheelOffset = 0;
                 ScrollTiles();
+            } else if (e.type == SDL_DROPFILE) {
+                char *path = e.drop.file;
+                if (path) {
+                    size_t n = strlen(path);
+                    int isGem = (n >= 4 && strcasecmp(path + n - 4, ".gem") == 0);
+                    if (isGem) {
+                        LoadProperties(path, TRUE);
+                        LoadProperties(path, FALSE);
+                        v.sWheelOffset = 0;
+                        sVM = -1;
+                        FixAllMenus(TRUE);
+                        InitThreads();
+                    } else {
+                        int iVMx = -1;
+                        OpenFolders(path, &iVMx);
+                        if (iVMx >= 0)
+                            SelectInstance(iVMx);
+                        FixAllMenus(TRUE);
+                        InitThreads();
+                    }
+                    SDL_free(path);
+                }
             } else if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
                 int sc = (int)e.key.keysym.scancode;
                 int vk = (sc >= 0 && sc < 512) ? sdl_to_vk[sc] : 0;
@@ -239,6 +263,8 @@ int main(void)
                         FWinMsgVM(v.iVM, vi.hWnd,
                                   is_down ? WM_KEYDOWN : WM_KEYUP,
                                   (WPARAM)vk, lp | (LPARAM)0x01000000);
+                    } else if (sc == SDL_SCANCODE_F5 && is_down) {
+                        LinuxDoCommand(IDM_TILE);
                     } else if (sc == SDL_SCANCODE_F1 && (mod & KMOD_ALT) && is_down) {
                         LinuxDoCommand(IDM_TURBO);
                     } else if (sc == SDL_SCANCODE_F10 && is_down) {

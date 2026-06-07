@@ -52,6 +52,15 @@ const int sdl_to_vk[512] = {
     [81] = VK_DOWN,    /* SDL_SCANCODE_DOWN */
     [82] = VK_UP,      /* SDL_SCANCODE_UP */
     [83] = VK_NUMLOCK, /* SDL_SCANCODE_NUMLOCKCLEAR */
+    /* Numpad: KP_DIVIDE=84 KP_MULTIPLY=85 KP_MINUS=86 KP_PLUS=87 KP_ENTER=88
+               KP_1=89 KP_2=90 KP_3=91 KP_4=92 KP_5=93 KP_6=94
+               KP_7=95 KP_8=96 KP_9=97 KP_0=98 KP_PERIOD=99 */
+    [84] = VK_DIVIDE,    [85] = VK_MULTIPLY, [86] = VK_SUBTRACT, [87] = VK_ADD,
+    [88] = VK_RETURN,    /* KP_ENTER: same VK as main Enter */
+    [89] = VK_NUMPAD1,   [90] = VK_NUMPAD2,  [91] = VK_NUMPAD3,
+    [92] = VK_NUMPAD4,   [93] = VK_NUMPAD5,  [94] = VK_NUMPAD6,
+    [95] = VK_NUMPAD7,   [96] = VK_NUMPAD8,  [97] = VK_NUMPAD9,
+    [98] = VK_NUMPAD0,   [99] = VK_DECIMAL,
     /* Modifier keys */
     [224] = VK_LCONTROL, /* SDL_SCANCODE_LCTRL */
     [225] = VK_LSHIFT,   /* SDL_SCANCODE_LSHIFT */
@@ -101,6 +110,19 @@ const unsigned char sdl_to_ps2[512] = {
     [SDL_SCANCODE_END]=0x4F,    [SDL_SCANCODE_PAGEDOWN]=0x51,
     [SDL_SCANCODE_RIGHT]=0x4D,  [SDL_SCANCODE_LEFT]=0x4B,
     [SDL_SCANCODE_DOWN]=0x50,   [SDL_SCANCODE_UP]=0x48,
+    /* Numpad — base PS/2 codes (no extended bit); nav-cluster keys use same
+       codes but the extended bit is set in make_key_lparam via lp|=0x01000000 */
+    [SDL_SCANCODE_KP_DIVIDE]   = 0x35,  /* KP_/ → same PS/2 as main /  */
+    [SDL_SCANCODE_KP_MULTIPLY] = 0x37,  /* KP_* */
+    [SDL_SCANCODE_KP_MINUS]    = 0x4A,  /* KP_- */
+    [SDL_SCANCODE_KP_PLUS]     = 0x4E,  /* KP_+ */
+    [SDL_SCANCODE_KP_ENTER]    = 0x1C,  /* KP_Enter → same PS/2 as main Enter */
+    [SDL_SCANCODE_KP_1]        = 0x4F,  [SDL_SCANCODE_KP_2] = 0x50,
+    [SDL_SCANCODE_KP_3]        = 0x51,  [SDL_SCANCODE_KP_4] = 0x4B,
+    [SDL_SCANCODE_KP_5]        = 0x4C,  [SDL_SCANCODE_KP_6] = 0x4D,
+    [SDL_SCANCODE_KP_7]        = 0x47,  [SDL_SCANCODE_KP_8] = 0x48,
+    [SDL_SCANCODE_KP_9]        = 0x49,  [SDL_SCANCODE_KP_0] = 0x52,
+    [SDL_SCANCODE_KP_PERIOD]   = 0x53,
     /* Modifiers */
     [SDL_SCANCODE_LCTRL]=0x1D,  [SDL_SCANCODE_LSHIFT]=0x2A,
     [SDL_SCANCODE_LALT]=0x38,   [SDL_SCANCODE_RCTRL]=0x1D,
