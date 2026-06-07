@@ -106,6 +106,9 @@ kDef[NUM_TOPS][MAX_ITEMS] = {
         {NULL,             NULL,        0,               0},
         {"Emulate PAL",    "Alt+F12",   IDM_NTSCPAL,     1},
         {"Switch Monitor", "Shift+F12", IDM_COLORMONO,   1},
+        {NULL,             NULL,        0,               0},
+        {"Paste as ASCII",   NULL,      IDM_PASTEASCII,  1},
+        {"Paste as ATASCII", NULL,      IDM_PASTEATASCII,1},
     },
     /* Window */
     {
@@ -143,7 +146,7 @@ kDef[NUM_TOPS][MAX_ITEMS] = {
     },
 };
 
-static const int kItemCount[NUM_TOPS] = {14, 7, 15, 5, 5};
+static const int kItemCount[NUM_TOPS] = {14, 10, 15, 5, 5};
 
 static const struct { const char *lbl; const char *sc; int idm; int needsVM; }
 kSubDef[NUM_SUBMENUS][MAX_SUB_ITEMS] = {

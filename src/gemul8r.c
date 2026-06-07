@@ -6558,6 +6558,19 @@ void LinuxDoCommand(int idm)
         }
         break;
 
+    case IDM_PASTEASCII:
+    case IDM_PASTEATASCII:
+        if (v.iVM >= 0)
+        {
+            char *pClip = SDL_GetClipboardText();
+            if (pClip && *pClip)
+            {
+                PasteAsciiAtascii(pClip, idm == IDM_PASTEATASCII);
+                SDL_free(pClip);
+            }
+        }
+        break;
+
     case IDM_D1:
         if (v.iVM >= 0) {
             char path[MAX_PATH];
