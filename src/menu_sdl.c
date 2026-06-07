@@ -109,6 +109,10 @@ kDef[NUM_TOPS][MAX_ITEMS] = {
         {NULL,             NULL,        0,               0},
         {"Paste as ASCII",   NULL,      IDM_PASTEASCII,  1},
         {"Paste as ATASCII", NULL,      IDM_PASTEATASCII,1},
+        {NULL,               NULL,      0,               0},
+        {"Time Travel",      NULL,      IDM_TIMETRAVEL,            1},
+        {"Set Fix Point",    NULL,      IDM_TIMETRAVELFIXPOINT,    1},
+        {"Use Fix Point",    NULL,      IDM_USETIMETRAVELFIXPOINT, 1},
     },
     /* Window */
     {
@@ -146,7 +150,7 @@ kDef[NUM_TOPS][MAX_ITEMS] = {
     },
 };
 
-static const int kItemCount[NUM_TOPS] = {14, 10, 15, 5, 5};
+static const int kItemCount[NUM_TOPS] = {14, 14, 15, 5, 5};
 
 static const struct { const char *lbl; const char *sc; int idm; int needsVM; }
 kSubDef[NUM_SUBMENUS][MAX_SUB_ITEMS] = {
@@ -509,6 +513,10 @@ void MenuRender(SDL_Renderer *ren)
             if (it->idm == IDM_WHEELSENS)        isChecked = v.fWheelSensitive;
             if (it->idm == IDM_MYVIDEOCARDSUCKS) isChecked = v.fMyVideoCardSucks;
             if (it->idm == IDM_TOGGLESOUND)      isChecked = !v.fSilentMode;
+            if (it->idm == IDM_TIMETRAVEL && v.iVM >= 0)
+                isGrayed |= !rgpvm[v.iVM]->fTimeTravelEnabled;
+            if (it->idm == IDM_USETIMETRAVELFIXPOINT)
+                isChecked = (v.iVM >= 0 && rgpvm[v.iVM]->fTimeTravelFixed);
 
             /* submenu parent rows stay highlighted while their flyout is open */
             int subIdx = (it->idm == IDM_SUB_D1) ? 0 : (it->idm == IDM_SUB_D2) ? 1 : -1;

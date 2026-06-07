@@ -6434,6 +6434,9 @@ static BOOL LinuxPickFile(char *out, int sz)
                                     out, out, sz);
 }
 
+extern BOOL TimeTravel(void *candy);
+extern BOOL TimeTravelFixPoint(void *candy);
+
 void LinuxDoCommand(int idm)
 {
     switch (idm)
@@ -6569,6 +6572,21 @@ void LinuxDoCommand(int idm)
                 SDL_free(pClip);
             }
         }
+        break;
+
+    case IDM_TIMETRAVEL:
+        if (v.iVM >= 0)
+            TimeTravel(rgpvmi(v.iVM)->pPrivate);
+        break;
+
+    case IDM_TIMETRAVELFIXPOINT:
+        if (v.iVM >= 0)
+            TimeTravelFixPoint(rgpvmi(v.iVM)->pPrivate);
+        break;
+
+    case IDM_USETIMETRAVELFIXPOINT:
+        if (v.iVM >= 0)
+            rgpvm[v.iVM]->fTimeTravelFixed = !rgpvm[v.iVM]->fTimeTravelFixed;
         break;
 
     case IDM_D1:
