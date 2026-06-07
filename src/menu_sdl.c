@@ -96,6 +96,8 @@ kDef[NUM_TOPS][MAX_ITEMS] = {
         {"Next VM",                    NULL, IDM_NEXTVM,     1},
         {"Previous VM",                NULL, IDM_PREVVM,     1},
         {NULL,                         NULL, 0,              0},
+        {"Save Settings",              NULL, IDM_SAVEINI,    0},
+        {NULL,                         NULL, 0,              0},
         {"Exit",                       NULL, IDM_EXIT,       0},
     },
     /* VM */
@@ -151,7 +153,7 @@ kDef[NUM_TOPS][MAX_ITEMS] = {
     },
 };
 
-static const int kItemCount[NUM_TOPS] = {14, 14, 15, 5, 5};
+static const int kItemCount[NUM_TOPS] = {16, 14, 15, 5, 5};
 
 static const struct { const char *lbl; const char *sc; int idm; int needsVM; }
 kSubDef[NUM_SUBMENUS][MAX_SUB_ITEMS] = {

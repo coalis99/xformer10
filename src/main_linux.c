@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <glob.h>
 #include <limits.h>
+#include <sys/stat.h>
 #include <SDL2/SDL.h>
 #include "gemtypes.h"
 #include "atari800.h"
@@ -66,14 +67,22 @@ int main(void)
         if (gJoy) gJoyID = SDL_JoystickInstanceID(gJoy);
     }
 
-    InitProperties();
-    LoadProperties(NULL, TRUE);
-
-    vi.szAppName = "Xformer";
-    vi.szTitle   = "Xformer";
+    {
+        const char *home = getenv("HOME");
+        if (!home) home = "/tmp";
+        snprintf(vi.szWindowsDir, sizeof(vi.szWindowsDir),
+                 "%s/.config/xformer", home);
+        mkdir(vi.szWindowsDir, 0755);
+    }
 
     rgpvm = malloc(128 * (sizeof(VM) + sizeof(VMINST)));
     cpvm = 128;
+
+    InitProperties();
+    LoadProperties(NULL, FALSE);
+
+    vi.szAppName = "Xformer";
+    vi.szTitle   = "Xformer";
 
     sMaxTiles = 2;
 
@@ -308,6 +317,8 @@ int main(void)
     }
 
     UninitThreads();
+    if (v.fSaveOnExit)
+        SaveProperties(NULL);
     UninitDrawing(TRUE);
     UninitSound();
     SDL_Quit();

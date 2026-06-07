@@ -6561,6 +6561,10 @@ void LinuxDoCommand(int idm)
         }
         break;
 
+    case IDM_SAVEINI:
+        SaveProperties(NULL);
+        break;
+
     case IDM_PASTEASCII:
     case IDM_PASTEATASCII:
         if (v.iVM >= 0)
