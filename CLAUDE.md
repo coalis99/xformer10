@@ -1,0 +1,139 @@
+# XFormer — Claude Code Project Guide
+
+Porting xformer10 (Atari 800 emulator, MIT-licensed) from Windows to Linux/Raspberry Pi OS (aarch64).
+Upstream: https://github.com/softmac/xformer10 — your fork: git@github.com:coalis99/xformer10.git
+
+---
+
+## Directory layout
+
+```
+/home/coalis/ClaudeCodeProjects/XFormer/
+├── xformer10/          ← git repo (origin = upstream, fork = your fork)
+│   ├── src/            ← all port work happens here
+│   └── build-linux/    ← cmake out-of-tree build (gitignored)
+├── phase1/ … phase13/  ← per-phase Ralph loop artifacts (phases 14–15 have no dir)
+└── CLAUDE.md           ← this file
+```
+
+---
+
+## Branch rules — read before touching git
+
+| Branch | Rule |
+|--------|------|
+| `master` | Upstream mirror — **never modify, never push to origin** |
+| `linux-port` | Active port branch — all work goes here |
+| `fork/linux-port` | Your GitHub fork — push here when phases complete |
+
+Always verify you are on `linux-port` before editing:
+```bash
+git -C xformer10 rev-parse --abbrev-ref HEAD
+```
+
+---
+
+## Build
+
+```bash
+cd /home/coalis/ClaudeCodeProjects/XFormer/xformer10
+cmake -B build-linux -S . && cmake --build build-linux -j$(nproc)
+# binary: build-linux/xformer10
+```
+
+Dependencies: `libsdl2-dev`, `libsdl2-ttf-dev`
+
+---
+
+## Canonical source list
+
+The live C source list is the `add_executable(xformer10 ...)` block in **`CMakeLists.txt`** (root level). That is the single source of truth for what compiles.
+
+**`src/CMakeLists.txt` is stale** — it references files that don't exist (`atari16.vm/blitter.c`, `xatari.c`, `xfcable.c`, `xsb.c`, `encrypt.c`). Do not use it as a manifest.
+
+**Dead code — do not port or budget time for:**
+- `src/atari8.vm/atariosb.asm`, `x6502.asm`, `xeroms.asm` — the 3 `.asm` files are unreferenced by the modern build; the portable `x6502.c` is the live 6502 core.
+
+---
+
+## Key files added or substantially modified by the port
+
+**New files (did not exist in upstream):**
+
+| File | Purpose |
+|------|---------|
+| `src/main_linux.c` | Linux entry point, SDL2 event loop, 70 Hz throttle |
+| `src/ddlib_sdl.c` / `ddlib_sdl.h` | DirectDraw → SDL_Texture shim; `GetSDLRenderer()` / `GetSDLWindow()` accessors |
+| `src/menu_sdl.c` / `menu_sdl.h` | SDL2 dropdown menu bar (File/VM/Window/Disk) |
+| `src/sdl_filebrowser.c` / `sdl_filebrowser.h` | Modal SDL2 file browser (replaces zenity) |
+| `src/keymap_sdl.c` | SDL scancode → PS/2 scan code mapping |
+| `src/stubs_linux.c` | Win32 stubs that are no-ops on Linux |
+| `src/compat_win.h` | Win32 type/macro compatibility layer |
+| `src/compat_winfile.h` | Win32 file API compatibility |
+
+**Substantially modified from upstream:**
+
+| File | What changed |
+|------|-------------|
+| `src/ddlib.c` | DirectDraw surface management gutted; now delegates all rendering to ddlib_sdl.c |
+| `src/sound.c` | waveOut backend replaced with SDL audio (PulseAudio via SDL) |
+| `src/gemul8r.c` | Linux menu integration, `LinuxPickFile()`, SDL_DROPFILE drag-and-drop |
+
+---
+
+## Linux/Pi runtime rules
+
+**Never use `getuid()` or `id -u` to derive socket paths.** The terminal runs as effective UID 0 while the graphical session is UID 1000. UID-based paths produce `/run/user/0/...` which doesn't exist.
+
+- Use `XDG_RUNTIME_DIR` when available, with a glob fallback: `/run/user/*/pulse/native`
+- For PulseAudio diagnosis: `PULSE_LOG=99 ./build-linux/xformer10` — libpulse prints the exact socket path it tries.
+
+---
+
+## Ralph loop workflow
+
+Each phase has its own directory (`phaseN/`) containing five files:
+
+| File | Role |
+|------|------|
+| `SPEC.md` | Immutable goal, DoD, constraints, known facts |
+| `PLAN.md` | Immutable ordered gated steps |
+| `PROGRESS.md` | Mutable agent log; first line is `STATUS: IN_PROGRESS / COMPLETE / BLOCKED` |
+| `PROMPT.md` | Per-iteration Claude instructions |
+| `ralph.sh` | Driver script |
+
+**Running a loop:**
+```bash
+cd /home/coalis/ClaudeCodeProjects/XFormer/phaseN
+./ralph.sh                          # defaults: Sonnet 4.6, MAX_ITER=25, COOLDOWN=5s
+MAX_ITER=10 MODEL=claude-opus-4-8 ./ralph.sh
+```
+
+`ralph.sh` refuses to run unless `xformer10` is on `linux-port`. Stops on `STATUS: COMPLETE`, `STATUS: BLOCKED`, or 2 consecutive Claude failures. Each iteration logs to `phaseN/logs/iter-NN-*.log`.
+
+**Draft review rule:** always show the user SPEC.md / PLAN.md / PROMPT.md drafts for review before writing them. Do not chain step writes without explicit user opt-in.
+
+---
+
+## Phase completion history
+
+| Phase | Description | Commit |
+|-------|-------------|--------|
+| 1 | Source audit + portable core compiles on Pi aarch64; stub binary links; 84 `// PHASE3:` markers placed | — |
+| 3→7 | DirectDraw→SDL_Texture (ddlib_sdl.c); waveOut→SDL audio (sound.c); PulseAudio socket fix | — |
+| 8 | SDL2 menu bar (menu_sdl.c) — File/VM/Window/Disk with live checkmarks | — |
+| 9 | Native SDL2 file browser (sdl_filebrowser.c) replaces zenity | 5994562 |
+| 10 | File menu + Disk menu fully wired; save-as mode; ext auto-append | — |
+| 11 | Window menu: fullscreen, stretch, turbo, Alt+Enter/F12/Alt+S | — |
+| 12 | SDL joystick/gamepad input | — |
+| 13 | Tiled-window VM overview mode | — |
+| 14 | Sprite rendering fix (70 Hz throttle); vRefresh from SDL; gamma-2.2 LUT | d13bc72 |
+| 15 | Numpad keys (VK_NUMPAD*); F5/tile shortcut fix; SDL_DROPFILE drag-and-drop | e0ba901 |
+
+---
+
+## Security / GitHub notes
+
+- `.rom` files in `src/atari8.vm/` (ataribas.rom, atariosb.rom, atarixl.rom) are inherited from the upstream MIT repo — not added by this port.
+- No credentials, API keys, or secrets belong in this repo. The `.gitignore` covers build artifacts; no `.env` patterns are needed.
+- The `fork` remote uses SSH (`git@github.com`). The `origin` remote is HTTPS read-only to the upstream.
