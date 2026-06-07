@@ -132,6 +132,7 @@ int main(void)
 
     vi.fExecuting = TRUE;
     vi.fHaveFocus = TRUE;
+    SDL_ShowCursor(SDL_DISABLE);
 
     signal(SIGINT, sigint_handler);
 
@@ -142,10 +143,13 @@ int main(void)
             if (e.type == SDL_QUIT) {
                 vi.fQuitting = TRUE;
             } else if (e.type == SDL_WINDOWEVENT) {
-                if (e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED)
+                if (e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
                     vi.fHaveFocus = TRUE;
-                else if (e.window.event == SDL_WINDOWEVENT_FOCUS_LOST)
+                    SDL_ShowCursor(SDL_DISABLE);
+                } else if (e.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
                     vi.fHaveFocus = FALSE;
+                    SDL_ShowCursor(SDL_ENABLE);
+                }
                 else if (e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED
                          && v.fTiling != 0 && v.cVM > 0
                          && (int)sTileSize.x > 0 && (int)sTileSize.y > 0) {

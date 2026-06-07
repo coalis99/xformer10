@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include "gemtypes.h"
 #include "menu_sdl.h"
+#include "ddlib_sdl.h"
 
 extern void LinuxDoCommand(int idm);
 
@@ -448,8 +449,17 @@ void MenuQuit(void)
     gMenuReady = 0;
 }
 
+static void MenuSyncCursor(void)
+{
+    if (gMenuOpen >= 0)
+        SDL_ShowCursor(SDL_ENABLE);
+    else if (SDL_GetWindowFlags(GetSDLWindow()) & SDL_WINDOW_INPUT_FOCUS)
+        SDL_ShowCursor(SDL_DISABLE);
+}
+
 void MenuRender(SDL_Renderer *ren)
 {
+    MenuSyncCursor();
     if (!gMenuReady) return;
 
     int winW, winH;
