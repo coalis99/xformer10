@@ -90,6 +90,39 @@ The live C source list is the `add_executable(xformer10 ...)` block in **`CMakeL
 
 ---
 
+## Known bad logic paths — do not repeat
+
+These were discovered during 5+ failed attempts to fix screen jitter (Phases 14–19). Each one consumed one or more iterations without progress.
+
+**1. SDL_RENDERER_PRESENTVSYNC is a no-op on Pi OS under both Wayland and X11/XWayland.**
+The compositor does NOT pass vsync signals to application windows on either backend. `SDL_RenderPresent` returns in 0–2 ms regardless of PRESENTVSYNC flag. Do not rely on it for frame pacing. Use `clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, ...)` for the throttle. See also rule 8 (measured proof) and rule 9 (DRM vblank also doesn't fix jitter).
+
+**2. SDL_Delay is useless for sub-jiffy timing on Pi.**
+Pi OS runs a 250 Hz kernel tick (4 ms minimum sleep quantum). `SDL_Delay(1)` sleeps ~4 ms, not 1 ms. A throttle loop that relied on `SDL_Delay(1)` calls ran at ~50 fps instead of 60 fps. Use `clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, ...)` for ~100 µs precision.
+
+**3. Measure actual fps BEFORE investigating root causes.**
+All 5 jitter-fix attempts were implemented before the actual frame rate was confirmed. One telemetry line (avg/min/max frame ms) would have exposed the 50 fps problem immediately and saved 3 iterations.
+
+**4. Do not oscillate on renderer flags without a falsifiable hypothesis.**
+`SDL_RENDERER_PRESENTVSYNC` ↔ `SDL_RENDERER_ACCELERATED` was toggled 3+ times with no measurement step between changes. Always measure before and after; never change a flag twice.
+
+**5. `vi.qpfCold` and `vi.qpcCold` must be initialized before any throttle code runs.**
+`GetCycles()` divides by `vi.qpfCold`. On Linux, `WinMain` is never called, so both values are 0. ARM integer divide-by-zero silently returns 0, making `GetCycles()` always return 0 and causing the `fBrakes` throttle to spin forever. Always initialize both via `QueryPerformanceFrequency` / `QueryPerformanceCounter` before `InitProperties()`.
+
+**6. `fBrakes` must be set to TRUE at Linux startup.**
+`fBrakes = TRUE` is only in `WinMain` (gemul8r.c:1615). On Linux, the global is 0 (FALSE = turbo mode) until explicitly set. Add `fBrakes = TRUE;` in `main()` before `InitProperties()`.
+
+**7. Do not chase rendering pipeline or timing if the emulation pixel data itself may be wrong.**
+Defender shows garbled pixels — a data-corruption symptom, not a timing symptom. Timing fixes cannot fix wrong pixel values. When garbled/corrupted pixels are reported, investigate the rendering data path (pvBits content, palette lookup, stride) before frame-rate or VSYNC code.
+
+**8. SDL_RENDERER_PRESENTVSYNC under X11/XWayland is also a no-op on Pi OS.**
+Measured with `SDL_GetRendererInfo` + timed `SDL_RenderPresent`: the OpenGL renderer reports `vsync=YES` (flags=0xe) but `SDL_RenderPresent` consistently returns in 0–2 ms. XWayland queues frames without blocking on vblank. Do not rely on PRESENTVSYNC for frame pacing under any compositor on Pi OS.
+
+**9. DRM vblank wait does not fix scroll jitter on Pi OS.**
+`drmWaitVBlank(card1, DRM_VBLANK_RELATIVE, 1)` on `/dev/dri/card1` (vc4-drm HDMI controller) builds and runs correctly but produces no observable improvement in Pogo Joe, Joust, or Defender. Frame delivery is already phase-correct; the remaining jitter is in the emulation content (wrong pixel data produced by xvideo.c), not in how frames reach the display. Do not add further frame-delivery timing mechanisms — investigate emulation accuracy instead.
+
+---
+
 ## Ralph loop workflow
 
 Each phase has its own directory (`phaseN/`) containing five files:

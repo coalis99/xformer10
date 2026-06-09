@@ -4,14 +4,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <glob.h>
 #include <limits.h>
 #include <sys/stat.h>
 #include <SDL2/SDL.h>
+#ifdef HAVE_LIBDRM
+#include <xf86drm.h>
+#endif
 #include "gemtypes.h"
 #include "atari800.h"
 #include "res/resource.h"
 #include "menu_sdl.h"
+#include "ddlib_sdl.h"
 
 void UninitThreads(void);
 void LinuxDoCommand(int idm);
@@ -31,6 +36,8 @@ static LPARAM make_key_lparam(int sdl_sc, int is_up)
         return (LPARAM)((oem << 16) | 0xC0000001u);
     return (LPARAM)((oem << 16) | 1u);
 }
+
+static int gDrmFd = -1;  /* /dev/dri/card1 (vc4 display) for vblank sync */
 
 static SDL_Joystick *gJoy;
 static SDL_JoystickID gJoyID;
@@ -56,6 +63,12 @@ static void joy_update_dir(int new_dir)
 
 int main(void)
 {
+    /* labwc/Wayland compositor does not phase-lock frame delivery to the display
+       refresh, causing scroll jitter in games even at exactly 60 fps.  X11/XWayland
+       has well-behaved vsync semantics.  Honour an explicit SDL_VIDEODRIVER override. */
+    if (!getenv("SDL_VIDEODRIVER"))
+        setenv("SDL_VIDEODRIVER", "x11", 0);
+
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) != 0) {
         fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
         return 1;
@@ -77,6 +90,16 @@ int main(void)
 
     rgpvm = malloc(128 * (sizeof(VM) + sizeof(VMINST)));
     cpvm = 128;
+
+    /* Initialize QPC cold-start values used by GetCycles()/GetMs() timing.
+       On Windows this lives in WinMain; on Linux we must do it here first. */
+    {
+        LARGE_INTEGER qpf, qpc;
+        QueryPerformanceFrequency(&qpf); vi.qpfCold = qpf.QuadPart;
+        QueryPerformanceCounter(&qpc);   vi.qpcCold = qpc.QuadPart;
+    }
+
+    fBrakes = TRUE; /* normal speed; WinMain sets this on Windows */
 
     InitProperties();
     LoadProperties(NULL, FALSE);
@@ -145,6 +168,33 @@ int main(void)
 
     signal(SIGINT, sigint_handler);
 
+#ifdef HAVE_LIBDRM
+    /* Open vc4-drm display controller for hardware vblank timing.
+       card1 = vc4-drm (HDMI), card0 = v3d GPU.  Fall back to clock_nanosleep
+       if the device can't be opened or vblank ioctl fails. */
+    {
+        const char *drm_cards[] = { "/dev/dri/card1", "/dev/dri/card0", NULL };
+        for (int ci = 0; drm_cards[ci]; ci++) {
+            int fd = open(drm_cards[ci], O_RDWR | O_CLOEXEC);
+            if (fd < 0) continue;
+            drmVBlank vbl;
+            memset(&vbl, 0, sizeof(vbl));
+            vbl.request.type = DRM_VBLANK_RELATIVE;
+            vbl.request.sequence = 0;
+            if (drmWaitVBlank(fd, &vbl) == 0) {
+                gDrmFd = fd;
+                fprintf(stderr, "DRM vblank: using %s\n", drm_cards[ci]);
+                break;
+            }
+            close(fd);
+        }
+        if (gDrmFd < 0)
+            fprintf(stderr, "DRM vblank: unavailable, falling back to clock_nanosleep\n");
+    }
+#endif
+
+    struct timespec sNextFrame;
+    clock_gettime(CLOCK_MONOTONIC, &sNextFrame);
     SDL_Event e;
     while (!vi.fQuitting) {
         while (SDL_PollEvent(&e)) {
@@ -307,12 +357,66 @@ int main(void)
                 }
             }
         }
-        if (v.cVM > 0 && cThreads > 0 && !vi.fQuitting) {
-            fRenderThisTime = TRUE;
-            for (int t = 0; t < cThreads; t++)
-                SetEvent(ThreadStuff[t].hGoEvent);
-            WaitForMultipleObjects(cThreads, hDoneEvent, TRUE, INFINITE);
-            RenderBitmap_SDL();
+        {
+            BOOL fEmuPAL = (!v.fTiling && v.cVM > 0 && v.iVM >= 0 && rgpvm[v.iVM]->fEmuPAL);
+
+            /* Display rate governor: cap renders to min(70, display Hz) or 50 Hz PAL.
+               Sets fRenderThisTime before threads run so xvideo.c can skip pixel work. */
+            static Uint64 sLastRenderMs = 0;
+            unsigned hz = fEmuPAL ? 50u
+                                  : (unsigned)((v.vRefresh > 0 && v.vRefresh < 70)
+                                               ? (unsigned)v.vRefresh + 1u : 70u);
+            Uint64 nowMs = SDL_GetTicks64();
+            fRenderThisTime = (nowMs - sLastRenderMs) >= (1000u / hz);
+            if (fRenderThisTime)
+                sLastRenderMs = nowMs;
+
+            if (v.cVM > 0 && cThreads > 0 && !vi.fQuitting) {
+                for (int t = 0; t < cThreads; t++)
+                    SetEvent(ThreadStuff[t].hGoEvent);
+                WaitForMultipleObjects(cThreads, hDoneEvent, TRUE, INFINITE);
+
+                /* Frame throttle: wait for hardware vblank so each present is
+                   phase-locked to the display refresh.  SDL_RenderPresent is
+                   non-blocking on Pi OS / XWayland (confirmed avg=0ms), so
+                   clock_nanosleep alone accumulates phase drift causing judder.
+                   DRM vblank waits for the actual vc4 display controller vblank
+                   and eliminates the drift.  Falls back to clock_nanosleep when
+                   the DRM device isn't available (non-Pi, or turbo mode). */
+                long jiffy_ns = fEmuPAL ? (1000000000L / PAL_FPS)
+                                        : (1000000000L / NTSC_FPS);
+                if (fBrakes) {
+#ifdef HAVE_LIBDRM
+                    if (gDrmFd >= 0) {
+                        drmVBlank vbl;
+                        memset(&vbl, 0, sizeof(vbl));
+                        vbl.request.type = DRM_VBLANK_RELATIVE;
+                        vbl.request.sequence = 1;
+                        drmWaitVBlank(gDrmFd, &vbl);
+                    } else
+#endif
+                    {
+                        sNextFrame.tv_nsec += jiffy_ns;
+                        if (sNextFrame.tv_nsec >= 1000000000L) {
+                            sNextFrame.tv_nsec -= 1000000000L;
+                            sNextFrame.tv_sec++;
+                        }
+                        struct timespec now;
+                        clock_gettime(CLOCK_MONOTONIC, &now);
+                        long long target = (long long)sNextFrame.tv_sec * 1000000000LL + sNextFrame.tv_nsec;
+                        long long cur    = (long long)now.tv_sec        * 1000000000LL + now.tv_nsec;
+                        if (target < cur - 2 * jiffy_ns)
+                            sNextFrame = now;
+                        else
+                            clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &sNextFrame, NULL);
+                    }
+                } else {
+                    clock_gettime(CLOCK_MONOTONIC, &sNextFrame);
+                }
+
+                if (fRenderThisTime)
+                    RenderBitmap_SDL();
+            }
         }
     }
 
@@ -321,6 +425,9 @@ int main(void)
         SaveProperties(NULL);
     UninitDrawing(TRUE);
     UninitSound();
+#ifdef HAVE_LIBDRM
+    if (gDrmFd >= 0) { close(gDrmFd); gDrmFd = -1; }
+#endif
     SDL_Quit();
     return 0;
 }

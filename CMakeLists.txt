@@ -62,9 +62,20 @@ target_compile_options(xformer10 PRIVATE
     -fcommon
 )
 
+find_package(PkgConfig QUIET)
+if(PkgConfig_FOUND)
+    pkg_check_modules(DRM libdrm)
+endif()
+
 if(TARGET SDL2::SDL2)
     target_link_libraries(xformer10 PRIVATE m pthread SDL2::SDL2 SDL2_ttf::SDL2_ttf)
 else()
     target_include_directories(xformer10 PRIVATE ${SDL2_INCLUDE_DIRS})
     target_link_libraries(xformer10 PRIVATE m pthread ${SDL2_LIBRARIES} SDL2_ttf::SDL2_ttf)
+endif()
+
+if(DRM_FOUND)
+    target_include_directories(xformer10 PRIVATE ${DRM_INCLUDE_DIRS})
+    target_link_libraries(xformer10 PRIVATE ${DRM_LIBRARIES})
+    target_compile_definitions(xformer10 PRIVATE HAVE_LIBDRM=1)
 endif()
