@@ -18,6 +18,7 @@
 #ifndef _WIN32
 
 /* SDL2/SDL.h must come before gemtypes.h to avoid __inline redefinition conflict with arm_neon.h */
+#include <stdio.h>
 #include <SDL2/SDL.h>
 #include "gemtypes.h"
 #include "atari800.h"
@@ -420,6 +421,20 @@ void RenderBitmap_SDL(void)
                 | (Uint32)sAtariPal[p * 3 + 2];
         }
         SDL_UpdateTexture(gSDLTex, NULL, argbBuf, gTexW * 4);
+
+        {
+            static int sDiagFrame = 0;
+            sDiagFrame++;
+            if (sDiagFrame % 60 == 1) {
+                BYTE *dbg = (BYTE *)vvmhw.pbmTile[0].pvBits;
+                if (dbg) {
+                    unsigned sum = 0;
+                    for (int _i = 0; _i < (int)(X8 * Y8); _i++) sum += dbg[_i];
+                    fprintf(stderr, "[diag] frame %d: pvBits sum=%u first=%02x last=%02x\n",
+                            sDiagFrame, sum, dbg[0], dbg[(int)(X8 * Y8) - 1]);
+                }
+            }
+        }
 
         SDL_Rect dest;
         if (v.fZoomColor || v.fFullScreen) {
