@@ -134,6 +134,8 @@ static void fb_render(SDL_Renderer *ren, SDL_Window *win, TTF_Font *font,
                       const char *cwd, FbEntry *entries, int nEntries,
                       int selected, int scroll, int mode, const char *inputbuf)
 {
+    SDL_RenderClear(ren);
+
     int winW, winH;
     SDL_GetWindowSize(win, &winW, &winH);
 

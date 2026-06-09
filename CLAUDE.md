@@ -12,7 +12,7 @@ Upstream: https://github.com/softmac/xformer10 — your fork: git@github.com:coa
 ├── xformer10/          ← git repo (origin = upstream, fork = your fork)
 │   ├── src/            ← all port work happens here
 │   └── build-linux/    ← cmake out-of-tree build (gitignored)
-├── phase1/ … phase13/  ← per-phase Ralph loop artifacts (phases 14–15 have no dir)
+├── phase1/ … phase13/  ← per-phase Ralph loop artifacts (phases 14–21 have no dir)
 └── CLAUDE.md           ← this file
 ```
 
@@ -162,6 +162,12 @@ MAX_ITER=10 MODEL=claude-opus-4-8 ./ralph.sh
 | 13 | Tiled-window VM overview mode | — |
 | 14 | Sprite rendering fix (70 Hz throttle); vRefresh from SDL; gamma-2.2 LUT | d13bc72 |
 | 15 | Numpad keys (VK_NUMPAD*); F5/tile shortcut fix; SDL_DROPFILE drag-and-drop | e0ba901 |
+| 16 | Clipboard paste ASCII/ATASCII via SDL_GetClipboardText | 518e186 |
+| 17 | Time-travel rewind/fixpoint via VM menu | 1157c4c |
+| 18 | Auto-hide cursor when emulator window is focused | 7344fda |
+| 19 | Settings persistence; fix startup crash from premature LoadProperties | d66d8a0 |
+| 20 | Accurate GTIA palette; DRM vblank throttle; x11 vsync fix | 84014a1 |
+| 21 | File browser mouse-scroll flicker fix (SDL_RenderClear in fb_render) | — |
 
 ---
 
