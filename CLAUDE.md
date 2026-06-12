@@ -12,7 +12,7 @@ Upstream: https://github.com/softmac/xformer10 — your fork: git@github.com:coa
 ├── xformer10/          ← git repo (origin = upstream, fork = your fork)
 │   ├── src/            ← all port work happens here
 │   └── build-linux/    ← cmake out-of-tree build (gitignored)
-├── phase1/ … phase13/  ← per-phase Ralph loop artifacts (phases 14–21 have no dir)
+├── phase1/ … phaseN/  ← per-phase Ralph loop artifacts (one dir per phase, always)
 └── CLAUDE.md           ← this file
 ```
 
@@ -113,13 +113,35 @@ All 5 jitter-fix attempts were implemented before the actual frame rate was conf
 `fBrakes = TRUE` is only in `WinMain` (gemul8r.c:1615). On Linux, the global is 0 (FALSE = turbo mode) until explicitly set. Add `fBrakes = TRUE;` in `main()` before `InitProperties()`.
 
 **7. Do not chase rendering pipeline or timing if the emulation pixel data itself may be wrong.**
-Defender shows garbled pixels — a data-corruption symptom, not a timing symptom. Timing fixes cannot fix wrong pixel values. When garbled/corrupted pixels are reported, investigate the rendering data path (pvBits content, palette lookup, stride) before frame-rate or VSYNC code.
+Protector II shows garbled pixels — a data-corruption symptom, not a timing symptom. Timing fixes cannot fix wrong pixel values. When garbled/corrupted pixels are reported, investigate the rendering data path (pvBits content, palette lookup, stride) before frame-rate or VSYNC code.
 
 **8. SDL_RENDERER_PRESENTVSYNC under X11/XWayland is also a no-op on Pi OS.**
 Measured with `SDL_GetRendererInfo` + timed `SDL_RenderPresent`: the OpenGL renderer reports `vsync=YES` (flags=0xe) but `SDL_RenderPresent` consistently returns in 0–2 ms. XWayland queues frames without blocking on vblank. Do not rely on PRESENTVSYNC for frame pacing under any compositor on Pi OS.
 
+**9a. Plain `char` is unsigned on aarch64 — the build requires `-fsigned-char`.**
+Upstream MSVC code assumes signed `char`. On ARM, `char index; if (index < 0)` never fires and wraps 0→255 instead. This corrupted the entire rgDMAMap cycle table in `InitDMATables` (xvideo.c): the backward free-cycle search walked out of bounds and stored garbage hclock values, which indexed past `rgPIXELMap` into `rgPMGMap`, producing impossible cclock values (4088+) that double-fired `PSLPostpare` → lost scan lines → the Protector II DLI drift chased through Phases 22–23. `add_compile_options(-fsigned-char)` in CMakeLists.txt fixes the whole class. Never remove that flag; suspect char signedness first when ARM-only emulation corruption appears.
+
 **9. DRM vblank wait does not fix scroll jitter on Pi OS.**
-`drmWaitVBlank(card1, DRM_VBLANK_RELATIVE, 1)` on `/dev/dri/card1` (vc4-drm HDMI controller) builds and runs correctly but produces no observable improvement in Pogo Joe, Joust, or Defender. Frame delivery is already phase-correct; the remaining jitter is in the emulation content (wrong pixel data produced by xvideo.c), not in how frames reach the display. Do not add further frame-delivery timing mechanisms — investigate emulation accuracy instead.
+`drmWaitVBlank(card1, DRM_VBLANK_RELATIVE, 1)` on `/dev/dri/card1` (vc4-drm HDMI controller) builds and runs correctly but produces no observable improvement in Pogo Joe, Joust, or Protector II. Frame delivery is already phase-correct; the remaining jitter is in the emulation content (wrong pixel data produced by xvideo.c), not in how frames reach the display. Do not add further frame-delivery timing mechanisms — investigate emulation accuracy instead.
+
+---
+
+## Model guardrails — claims, phrasing, verification
+
+These apply to every Claude session and every Ralph loop iteration on this project.
+
+**Banned phrases / claim patterns.** Never state a hypothesis as established fact. Specifically banned:
+- "The root cause is clear" / "the root cause is now clear" — used more than once on this project when the cause was in fact unknown.
+- "This confirms…" / "definitely" / "certainly" about a cause that has not been measured before AND after a change.
+- Any sentence asserting a cause while the next action is still diagnostic. If you are about to run another diagnostic, you do not yet know the cause — say "hypothesis", "consistent with", or "supported by the data so far".
+
+**Completion claims require evidence.** Never report a bug as fixed, a phase as complete, or a feature as working unless you state the specific measurement or test that verifies it (and it actually ran). "Builds cleanly" is not "works". For visual/graphics issues, the user's visual confirmation is the final gate — report status as "awaiting manual verification", not "fixed".
+
+**Measure before and after every fix.** A fix without a before-measurement and an after-measurement is an experiment, not a fix. Report both numbers. If the after-measurement still shows the defect (even at reduced frequency), say so explicitly with the residual rate — do not round down to "resolved".
+
+**When data contradicts your hypothesis, say so in the same message.** Do not silently pivot to a new theory; state what was ruled out and why.
+
+**Self-check:** if you catch yourself (or the user catches you) using a banned pattern, add it to this list in the same session.
 
 ---
 
@@ -143,6 +165,8 @@ MAX_ITER=10 MODEL=claude-opus-4-8 ./ralph.sh
 ```
 
 `ralph.sh` refuses to run unless `xformer10` is on `linux-port`. Stops on `STATUS: COMPLETE`, `STATUS: BLOCKED`, or 2 consecutive Claude failures. Each iteration logs to `phaseN/logs/iter-NN-*.log`.
+
+**Phase folder requirement (mandatory):** Every new phase **must** have a `phaseN/` directory created under `/home/coalis/ClaudeCodeProjects/XFormer/` before any code work begins. That directory must contain all five files (SPEC.md, PLAN.md, PROGRESS.md, PROMPT.md, ralph.sh). Never skip this step, even for small phases. Phases 14–21 had no directory and this made them harder to reproduce and audit — do not repeat that pattern.
 
 **Draft review rule:** always show the user SPEC.md / PLAN.md / PROMPT.md drafts for review before writing them. Do not chain step writes without explicit user opt-in.
 
@@ -168,6 +192,8 @@ MAX_ITER=10 MODEL=claude-opus-4-8 ./ralph.sh
 | 19 | Settings persistence; fix startup crash from premature LoadProperties | d66d8a0 |
 | 20 | Accurate GTIA palette; DRM vblank throttle; x11 vsync fix | 84014a1 |
 | 21 | File browser mouse-scroll flicker fix (SDL_RenderClear in fb_render) | — |
+| 22 | xvideo.c pixel jitter investigation (pvBits diagnostic) | bcab34b |
+| 23 | DLI scan-line drift root-caused to unsigned char on aarch64: -fsigned-char + DMA-map tail fill + PSL guards; Protector II/Pogo Joe/Joust verified clean | cca6d92 |
 
 ---
 

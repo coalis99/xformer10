@@ -422,20 +422,6 @@ void RenderBitmap_SDL(void)
         }
         SDL_UpdateTexture(gSDLTex, NULL, argbBuf, gTexW * 4);
 
-        {
-            static int sDiagFrame = 0;
-            sDiagFrame++;
-            if (sDiagFrame % 60 == 1) {
-                BYTE *dbg = (BYTE *)vvmhw.pbmTile[0].pvBits;
-                if (dbg) {
-                    unsigned sum = 0;
-                    for (int _i = 0; _i < (int)(X8 * Y8); _i++) sum += dbg[_i];
-                    fprintf(stderr, "[diag] frame %d: pvBits sum=%u first=%02x last=%02x\n",
-                            sDiagFrame, sum, dbg[0], dbg[(int)(X8 * Y8) - 1]);
-                }
-            }
-        }
-
         SDL_Rect dest;
         if (v.fZoomColor || v.fFullScreen) {
             int winW, winH;

@@ -4,6 +4,11 @@ project(xformer10 C)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
+# Upstream is MSVC code where plain char is signed; on aarch64 char defaults to
+# unsigned, silently breaking every `char x; if (x < 0)` pattern (e.g. the DMA
+# map build loop in xvideo.c wrapped 0->255 and filled rgDMAMap with garbage).
+add_compile_options(-fsigned-char)
+
 find_package(SDL2 REQUIRED)
 find_package(SDL2_ttf REQUIRED)
 

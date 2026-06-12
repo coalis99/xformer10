@@ -2936,12 +2936,6 @@ BOOL __cdecl ExecuteAtari(void *candy, BOOL fStep, BOOL fCont)
             // If we'll need a DLI or a VBI at cycle 10, tell it the value of wLeft that needs the DLI (+ 1 since it's 0-based)
             wNMI = (((sl.modehi & 8) && (iscan == scans || (fWait & 0x08))) || (wScan == STARTSCAN + Y8)) ? DMAMAP[116] + 1 : 0;
 
-            /* Phase 23 DLI diagnostic — remove before ship */
-            if (wNMI && wFrame >= 120 && wFrame < 130) {
-                fprintf(stderr, "[dli] frame %u scan %d iscan=%d scans=%d\n",
-                        wFrame, wScan, iscan, scans);
-            }
-
             // We delayed a POKE to something that needed to wait until the next scan line, so add the 4 cycles
             // back that we would have lost. We know it's safe to make wLeft bigger than 114 because it will get back to being
             // <114 as soon as the POKE happens.
