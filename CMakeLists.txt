@@ -91,3 +91,11 @@ install(FILES packaging/xformer10.desktop
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications)
 install(FILES packaging/xformer10.png
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/64x64/apps)
+
+set(CPACK_GENERATOR DEB)
+set(CPACK_PACKAGE_NAME xformer10)
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Xformer 10 Atari 800/XL/XE emulator (Linux/Raspberry Pi port)")
+set(CPACK_PACKAGE_CONTACT "coalis99@gmail.com")
+set(CPACK_DEBIAN_PACKAGE_SECTION games)
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl2-2.0-0, libsdl2-ttf-2.0-0, fonts-dejavu-core")
+include(CPack)
