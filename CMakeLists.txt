@@ -87,3 +87,7 @@ endif()
 
 include(GNUInstallDirs)
 install(TARGETS xformer10 RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(FILES packaging/xformer10.desktop
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications)
+install(FILES packaging/xformer10.png
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/64x64/apps)
