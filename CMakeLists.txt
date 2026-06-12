@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(xformer10 C)
+project(xformer10 VERSION 10.24 LANGUAGES C)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -84,3 +84,6 @@ if(DRM_FOUND)
     target_link_libraries(xformer10 PRIVATE ${DRM_LIBRARIES})
     target_compile_definitions(xformer10 PRIVATE HAVE_LIBDRM=1)
 endif()
+
+include(GNUInstallDirs)
+install(TARGETS xformer10 RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
