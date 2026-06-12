@@ -26,3 +26,44 @@ If you have any questions email us at:
 
    xformer10@gmail.com.
 
+## Building on Linux / Raspberry Pi
+
+This port targets Raspberry Pi OS (aarch64) and was built from the `linux-port` branch.
+
+### Build dependencies
+
+```
+sudo apt install cmake build-essential libsdl2-dev libsdl2-ttf-dev fonts-dejavu-core
+```
+
+### Build
+
+```
+cmake -B build-linux -S . && cmake --build build-linux -j$(nproc)
+```
+
+### Run from the build tree
+
+```
+./build-linux/xformer10
+```
+
+### System install
+
+```
+sudo cmake --install build-linux
+```
+
+### Produce and install a .deb package
+
+```
+(cd build-linux && cpack -G DEB)
+sudo apt install ./build-linux/xformer10_*.deb
+```
+
+Runtime dependencies pulled in automatically: `libsdl2-2.0-0`, `libsdl2-ttf-2.0-0`, `fonts-dejavu-core`.
+
+### Settings
+
+User settings are stored in `~/.config/xformer`.
+
