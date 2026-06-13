@@ -1,4 +1,12 @@
 # xformer10
+
+> **Linux / Raspberry Pi port** — This fork adapts Darek Mihocka's xformer10
+> for Linux (Raspberry Pi OS aarch64), maintained on the `linux-port` branch.
+> Prebuilt `.deb`: see the [GitHub Releases](../../releases) page.
+> To build from source, see the
+> [Building on Linux / Raspberry Pi](#building-on-linux--raspberry-pi) section below.
+> The original Windows README continues below.
+
 Xformer 10, the Atari 800 emulator for Windows 10, 7, and now 11!
 
 It is the 10th generation of the Xformer (pronouned "Transformer") series of
