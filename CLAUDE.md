@@ -195,6 +195,7 @@ MAX_ITER=10 MODEL=claude-opus-4-8 ./ralph.sh
 | 22 | xvideo.c pixel jitter investigation (pvBits diagnostic) | bcab34b |
 | 23 | DLI scan-line drift root-caused to unsigned char on aarch64: -fsigned-char + DMA-map tail fill + PSL guards; Protector II/Pogo Joe/Joust verified clean | cca6d92 |
 | 24 | Packaging: cmake install target, desktop launcher + icon, CPack .deb, README Linux section; installs from Pi menu as desktop user | 7783e10 |
+| 25 | Release & upstream: fork README banner, v10.24-linux release with .deb, upstream issue softmac#3 + PR softmac#4 (CreateDMATables uninit-tail fix) | 6043e58 |
 
 ---
 
