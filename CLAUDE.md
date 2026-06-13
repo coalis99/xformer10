@@ -194,6 +194,7 @@ MAX_ITER=10 MODEL=claude-opus-4-8 ./ralph.sh
 | 21 | File browser mouse-scroll flicker fix (SDL_RenderClear in fb_render) | — |
 | 22 | xvideo.c pixel jitter investigation (pvBits diagnostic) | bcab34b |
 | 23 | DLI scan-line drift root-caused to unsigned char on aarch64: -fsigned-char + DMA-map tail fill + PSL guards; Protector II/Pogo Joe/Joust verified clean | cca6d92 |
+| 24 | Packaging: cmake install target, desktop launcher + icon, CPack .deb, README Linux section; installs from Pi menu as desktop user | 7783e10 |
 
 ---
 
