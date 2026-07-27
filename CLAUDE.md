@@ -128,18 +128,7 @@ Upstream MSVC code assumes signed `char`. On ARM, `char index; if (index < 0)` n
 
 ## Model guardrails — claims, phrasing, verification
 
-These apply to every Claude session and every Ralph loop iteration on this project.
-
-**Banned phrases / claim patterns.** Never state a hypothesis as established fact. Specifically banned:
-- "The root cause is clear" / "the root cause is now clear" — used more than once on this project when the cause was in fact unknown.
-- "This confirms…" / "definitely" / "certainly" about a cause that has not been measured before AND after a change.
-- Any sentence asserting a cause while the next action is still diagnostic. If you are about to run another diagnostic, you do not yet know the cause — say "hypothesis", "consistent with", or "supported by the data so far".
-
-**Completion claims require evidence.** Never report a bug as fixed, a phase as complete, or a feature as working unless you state the specific measurement or test that verifies it (and it actually ran). "Builds cleanly" is not "works". For visual/graphics issues, the user's visual confirmation is the final gate — report status as "awaiting manual verification", not "fixed".
-
-**Measure before and after every fix.** A fix without a before-measurement and an after-measurement is an experiment, not a fix. Report both numbers. If the after-measurement still shows the defect (even at reduced frequency), say so explicitly with the residual rate — do not round down to "resolved".
-
-**When data contradicts your hypothesis, say so in the same message.** Do not silently pivot to a new theory; state what was ruled out and why.
+Global rules (banned phrases, completion-claim evidence, measure-before/after) live in `~/.claude/CLAUDE.md` and already apply here — see that file rather than restating it. Project-specific note: "the root cause is clear" was used more than once on this project when the cause was in fact unknown — watch for it specifically.
 
 **Self-check:** if you catch yourself (or the user catches you) using a banned pattern, add it to this list in the same session.
 
